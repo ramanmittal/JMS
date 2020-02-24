@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.29318.209
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMS", "JMS\JMS.csproj", "{006DB615-7FB3-4F94-8B91-AE9E4434DB86}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMS", "JMS\JMS.csproj", "{006DB615-7FB3-4F94-8B91-AE9E4434DB86}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMS.Entity", "JMS.Entity\JMS.Entity.csproj", "{D69FD9BA-A256-4368-BF1C-F8A6F3D72A05}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMS.Entity", "JMS.Entity\JMS.Entity.csproj", "{D69FD9BA-A256-4368-BF1C-F8A6F3D72A05}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMS.Service", "JMS.Service\JMS.Service.csproj", "{CF171094-DA1B-4332-B60B-4D4FF099D4F4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{D69FD9BA-A256-4368-BF1C-F8A6F3D72A05}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D69FD9BA-A256-4368-BF1C-F8A6F3D72A05}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D69FD9BA-A256-4368-BF1C-F8A6F3D72A05}.Release|Any CPU.Build.0 = Release|Any CPU
+		{CF171094-DA1B-4332-B60B-4D4FF099D4F4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CF171094-DA1B-4332-B60B-4D4FF099D4F4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{CF171094-DA1B-4332-B60B-4D4FF099D4F4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CF171094-DA1B-4332-B60B-4D4FF099D4F4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

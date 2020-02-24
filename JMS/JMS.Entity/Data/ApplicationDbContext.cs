@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using JMS.Entity.Entities;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace JMS.Entity.Data
 {
@@ -15,6 +18,7 @@ namespace JMS.Entity.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
+            
         }
         //public ApplicationDbContext() : base(){ }
         public DbSet<Tenant> Tenants { get; set; }
@@ -27,6 +31,7 @@ namespace JMS.Entity.Data
             builder.Entity<ApplicationUser>().HasOne(x => x.Tenant).WithMany(x => x.ApplicationUsers).HasForeignKey(x => x.TenantId);
             builder.Entity<JournalAdmin>().HasOne(x => x.ApplicationUser).WithOne(x => x.JournalAdmin).HasForeignKey<JournalAdmin>(x => x.UserId);
             builder.Entity<ApplicationUser>().HasIndex(x => new { x.TenantId, x.UserName }).IsUnique(true);
+            builder.Entity<ApplicationUser>().HasIndex(x => new { x.UserName }).IsUnique(false);
             builder.Entity<ApplicationUser>().Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Entity<Tenant>().HasIndex(x => x.JournalPath).IsUnique(true);
             builder.Entity<Tenant>().HasMany(x => x.JournalAdmins).WithOne(x => x.Tenant).HasForeignKey(x => x.TenantId);
@@ -36,6 +41,7 @@ namespace JMS.Entity.Data
             builder.Entity<IdentityUserRole<long>>().HasKey(x => new { x.UserId, x.RoleId });
             builder.Entity<IdentityUserToken<long>>().HasKey(x => new { x.UserId, x.Name, x.LoginProvider });
         }
+
         
     }
 }

@@ -7,22 +7,33 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using JMS.Models;
 using Microsoft.AspNetCore.Identity;
+using JMS.Service.ServiceContracts;
+using Microsoft.AspNetCore.Http;
+using JMS.Setting;
 
 namespace JMS.Controllers
 {
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        SignInManager<IdentityUser> asdf;
-        public HomeController(ILogger<HomeController> logger)
+        private readonly ISystemService _systemService;
+        public HomeController(ILogger<HomeController> logger, ISystemService systemService)
         {
             _logger = logger;
+            _systemService = systemService;
         }
 
+        public async Task<IActionResult> InitializeJMS()
+        {
+            await _systemService.InitializeSystem();
+            return new ContentResult { StatusCode = StatusCodes.Status200OK, Content = Messages.Intialization };
+        }
         public IActionResult Index()
         {
             return View();
         }
+
+
 
         public IActionResult Privacy()
         {

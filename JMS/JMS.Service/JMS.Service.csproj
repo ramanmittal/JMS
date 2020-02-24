@@ -1,23 +1,15 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netcoreapp3.0</TargetFramework>
-    <UserSecretsId>aspnet-JMS-6F888E81-626A-4812-8EF8-674AC6B86FA8</UserSecretsId>
+    <TargetFramework>netstandard2.1</TargetFramework>
   </PropertyGroup>
-
-
   <ItemGroup>
-    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
-    <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
   </ItemGroup>
-
-
   <ItemGroup>
     <ProjectReference Include="..\JMS.Entity\JMS.Entity.csproj" />
-    <ProjectReference Include="..\JMS.Service\JMS.Service.csproj" />
   </ItemGroup>
 
 </Project>

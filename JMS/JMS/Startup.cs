@@ -12,6 +12,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using JMS.Entity.Data;
+using JMS.Entity.Entities;
+using JMS.Service.ServiceContracts;
+using JMS.Service.Services;
 
 namespace JMS
 {
@@ -30,9 +33,10 @@ namespace JMS
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("JMS")));
-            services.AddDefaultIdentity<IdentityUser<long>>(options => options.SignIn.RequireConfirmedAccount = true)
+            services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
             services.AddControllersWithViews();
+            services.AddScoped<ISystemService, SystemService>();
             services.AddRazorPages();
         }
 
@@ -61,8 +65,20 @@ namespace JMS
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                  name: "blank",
+                  pattern: "",
+                  defaults: new { tenant = "systemadmin", controller = "Home", action = "Index" }
+                  );
+                endpoints.MapControllerRoute(
+                  name: "InitializeJMS",
+                  pattern: "InitializeJMS",
+                  defaults: new { controller = "Home", action = "InitializeJMS" }
+                  );
+                endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{tenant}/{controller=Home}/{action=Index}/{id?}");
+
+
                 endpoints.MapRazorPages();
             });
         }
