@@ -7,5 +7,6 @@ namespace JMS.Service.Settings
     public static class JMSSetting
     {
         public const string SystemUserEmail = "SystemUserEmail";
+        public const string DefaultTenant = "DefaultTenant";
     }
 }

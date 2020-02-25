@@ -15,6 +15,7 @@ using JMS.Entity.Data;
 using JMS.Entity.Entities;
 using JMS.Service.ServiceContracts;
 using JMS.Service.Services;
+using JMS.Service.Settings;
 
 namespace JMS
 {
@@ -67,7 +68,7 @@ namespace JMS
                 endpoints.MapControllerRoute(
                   name: "blank",
                   pattern: "",
-                  defaults: new { tenant = "systemadmin", controller = "Home", action = "Index" }
+                  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
                   );
                 endpoints.MapControllerRoute(
                   name: "InitializeJMS",
