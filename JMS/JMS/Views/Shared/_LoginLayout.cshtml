@@ -4,7 +4,7 @@
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>AdminLTE 3 | Recover Password</title>
+    <title>@(ViewBag.Title != null ? $"JSM | {ViewBag.Title}" : "JSM")</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -17,6 +17,7 @@
     <!-- Theme style -->
     <link rel="stylesheet" href="~/css/adminlte.min.css">
     <!-- Google Font: Source Sans Pro -->
+    <link href="~/css/style.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition login-page">
@@ -29,7 +30,9 @@
     </div>
     <!-- /.login-box -->
     <!-- jQuery -->
-    <script src="~/plugins/jquery/jquery.min.js"></script>    
+    <script src="~/plugins/jquery/jquery.min.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
+    <script src="~/plugins/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
     <!-- Bootstrap 4 -->
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->

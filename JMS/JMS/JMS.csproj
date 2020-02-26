@@ -10,6 +10,7 @@
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="3.0.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
@@ -20,6 +21,7 @@
   <ItemGroup>
     <ProjectReference Include="..\JMS.Entity\JMS.Entity.csproj" />
     <ProjectReference Include="..\JMS.Service\JMS.Service.csproj" />
+    <ProjectReference Include="..\JMS.ViewModels\JMS.ViewModels.csproj" />
   </ItemGroup>
 
 </Project>

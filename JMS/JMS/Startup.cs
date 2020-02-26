@@ -36,7 +36,10 @@ namespace JMS
                     Configuration.GetConnectionString("JMS")));
             services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>();
-            services.AddControllersWithViews();
+            var mvc = services.AddControllersWithViews();
+#if (DEBUG)
+            mvc.AddRazorRuntimeCompilation();
+#endif
             services.AddScoped<ISystemService, SystemService>();
             services.AddRazorPages();
         }
