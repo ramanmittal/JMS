@@ -10,6 +10,7 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\JMS.Entity\JMS.Entity.csproj" />
+    <ProjectReference Include="..\ServiceModel\JMS.ServiceModel.csproj" />
   </ItemGroup>
 
 </Project>

@@ -9,7 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMS.Entity", "JMS.Entity\JM
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMS.Service", "JMS.Service\JMS.Service.csproj", "{CF171094-DA1B-4332-B60B-4D4FF099D4F4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMS.ViewModels", "JMS.ViewModels\JMS.ViewModels.csproj", "{A9BD7A7D-A9E1-4FB4-B293-48840BBCA3E2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "JMS.ViewModels", "JMS.ViewModels\JMS.ViewModels.csproj", "{A9BD7A7D-A9E1-4FB4-B293-48840BBCA3E2}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "JMS.ServiceModel", "ServiceModel\JMS.ServiceModel.csproj", "{C143D753-38A5-4ABA-A478-A09A0A897492}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -33,6 +35,10 @@ Global
 		{A9BD7A7D-A9E1-4FB4-B293-48840BBCA3E2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A9BD7A7D-A9E1-4FB4-B293-48840BBCA3E2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A9BD7A7D-A9E1-4FB4-B293-48840BBCA3E2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C143D753-38A5-4ABA-A478-A09A0A897492}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C143D753-38A5-4ABA-A478-A09A0A897492}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C143D753-38A5-4ABA-A478-A09A0A897492}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C143D753-38A5-4ABA-A478-A09A0A897492}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -24,4 +24,9 @@
     <ProjectReference Include="..\JMS.ViewModels\JMS.ViewModels.csproj" />
   </ItemGroup>
 
+
+  <ItemGroup>
+    <Folder Include="Models\EmailModels\" />
+  </ItemGroup>
+
 </Project>

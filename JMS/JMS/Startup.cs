@@ -35,12 +35,16 @@ namespace JMS
                 options.UseSqlServer(
                     Configuration.GetConnectionString("JMS")));
             services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>();
+                .AddEntityFrameworkStores<ApplicationDbContext>()
+                .AddDefaultTokenProviders(); 
             var mvc = services.AddControllersWithViews();
 #if (DEBUG)
             mvc.AddRazorRuntimeCompilation();
 #endif
             services.AddScoped<ISystemService, SystemService>();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
+            services.AddScoped<IEmailSender, LogEmailSender>();
             services.AddRazorPages();
         }
 
