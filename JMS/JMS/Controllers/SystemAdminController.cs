@@ -37,7 +37,7 @@ namespace JMS.Controllers
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
-        {
+        {   
             return View();
         }
         [HttpPost]

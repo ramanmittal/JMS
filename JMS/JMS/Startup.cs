@@ -39,8 +39,10 @@ namespace JMS
                     Configuration.GetConnectionString("JMS")));
             services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders();            
-            var mvc = services.AddControllersWithViews();
+                .AddDefaultTokenProviders();
+            var mvc = services.AddControllersWithViews(
+                //options => options.Filters.Add<MultiTenantActionFilter>()
+                );
 #if (DEBUG)
             mvc.AddRazorRuntimeCompilation();
 #endif
@@ -48,6 +50,7 @@ namespace JMS
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddScoped<IEmailSender, LogEmailSender>();
+            services.AddScoped<ITenantService, TenantService>();
             services.AddRazorPages();
             //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
             services.ConfigureApplicationCookie(option => {
@@ -83,7 +86,7 @@ namespace JMS
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
-
+            app.UseMiddleware<MultiTenantMiddleLayer>();
             app.UseRouting();
 
             app.UseAuthentication();
@@ -92,8 +95,8 @@ namespace JMS
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
-                  name: "blank",
-                  pattern: "",
+                  name: "jms",
+                  pattern: "jms",
                   defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
                   );
                 endpoints.MapControllerRoute(
