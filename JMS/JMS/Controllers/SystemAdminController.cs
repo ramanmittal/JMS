@@ -37,14 +37,26 @@ namespace JMS.Controllers
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
-        {   
+        {
+            if (User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Index");
+            }
             return View();
         }
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public IActionResult Login(LoginViewModel  model)
+        public async Task<IActionResult> Login(LoginViewModel  model)
         {
+            if (ModelState.IsValid)
+            {
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.Rememberme, false);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index");
+                }
+            }
             return View();
         }
         [HttpGet]
@@ -94,7 +106,13 @@ namespace JMS.Controllers
             {
                 var user = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
                 await _signInManager.SignInAsync(user, false);
+                return RedirectToAction("Index");
             }
+            return View();
+        }
+
+        public IActionResult Index()
+        {
             return View();
         }
     }

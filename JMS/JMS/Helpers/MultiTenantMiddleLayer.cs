@@ -24,7 +24,7 @@ namespace JMS.Helpers
             var path = httpContext.Request.Path.Value;
             if (path != "/")
             {
-                if (!tenants.Contains(httpContext.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries)[0]))
+                if (!tenants.Contains(httpContext.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries)[0], StringComparer.OrdinalIgnoreCase))
                 {
                     httpContext.Response.StatusCode = 404;
                 }
