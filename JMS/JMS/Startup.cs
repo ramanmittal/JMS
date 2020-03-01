@@ -16,6 +16,8 @@ using JMS.Entity.Entities;
 using JMS.Service.ServiceContracts;
 using JMS.Service.Services;
 using JMS.Service.Settings;
+using JMS.Helpers;
+using Microsoft.AspNetCore.Http;
 
 namespace JMS
 {
@@ -27,16 +29,17 @@ namespace JMS
         }
 
         public IConfiguration Configuration { get; }
-
+        private IHttpContextAccessor httpContextAccessor;
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("JMS")));
             services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
                 .AddEntityFrameworkStores<ApplicationDbContext>()
-                .AddDefaultTokenProviders(); 
+                .AddDefaultTokenProviders();            
             var mvc = services.AddControllersWithViews();
 #if (DEBUG)
             mvc.AddRazorRuntimeCompilation();
@@ -46,11 +49,27 @@ namespace JMS
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddScoped<IEmailSender, LogEmailSender>();
             services.AddRazorPages();
-        }
+            //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
+            services.ConfigureApplicationCookie(option => {
+                var defaultcookie = option.Cookie;
+                option.Cookie = new JMSCookiesBuilder(httpContextAccessor);
+                option.Cookie.Domain = defaultcookie.Domain;
+                option.Cookie.Expiration = defaultcookie.Expiration;
+                option.Cookie.HttpOnly = defaultcookie.HttpOnly;
+                option.Cookie.IsEssential = defaultcookie.IsEssential;
+                option.Cookie.MaxAge = defaultcookie.MaxAge;
+                if (!string.IsNullOrEmpty(defaultcookie.Name))
+                    option.Cookie.Name = defaultcookie.Name;
+                option.Cookie.SameSite = defaultcookie.SameSite;
+                option.Cookie.SecurePolicy = defaultcookie.SecurePolicy;
+            });
+
+        }        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)
         {
+            this.httpContextAccessor = httpContextAccessor;
             if (env.IsDevelopment())
             {
                 app.UseDeveloperExceptionPage();

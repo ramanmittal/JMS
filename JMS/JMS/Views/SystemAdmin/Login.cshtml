@@ -8,7 +8,7 @@
     <div class="card">
         <div class="card-body login-card-body">
             <p class="login-box-msg">Sign in to start your session</p>
-
+            @Html.AntiForgeryToken()
             <form asp-action="Login" method="post">
                 <div class="input-group mb-3">
                     <input type="email" asp-for="Email" class="form-control" placeholder="Email">
