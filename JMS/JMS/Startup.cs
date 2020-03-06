@@ -18,6 +18,8 @@ using JMS.Service.Services;
 using JMS.Service.Settings;
 using JMS.Helpers;
 using Microsoft.AspNetCore.Http;
+using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
+using System.IO;
 
 namespace JMS
 {
@@ -51,6 +53,11 @@ namespace JMS
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddScoped<IEmailSender, LogEmailSender>();
             services.AddScoped<ITenantService, TenantService>();
+            services.AddSingleton<IFileService>(x =>
+            {
+                var hostingEnv = x.GetService<IHostingEnvironment>();
+                return new LocalFileService(Path.Combine(hostingEnv.WebRootPath, @"img\uploaded\Journal-logo"), @"/img/uploaded/Journal-logo/");
+            });
             services.AddRazorPages();
             //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
             services.ConfigureApplicationCookie(option => {

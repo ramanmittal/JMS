@@ -6,7 +6,7 @@ using System.Text;
 
 namespace JMS.Entity.Entities
 {
-    public class Tenant
+    public class Tenant : Trackable
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

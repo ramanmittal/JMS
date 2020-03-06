@@ -3,5 +3,53 @@
     ViewData["Title"] = "Index";
 }
 
-<h1>Index</h1>
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+@section contentheader{ 
+    <h1>Journals</h1>
+}
+<div class="text-right">
+    <a class="btn btn-primary mb-2">Create New Journal</a>
+</div>
+
+<div id="jsGrid"></div>
+@section scripts{
+    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    <script>
+        $(function() {
+ 
+    $("#jsGrid").jsGrid({
+        height: "auto",
+        width: "100%",
+ 
+        sorting: true,
+        paging: false,
+        autoload: true,
+ 
+        controller: {
+            loadData: function() {
+                var d = $.Deferred();
+ 
+                $.ajax({
+                    url: "@Url.Action("Tenants","Tenant")",
+                    dataType: "json"
+                }).done(function(response) {
+                    d.resolve(response.value);
+                });
+ 
+                return d.promise();
+            }
+        },
+ 
+        fields: [
+            { name: "Name", type: "text" },
+            { name: "Name", type: "text" },
+            { name: "Path", type: "text"},
+            { name: "status", type: "number"}
+        ]
+    });
+ 
+});
+    </script>
+}
 

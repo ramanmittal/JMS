@@ -1,0 +1,111 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@functions{
+    public string GetAntiXsrfRequestToken()
+    {
+        return Xsrf.GetAndStoreTokens(Context).RequestToken;
+    }
+}
+@{
+    ViewData["Title"] = "Jounrals";
+}
+
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+@section contentheader{
+    <h1>Journals</h1>
+}
+<div class="text-right">
+    <a class="btn btn-primary mb-2" asp-action="Create" asp-controller="Journals">Create New Journal</a>
+</div>
+
+<div id="jsGrid"></div>
+@section scripts{
+    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    <script>
+        $(function() {
+            $("#jsGrid").jsGrid({
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                },
+                paging: true,
+                pageSize: 10,
+               pageLoading: true,
+               autoload: true,
+               controller: {
+                   loadData: function (filter) {                       
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("Tenants","Tenant")",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "", itemTemplate: function (value, item) {
+                            return "<img width='100px;' src='" + item.logo + "'/>"
+                        }, width:"80px"
+                    },
+                    {
+                        name: "Name", itemTemplate: function (value, item) {
+                             return "<span>"+item.journalName+"</span>"
+                        }
+                    },
+                    {
+                        name: "Title", itemTemplate: function (value, item) {
+                             return "<span>"+item.journalTitle+"</span>"
+                        }
+                    },
+                    {
+                        name: "Path", itemTemplate: function (value, item) {
+                            return "<span>" + item.path + "</span>"
+                        }
+                    },
+                    {
+                        name: "Status", itemTemplate: function (value, item) {
+                            return "<span>" + (item.active ? "Active" : "InActive") + "</span>"
+                        }
+                    },
+                    {
+                        name: "", itemTemplate: function (value, item) {
+                            return `<a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top"  href="@Url.Action("Edit","Journals")?id=${item.id}"></a>
+                                    <a class="fas fa-trash-alt" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltjrndlg(${item.id});"></a>`
+                        }
+                    }
+               ]
+            });
+
+        });
+        function dltjrndlg(journalId) {
+            $("#myModal .modal-body").html(`
+                <h3 class="text-center">Are you sure you want to permanently remove this journal?</h3>
+                <div  class="text-center">
+                     <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Cancel</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="dltjrn(${journalId})">Yes</button>
+                </div>
+                `);
+            $("#myModal").modal()
+        }
+        function dltjrn(journalId) {
+            $(".loader").show();
+            $.ajax({
+                type: "POST",
+                data: { 
+                    __RequestVerificationToken: "@(GetAntiXsrfRequestToken())", 
+                    id: journalId 
+                },
+                url: "@Url.Action("Delete")",
+                success: function () {
+                    window.location.reload();
+                }
+            });
+        }
+    </script>
+}
+

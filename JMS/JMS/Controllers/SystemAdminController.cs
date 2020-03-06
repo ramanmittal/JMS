@@ -101,7 +101,6 @@ namespace JMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
         {
-            IHtmlGenerator h;
             if (ModelState.IsValid)
             {
                 var user = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
@@ -113,7 +112,7 @@ namespace JMS.Controllers
 
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("Index","Journals");
         }
     }
 }

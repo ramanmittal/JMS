@@ -1,0 +1,80 @@
+﻿@model JMS.Models.Journals.CreateJournalModel
+@{
+    ViewData["Title"] = "Create";
+}
+<div class="card card-primary">
+    <div class="card-header"><h3>Create Journal</h3></div>
+    <form method="post" asp-action="Create" asp-controller="Journals" enctype="multipart/form-data" id="crt-jur">
+        <div class="card-body">
+            <div>
+                <img id="logo-img" height=100 width=100 />
+            </div>
+            <div class="form-group">
+                <label>Logo</label>
+                <div class="input-group">
+                    <span asp-validation-for="Logo"></span>
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" name="logo" asp-for="Logo" accept="image/jpg, image/jpeg, image/png">
+                        <label class="custom-file-label" asp-for="Logo"></label>
+                        <span asp-validation-for="Logo"></span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Journal Title</label>
+                <input type="text" class="form-control" asp-for="JournalTitle" />
+                <span asp-validation-for="JournalTitle"></span>
+            </div>
+            <div class="form-group">
+                <label>Journal Name</label>
+                <input type="text" class="form-control" asp-for="JournalName" />
+                <span asp-validation-for="JournalName"></span>
+            </div>
+            <div class="form-group">
+                <label>Journal Path</label>
+                <input type="text" class="form-control" asp-for="JournalPath" />
+                <span asp-validation-for="JournalPath"></span>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" asp-for="IsActive">
+                <label class="custom-control-label" asp-for="IsActive">Active</label>
+            </div>
+
+        </div>
+        <div class="card-footer">
+            <a class="btn btn-primary" asp-action="Index">Cancel</a>
+            <input type="submit" value="Create" class="btn btn-primary" />
+        </div>
+
+    </form>
+</div>
+@section scripts{
+    <script>
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#logo-img').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
+        $("#Logo").change(function () {
+            readURL(this);
+        });
+        $("#crt-jur").on('submit', function () {
+            if ($("#Logo").val() == "") {
+                toastr["error"]("Please upload logo.")  
+                return false;
+            }
+            
+        });
+    </script>
+}
+
+
+
