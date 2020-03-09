@@ -41,7 +41,7 @@ namespace JMS.Controllers
                 return Json(data: Messages.TenantNotAvailiable);
             }
             return Json(data: true);
-        }
+        }      
         
     }
 }

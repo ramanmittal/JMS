@@ -1,6 +1,4 @@
-﻿using JMS.Setting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -10,37 +8,24 @@ using System.Threading.Tasks;
 
 namespace JMS.Models.Journals
 {
-    public class CreateJournalModel
+    public class CreateJournalAdminModel
     {
-        [Required]
-        [DisplayName("Journal Name")]
-        public string JournalName { get; set; }
-        [Required]
-        [DisplayName("Journal Title")]
-        [MaxLength(20)]
-        public string JournalTitle { get; set; }
-        [Required]
-        [DisplayName("Journal Path")]
-        [MaxLength(10)]
-        [Remote("ValidateTenantPath", "Tenant")]
-        [RegularExpression("^[a-zA-Z0-9]*$", ErrorMessage = Messages.AlphaNumericValidationMessage)]
-        public string JournalPath { get; set; }
+        public long TenantId { get; set; }
         [Required]
         [DisplayName("First Name")]
         public string FirstName { get; set; }
         [DisplayName("Last Name")]
         [Required]
         public string LastName { get; set; }
-        [DataType(DataType.EmailAddress)]
         [Required]
+        [DataType(DataType.EmailAddress)]
+        [Remote("ValidateEmail", "Account", AdditionalFields = "TenantId",ErrorMessage = JMS.Setting.Messages.EmailNotAvailiable)]
         public string Email { get; set; }
         [DisplayName("Phone Number")]
         [Phone]
         [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "The Phone Number field is not a valid phone number")]
         [Required]
         public string PhoneNumber { get; set; }
-        public bool IsActive { get; set; }
-        [Required]
-        public IFormFile Logo { get; set; }
+        public bool Active { get; set; }
     }
 }

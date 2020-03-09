@@ -9,6 +9,7 @@ namespace JMS.Setting
     {
         public const string Intialization = "System Has been intialized.";
         public const string TenantNotAvailiable = "Journal path is not availiable.";
+        public const string EmailNotAvailiable = "Email is already in use.";
         public const string AlphaNumericValidationMessage = "Only Alphabets and Numbers allowed.";
     }
 }

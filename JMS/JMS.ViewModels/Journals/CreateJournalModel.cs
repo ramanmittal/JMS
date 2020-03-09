@@ -20,5 +20,13 @@ namespace JMS.ViewModels.Journals
         [MaxLength(10)]
         public string JournalPath { get; set; }
         public bool IsActive { get; set; }
+        public string FirstName { get; set; }
+        [DisplayName("Last Name")]
+        public string LastName { get; set; }
+        [DataType(DataType.EmailAddress)]
+        public string Email { get; set; }
+        [DisplayName("Phone Number")]
+        [Phone]
+        public string PhoneNumber { get; set; }
     }
 }

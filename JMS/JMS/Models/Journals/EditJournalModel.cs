@@ -30,5 +30,23 @@ namespace JMS.Models.Journals
         public bool IsActive { get; set; }       
         public IFormFile Logo { get; set; }        
         public string LogoPath { get; set; }
+        public IEnumerable<JournalAdminModel> JounralAdmins { get; set; }
+        public class JournalAdminModel
+        {
+            public long UserId { get; set; }
+            [Required]
+            [DisplayName("First Name")]
+            public string FirstName { get; set; }
+            [DisplayName("Last Name")]
+            [Required]
+            public string LastName { get; set; }      
+            public string Email { get; set; }
+            [DisplayName("Phone Number")]
+            [Phone]
+            [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "The Phone Number field is not a valid phone number")]
+            [Required]
+            public string PhoneNumber { get; set; }
+            public bool Active { get; set; }
+        }
     }
 }

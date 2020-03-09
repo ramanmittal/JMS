@@ -20,6 +20,7 @@ using JMS.Helpers;
 using Microsoft.AspNetCore.Http;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using System.IO;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 
 namespace JMS
 {
@@ -39,8 +40,11 @@ namespace JMS
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("JMS")));
-            services.AddIdentity<ApplicationUser, IdentityRole<long>>(options => options.SignIn.RequireConfirmedAccount = true)
-                .AddEntityFrameworkStores<ApplicationDbContext>()
+            services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
+            {
+                options.SignIn.RequireConfirmedAccount = true;
+                options.User.RequireUniqueEmail = false;
+            }).AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
             var mvc = services.AddControllersWithViews(
                 //options => options.Filters.Add<MultiTenantActionFilter>()
@@ -53,6 +57,9 @@ namespace JMS
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddScoped<IEmailSender, LogEmailSender>();
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<IUserService, UserService>();
+            services.RemoveAll<IUserValidator<ApplicationUser>>();
+            services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>
             {
                 var hostingEnv = x.GetService<IHostingEnvironment>();

@@ -6,6 +6,7 @@ namespace JMS.Service.Enums
 {
     public enum Role
     {
-        SystemAdmin
+        SystemAdmin,
+        Admin
     }
 }

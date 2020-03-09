@@ -23,5 +23,6 @@ namespace JMS.Controllers
                 return tenantId.Equals( _configuration[JMSSetting.DefaultTenant],StringComparison.CurrentCultureIgnoreCase) ? null : tenantId;
             }
         }
+        
     }
 }
