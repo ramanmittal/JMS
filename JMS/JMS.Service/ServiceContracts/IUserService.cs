@@ -13,5 +13,7 @@ namespace JMS.Service.ServiceContracts
         ApplicationUser GetUser(long userId);
         bool ValidateEmail(string email, long tenantId, long? userid);
         void SaveSystemAdmin(SystemAdminProfileModel systemAdminProfileModel, Stream fileStream, string fileName);
+        string GetUserProfileImage(long userid);
+        string GetUserProfileImage(ApplicationUser user);
     }
 }

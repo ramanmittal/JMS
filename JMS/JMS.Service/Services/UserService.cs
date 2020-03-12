@@ -8,6 +8,8 @@ using System.Collections.Generic;
 using System.Text;
 using JMS.ViewModels.SystemAdmin;
 using System.IO;
+using Microsoft.Extensions.Configuration;
+using JMS.Service.Settings;
 
 namespace JMS.Service.Services
 {
@@ -15,10 +17,12 @@ namespace JMS.Service.Services
     {
         private readonly ApplicationDbContext _context;
         private readonly IFileService _fileService;
-        public UserService(ApplicationDbContext context, IFileService fileService)
+        private readonly IConfiguration _configuration;
+        public UserService(ApplicationDbContext context, IFileService fileService, IConfiguration configuration)
         {
             _context = context;
             _fileService = fileService;
+            _configuration = configuration;
         }
         public IEnumerable<ApplicationUser> GetTenantUserByRole(long tenantid, string role)
         {
@@ -68,6 +72,16 @@ namespace JMS.Service.Services
             _context.SaveChanges();
             if (fileStream != null && !string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(oldImgFile))
                 _fileService.RemoveFile(oldImgFile);
+        }
+
+        public string GetUserProfileImage(long userid)
+        {
+            return GetUserProfileImage(_context.Users.FirstOrDefault(x => x.Id == userid));
+        }
+
+        public string GetUserProfileImage(ApplicationUser user)
+        {
+            return string.IsNullOrEmpty(user?.ProfileImage) ? _configuration[JMSSetting.DefaultAvtar] : _fileService.GetFile(user.ProfileImage);
         }
     }
 }
