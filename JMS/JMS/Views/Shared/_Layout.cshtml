@@ -1,4 +1,10 @@
-﻿<!DOCTYPE html>
+﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
+@inject JMS.Service.ServiceContracts.IFileService fileService
+@{
+    var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
+    var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
+}
+<!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
 scratch. This page gets rid of all links and provides the needed markup only.
@@ -9,7 +15,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
-    <title>@(ViewBag.Title != null ? $"JMS | {ViewBag.Title}" : "JMS")</title>
+    <title>@(ViewBag.Title != null ? $"{title} | {ViewBag.Title}" : $"{title}")</title>
 
     <!-- Font Awesome Icons -->
     <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
@@ -30,9 +36,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <nav class="main-header navbar navbar-expand-md navbar-dark">
             <div class="container">
                 <a href="index3.html" class="navbar-brand">
-                    <img src="~/img/AdminLTELogo.png" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+                    <img src="@Url.Content(logo)" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
                          style="opacity: .8">
-                    <span class="brand-text font-weight-light">AdminLTE 3</span>
+                    @*<span class="brand-text font-weight-light">AdminLTE 3</span>*@
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -248,5 +254,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/js/site.js"></script>
     @RenderSection("scripts", required: false)
+    <script>
+        console.log("@logo")
+    </script>
 </body>
 </html>

@@ -6,7 +6,7 @@
 
 <div class="card card-primary">
     <div class="card-header"><h3>Edit Journal</h3></div>
-    <form method="post" asp-action="Edit" asp-controller="Journals" enctype="multipart/form-data">
+    <form method="post" asp-action="Edit" asp-controller="Journals" id="edt-frm" onsubmit="edtfrm()" enctype="multipart/form-data">
         @Html.HiddenFor(x => x.JournalId)
         <div class="card-body">
             <div>
@@ -82,6 +82,11 @@
 </div>
 @section scripts{
     <script>
+        function edtfrm() {
+            if ($("#edt-frm").valid()) {
+                $(".loader").show();
+            }
+        }
         function edtjrndlg(userid) {
             $(".loader").show();
             $.ajax({

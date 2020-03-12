@@ -1,0 +1,95 @@
+﻿using JMS.Entity.Data;
+using JMS.Service.ServiceContracts;
+using Microsoft.Extensions.Caching.Memory;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace JMS.Services
+{
+    public class CacheService : ICacheService
+    {
+        private readonly IMemoryCache _cache;
+        private readonly ApplicationDbContext _applicationDbContext;
+        public CacheService(IMemoryCache cache, ApplicationDbContext applicationDbContext)
+        {
+            _applicationDbContext = applicationDbContext;
+            _cache = cache;
+        }
+        public void DeleteValue(string key, long? journalId = null)
+        {
+            if (journalId.HasValue)
+            {
+                var dict = GetJournalValues(journalId.Value);
+                if (dict.ContainsKey(key))
+                {
+                    dict.Remove(key);
+                }
+            }
+            else
+            {
+                _cache.Remove(key);
+            }
+        }
+
+        public object GetValue(string key, long? journalId = null)
+        {
+            if (journalId.HasValue)
+            {
+                var dict = GetJournalValues(journalId.Value);
+                if (dict.ContainsKey(key))
+                {
+                    return dict[key];
+                }
+                else
+                {
+                    var value = _applicationDbContext.JournalSettings.First(x => x.TenantId == journalId && x.Key == key).Value;
+                    SetValue(key, value, journalId.Value);
+                    return value;
+                }
+            }
+            else
+            {
+                object value = null;
+                if (!_cache.TryGetValue(key, out value))
+                {
+                    value = _applicationDbContext.SystemSettings.First(x => x.Key == key).Value;
+                    SetValue(key, value);
+                }
+                return value;
+            }
+        }
+
+        public void SetValue(string key, object value, long? journalId = null)
+        {
+            if (journalId.HasValue)
+            {
+                var dict = GetJournalValues(journalId.Value);
+                if (dict.ContainsKey(key))
+                {
+                    dict[key] = value;
+                }
+                else
+                {
+                    dict.Add(key, value);
+                }
+            }
+            else
+            {
+                _cache.Set(key, value);
+            }
+        }
+
+        private Dictionary<string, object> GetJournalValues(long journalId)
+        {
+            Dictionary<string, object> dict = null;
+            if (!_cache.TryGetValue(journalId, out dict))
+            {
+                dict = new Dictionary<string, object>();
+                _cache.Set(journalId, dict);
+            }
+            return dict;
+        }
+    }
+}

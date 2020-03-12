@@ -100,9 +100,10 @@
                 toastr["error"]("Please upload logo.")  
                 return false;
             }
-            
-        });
-        
+            if ($("#crt-jur").valid()) {
+                $(".loader").show();
+            }
+        });        
     </script>
 }
 

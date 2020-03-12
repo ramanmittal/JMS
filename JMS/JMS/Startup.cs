@@ -21,6 +21,7 @@ using Microsoft.AspNetCore.Http;
 using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection.Extensions;
+using JMS.Services;
 
 namespace JMS
 {
@@ -57,13 +58,14 @@ namespace JMS
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
             services.AddScoped<IEmailSender, LogEmailSender>();
             services.AddScoped<ITenantService, TenantService>();
+            services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IUserService, UserService>();
             services.RemoveAll<IUserValidator<ApplicationUser>>();
             services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>
             {
                 var hostingEnv = x.GetService<IHostingEnvironment>();
-                return new LocalFileService(Path.Combine(hostingEnv.WebRootPath, @"img\uploaded\Journal-logo"), @"/img/uploaded/Journal-logo/");
+                return new LocalFileService(Path.Combine(hostingEnv.WebRootPath, @"uploaded"), @"/uploaded/");
             });
             services.AddRazorPages();
             //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
@@ -109,8 +111,13 @@ namespace JMS
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
+                 name: "jms",
+                 pattern: $"{Configuration[JMSSetting.DefaultTenant]}/systemsettings",
+                 defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Settings" }
+                 );
+                endpoints.MapControllerRoute(
                   name: "jms",
-                  pattern: "jms",
+                  pattern: $"{Configuration[JMSSetting.DefaultTenant]}",
                   defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
                   );
                 endpoints.MapControllerRoute(

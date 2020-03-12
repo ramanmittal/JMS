@@ -24,15 +24,17 @@ namespace JMS.Controllers
     public class SystemAdminController : BaseController
     {
         private readonly IAccountService _accountService;
+        private readonly ISystemService _systemService;
         private readonly IRazorViewToStringRenderer _razorViewToStringRenderer;
         private readonly IEmailSender _emailSender;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public SystemAdminController(IAccountService accountService, IRazorViewToStringRenderer razorViewToStringRenderer, IEmailSender emailSender, IConfiguration configuration, SignInManager<ApplicationUser> signInManager) :base(configuration)
+        public SystemAdminController(IAccountService accountService, IRazorViewToStringRenderer razorViewToStringRenderer, IEmailSender emailSender, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, ISystemService systemService) :base(configuration)
         {            
             _accountService = accountService;
             _razorViewToStringRenderer = razorViewToStringRenderer;
             _emailSender = emailSender;
             _signInManager = signInManager;
+            _systemService = systemService;
         }
         [HttpGet]
         [AllowAnonymous]
@@ -113,6 +115,39 @@ namespace JMS.Controllers
         public IActionResult Index()
         {
             return RedirectToAction("Index","Journals");
+        }
+        public IActionResult Settings()
+        {
+            var model = _systemService.GetSystemSettings();
+            var m1 = new JMS.Models.SystemAdmin.SystemSettingViewModel
+            {
+                SystemTitle = model.SystemTitle,
+                SystemLogo = model.SystemLogo
+            };
+            return View(m1);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Settings(JMS.Models.SystemAdmin.SystemSettingViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var m1 = new SystemSettingViewModel
+                {
+                    SystemTitle = model.SystemTitle,
+                    SystemLogo = model.SystemLogo
+                };
+                _systemService.SetSystemSetting(m1, model.SystemLogoFile?.OpenReadStream(), model.SystemLogoFile?.FileName);
+                TempData.Add(Messages.SuccessSettingMessage, Messages.SuccessSettingMessage);
+                m1 = _systemService.GetSystemSettings();
+                model = new JMS.Models.SystemAdmin.SystemSettingViewModel
+                {
+                    SystemTitle = m1.SystemTitle,
+                    SystemLogo = m1.SystemLogo
+                };
+            }            
+            return View(model);
         }
     }
 }

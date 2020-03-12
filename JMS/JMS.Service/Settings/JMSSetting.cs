@@ -10,5 +10,7 @@ namespace JMS.Service.Settings
         public const string DefaultTenant = "DefaultTenant";
         public const string ResetPasswordSubject = "ResetPasswordSubject";
         public const string SenderEmail = "SenderEmail";
+        public const string SystemLogo = "SystemLogo";
+        public const string SystemTitle = "SystemTitle";
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Configuration;
 using JMS.Service.Settings;
 using JMS.Service.ServiceContracts;
 using System.Threading.Tasks;
+using JMS.ViewModels.SystemAdmin;
+using System.IO;
 
 namespace JMS.Service.Services
 {
@@ -18,12 +20,16 @@ namespace JMS.Service.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IConfiguration _configuration;
-        public SystemService(RoleManager<IdentityRole<long>> roleManager, UserManager<ApplicationUser> userManager, ApplicationDbContext applicationDbContext, IConfiguration configuration)
+        private readonly IFileService _fileService;
+        private readonly ICacheService _cacheService;
+        public SystemService(RoleManager<IdentityRole<long>> roleManager, UserManager<ApplicationUser> userManager, ApplicationDbContext applicationDbContext, IConfiguration configuration, IFileService fileService, ICacheService cacheService)
         {
             _roleManager = roleManager;
             _userManager = userManager;
             _applicationDbContext = applicationDbContext;
             _configuration = configuration;
+            _fileService = fileService;
+            _cacheService = cacheService;
         }
 
         public async Task  InitializeSystem()
@@ -56,6 +62,60 @@ namespace JMS.Service.Services
             }
             
            
+        }
+
+        public SystemSettingViewModel GetSystemSettings()
+        {
+            var model = new SystemSettingViewModel()
+            {
+                SystemLogo = _configuration[JMSSetting.SystemLogo],
+                SystemTitle = _configuration[JMSSetting.SystemTitle]
+            };
+            var systemSettings = _applicationDbContext.SystemSettings.ToList();
+            var setting = systemSettings.FirstOrDefault(x => x.Key == JMSSetting.SystemLogo);
+            if (setting != null)
+            {
+                model.SystemLogo = _fileService.GetFile(setting.Value);               
+            }
+            setting = systemSettings.FirstOrDefault(x => x.Key == JMSSetting.SystemTitle);
+            if (setting != null)
+            {
+                model.SystemTitle = setting.Value;
+            }
+            return model;
+        }
+
+        public void SetSystemSetting(SystemSettingViewModel systemSettingViewModel, Stream stream, string fileName)
+        {
+            var settings = _applicationDbContext.SystemSettings.ToList();
+            if (stream != null && !string.IsNullOrEmpty(fileName))
+            {                
+                var logo = _fileService.SaveFile(stream, fileName);
+                SystemSetting logoSetting = settings.FirstOrDefault(x => x.Key == JMSSetting.SystemLogo);
+                if (logoSetting == null)
+                {
+                    logoSetting = new SystemSetting { Key = JMSSetting.SystemLogo };
+                    _applicationDbContext.SystemSettings.Add(logoSetting);
+                }
+                else
+                {
+                    _fileService.RemoveFile(logoSetting.Value);
+                }
+                logoSetting.Value = logo;
+                _cacheService.DeleteValue(JMSSetting.SystemLogo);
+            }
+            if (!string.IsNullOrEmpty(systemSettingViewModel.SystemTitle))
+            {
+                var setting = settings.FirstOrDefault(x => x.Key == JMSSetting.SystemTitle);
+                if (setting == null)
+                {
+                    setting = new SystemSetting { Key = JMSSetting.SystemTitle };
+                    _applicationDbContext.SystemSettings.Add(setting);
+                }
+                setting.Value = systemSettingViewModel.SystemTitle;
+                _cacheService.DeleteValue(JMSSetting.SystemTitle);
+            }
+            _applicationDbContext.SaveChanges();
         }
     }
 }
