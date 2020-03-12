@@ -103,12 +103,13 @@ namespace JMS.Service.Services
             tenant.IsDisabled = !model.IsActive;
             tenant.JournalName = model.JournalName;
             tenant.JournalTitle = model.JournalTitle;
+            var oldfile = tenant.JournalLogo;
             if (stream != null && !string.IsNullOrEmpty(fileName))
-            {
-                _fileService.RemoveFile(tenant.JournalLogo);
+            {                
                 tenant.JournalLogo = _fileService.SaveFile(stream, fileName);
             }
             _applicationDbContext.SaveChanges();
+            _fileService.RemoveFile(oldfile);
         }
         public void DeleteTenant(long id)
         {

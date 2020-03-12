@@ -12,5 +12,6 @@ namespace JMS.Service.Settings
         public const string SenderEmail = "SenderEmail";
         public const string SystemLogo = "SystemLogo";
         public const string SystemTitle = "SystemTitle";
+        public const string DefaultAvtar = "DefaultAvtar";
     }
 }

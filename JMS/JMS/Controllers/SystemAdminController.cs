@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Mail;
+using System.Security.Claims;
 using System.Threading.Tasks;
 using JMS.Entity.Entities;
 using JMS.Service.Enums;
@@ -27,14 +28,18 @@ namespace JMS.Controllers
         private readonly ISystemService _systemService;
         private readonly IRazorViewToStringRenderer _razorViewToStringRenderer;
         private readonly IEmailSender _emailSender;
+        private readonly IUserService _userService;
+        private readonly IFileService _fileService;
         private readonly SignInManager<ApplicationUser> _signInManager;
-        public SystemAdminController(IAccountService accountService, IRazorViewToStringRenderer razorViewToStringRenderer, IEmailSender emailSender, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, ISystemService systemService) :base(configuration)
-        {            
+        public SystemAdminController(IAccountService accountService, IRazorViewToStringRenderer razorViewToStringRenderer, IEmailSender emailSender, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, ISystemService systemService, IUserService userService, IFileService fileService) : base(configuration)
+        {
             _accountService = accountService;
             _razorViewToStringRenderer = razorViewToStringRenderer;
             _emailSender = emailSender;
             _signInManager = signInManager;
             _systemService = systemService;
+            _userService = userService;
+            _fileService = fileService;
         }
         [HttpGet]
         [AllowAnonymous]
@@ -148,6 +153,46 @@ namespace JMS.Controllers
                 };
             }            
             return View(model);
+        }
+
+        public IActionResult ViewProfile()
+        {
+            var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+            var user = _userService.GetUser(userId);
+            return View(new JMS.Models.SystemAdmin.SystemAdminProfileModel
+            {
+                City = user.City,
+                Country = user.Country,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                State = user.State,
+                Zip = user.Zip,
+                ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
+            }); 
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveProfile(JMS.Models.SystemAdmin.SystemAdminProfileModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                _userService.SaveSystemAdmin(new SystemAdminProfileModel
+                {
+                    City = model.City,
+                    Country = model.Country,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.PhoneNumber,
+                    State = model.State,
+                    UserId = userId,
+                    Zip = model.Zip
+                }, model.ProfileImageFile?.OpenReadStream(), model.ProfileImageFile?.FileName);
+                TempData.Add(Messages.SuccessProfileMessage, Messages.SuccessProfileMessage);
+                return RedirectToAction("ViewProfile");
+            }
+            return View("ViewProfile", model);
         }
     }
 }

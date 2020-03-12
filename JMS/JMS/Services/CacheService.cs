@@ -1,6 +1,7 @@
 ﻿using JMS.Entity.Data;
 using JMS.Service.ServiceContracts;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Configuration;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,10 +13,12 @@ namespace JMS.Services
     {
         private readonly IMemoryCache _cache;
         private readonly ApplicationDbContext _applicationDbContext;
-        public CacheService(IMemoryCache cache, ApplicationDbContext applicationDbContext)
+        private readonly IConfiguration _configuration;
+        public CacheService(IMemoryCache cache, ApplicationDbContext applicationDbContext, IConfiguration configuration)
         {
             _applicationDbContext = applicationDbContext;
             _cache = cache;
+            _configuration = configuration;
         }
         public void DeleteValue(string key, long? journalId = null)
         {
@@ -44,7 +47,16 @@ namespace JMS.Services
                 }
                 else
                 {
-                    var value = _applicationDbContext.JournalSettings.First(x => x.TenantId == journalId && x.Key == key).Value;
+                    var setting = _applicationDbContext.JournalSettings.FirstOrDefault(x => x.TenantId == journalId && x.Key == key);
+                    object value = null;
+                    if (setting == null)
+                    {
+                        value = _configuration[key];
+                    }
+                    else
+                    {
+                        value = setting.Value;
+                    }
                     SetValue(key, value, journalId.Value);
                     return value;
                 }
@@ -54,7 +66,15 @@ namespace JMS.Services
                 object value = null;
                 if (!_cache.TryGetValue(key, out value))
                 {
-                    value = _applicationDbContext.SystemSettings.First(x => x.Key == key).Value;
+                    var setting = _applicationDbContext.SystemSettings.FirstOrDefault(x => x.Key == key);
+                    if (setting == null)
+                    {
+                        value = _configuration[key];
+                    }
+                    else
+                    {
+                        value = setting.Value;
+                    }
                     SetValue(key, value);
                 }
                 return value;

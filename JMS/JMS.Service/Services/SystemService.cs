@@ -88,10 +88,11 @@ namespace JMS.Service.Services
         public void SetSystemSetting(SystemSettingViewModel systemSettingViewModel, Stream stream, string fileName)
         {
             var settings = _applicationDbContext.SystemSettings.ToList();
+            string oldLogoSetting = null;
             if (stream != null && !string.IsNullOrEmpty(fileName))
             {                
                 var logo = _fileService.SaveFile(stream, fileName);
-                SystemSetting logoSetting = settings.FirstOrDefault(x => x.Key == JMSSetting.SystemLogo);
+                SystemSetting logoSetting = settings.FirstOrDefault(x => x.Key == JMSSetting.SystemLogo);                
                 if (logoSetting == null)
                 {
                     logoSetting = new SystemSetting { Key = JMSSetting.SystemLogo };
@@ -99,7 +100,7 @@ namespace JMS.Service.Services
                 }
                 else
                 {
-                    _fileService.RemoveFile(logoSetting.Value);
+                    oldLogoSetting = logoSetting.Value;                    
                 }
                 logoSetting.Value = logo;
                 _cacheService.DeleteValue(JMSSetting.SystemLogo);
@@ -116,6 +117,10 @@ namespace JMS.Service.Services
                 _cacheService.DeleteValue(JMSSetting.SystemTitle);
             }
             _applicationDbContext.SaveChanges();
+            if (stream != null && !string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(oldLogoSetting))
+            {
+                _fileService.RemoveFile(oldLogoSetting);
+            }
         }
     }
 }

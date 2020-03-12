@@ -13,5 +13,10 @@ namespace JMS.Entity.Entities
         public string LastName { get; set; }
         public bool? IsDisabled { get; set; }
         public virtual JournalAdmin JournalAdmin { get; set; }
+        public string Country { get; set; }
+        public string City { get; set; }
+        public string State { get; set; }
+        public string Zip { get; set; }
+        public string ProfileImage { get; set; }
     }
 }
