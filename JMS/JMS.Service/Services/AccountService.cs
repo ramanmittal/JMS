@@ -50,5 +50,11 @@ namespace JMS.Service.Services
             }
             return user;
         }
+
+        public async Task<IdentityResult> ChangePassword(long userId,string password,string confirmPassword)
+        {
+            var result = await _userManager.ChangePasswordAsync(await _userManager.FindByIdAsync(userId.ToString()), password, confirmPassword);
+            return result;
+        }
     }
 }

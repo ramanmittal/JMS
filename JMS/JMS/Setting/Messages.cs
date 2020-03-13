@@ -13,5 +13,6 @@ namespace JMS.Setting
         public const string AlphaNumericValidationMessage = "Only Alphabets and Numbers allowed.";
         public const string SuccessSettingMessage = "Settings have been saved successfully";
         public const string SuccessProfileMessage = "Profile has been saved successfully.";
+        public const string SuccessPasswordChangeMessage = "Password has been changed successfully.";
     }
 }

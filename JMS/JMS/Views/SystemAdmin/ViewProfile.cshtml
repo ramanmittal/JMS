@@ -1,5 +1,8 @@
 ﻿@model JMS.Models.SystemAdmin.SystemAdminProfileModel
 @inject Microsoft.Extensions.Configuration.IConfiguration config
+@{ 
+    ViewBag.Title = "Profile";
+}
 <div class="card card-primary">
     <div class="card-header"><h3>Profile</h3></div>
     <form method="post" asp-action="SaveProfile" asp-controller="SystemAdmin" enctype="multipart/form-data" id="crt-jur">
@@ -83,11 +86,11 @@
                 $(".loader").show();
             }
         });
-         @if (TempData.ContainsKey(JMS.Setting.Messages.SuccessProfileMessage))
+         @if (TempData.ContainsKey(JMS.Setting.Messages.SuccessPasswordChangeMessage))
     {
         <text>
-    var message = '@TempData[JMS.Setting.Messages.SuccessProfileMessage]';
-    toastr["success"]("@TempData[JMS.Setting.Messages.SuccessProfileMessage]")
+    var message = '@TempData[JMS.Setting.Messages.SuccessPasswordChangeMessage]';
+    toastr["success"]("@TempData[JMS.Setting.Messages.SuccessPasswordChangeMessage]")
         </text>
     }
     </script>

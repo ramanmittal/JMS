@@ -6,6 +6,7 @@
     var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
     var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
     JMS.Entity.Entities.ApplicationUser user=null;
+    var now = DateTime.UtcNow;
     if (User.Identity.IsAuthenticated)
     {
         user = userService.GetUser(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
@@ -239,10 +240,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <footer class="main-footer">
             <!-- To the right -->
             <div class="float-right d-none d-sm-inline">
-                Anything you want
+              
             </div>
             <!-- Default to the left -->
-            <strong>Copyright &copy; 2014-2019 <a href="https://adminlte.io">AdminLTE.io</a>.</strong> All rights reserved.
+            <strong>Copyright &copy; @now.Year-@(now.Year+1) <a href="https://adminlte.io"></a></strong> 
         </footer>
     </div>
     <!-- Button trigger modal -->

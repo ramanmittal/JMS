@@ -1,4 +1,5 @@
 ﻿using JMS.Entity.Entities;
+using Microsoft.AspNetCore.Identity;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -11,5 +12,6 @@ namespace JMS.Service.ServiceContracts
         Task<string> GetResetPasswordTokenByEmail(string email,string tenantId);
         Task<bool> VerifyUserTokenAsync(string email, string token,string tenantId);
         Task<ApplicationUser> ResetPassword(string email, string token, string password,string tenantId);
+        Task<IdentityResult> ChangePassword(long userId, string password, string confirmPassword);
     }
 }

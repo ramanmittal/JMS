@@ -194,5 +194,32 @@ namespace JMS.Controllers
             }
             return View("ViewProfile", model);
         }
+
+        public IActionResult ChangePassword()
+        {
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ChangePassword(ChangePassword changePasswordmodel)
+        {
+            if (ModelState.IsValid)
+            {
+                var result = await _accountService.ChangePassword(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)), changePasswordmodel.Password, changePasswordmodel.ConfirmPassword);
+                if (result.Succeeded)
+                {
+                    TempData.Add(Messages.SuccessPasswordChangeMessage, Messages.SuccessPasswordChangeMessage);
+                    ModelState.Clear();
+                }
+                else
+                {
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("Password", error.Description);
+                    }                    
+                }
+            }
+            return View();
+        }
     }
 }

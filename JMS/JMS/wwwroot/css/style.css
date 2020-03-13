@@ -99,4 +99,7 @@
 #logout{
     color:black;
 }
+.validation-summary-errors {
+    color: #dc3545 !important;
+}
 
