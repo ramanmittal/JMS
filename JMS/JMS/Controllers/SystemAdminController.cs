@@ -24,99 +24,13 @@ namespace JMS.Controllers
     [Authorize(Roles = RoleName.SystemAdmin)]
     public class SystemAdminController : BaseController
     {
-        private readonly IAccountService _accountService;
-        private readonly ISystemService _systemService;
-        private readonly IRazorViewToStringRenderer _razorViewToStringRenderer;
-        private readonly IEmailSender _emailSender;
-        private readonly IUserService _userService;
-        private readonly IFileService _fileService;
-        private readonly SignInManager<ApplicationUser> _signInManager;
-        public SystemAdminController(IAccountService accountService, IRazorViewToStringRenderer razorViewToStringRenderer, IEmailSender emailSender, IConfiguration configuration, SignInManager<ApplicationUser> signInManager, ISystemService systemService, IUserService userService, IFileService fileService) : base(configuration)
-        {
-            _accountService = accountService;
-            _razorViewToStringRenderer = razorViewToStringRenderer;
-            _emailSender = emailSender;
-            _signInManager = signInManager;
-            _systemService = systemService;
-            _userService = userService;
-            _fileService = fileService;
+        
+        private readonly ISystemService _systemService;        
+       
+        public SystemAdminController(IConfiguration configuration,ISystemService systemService) : base(configuration)
+        {  
+            _systemService = systemService;            
         }
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult Login()
-        {
-            if (User.Identity.IsAuthenticated)
-            {
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Login(LoginViewModel  model)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.Rememberme, false);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index");
-                }
-            }
-            return View();
-        }
-        [HttpGet]
-        [AllowAnonymous]
-        public IActionResult ForGotPassword()
-        {
-            return View();
-        }
-        [HttpPost]
-        [AllowAnonymous]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ForGotPassword(ForgotPasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var token = await _accountService.GetResetPasswordTokenByEmail(model.Email,TenantID);
-                if (token != null)
-                {
-                    var emailBody = await _razorViewToStringRenderer.RenderViewToStringAsync(@"/Views/EmailTemplates/ResetPassword.cshtml", new ForgotpasswordEmailModel { Email = model.Email, Token = token });
-                    _emailSender.SendEmail(new MailMessage(_configuration[JMSSetting.SenderEmail], model.Email, _configuration[JMSSetting.ResetPasswordSubject], emailBody) { IsBodyHtml = true });
-                }
-            }
-            return View();
-        }
-        [AllowAnonymous]
-        [HttpGet]
-        public async Task<IActionResult> ResetPassword(ForgotpasswordEmailModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                if (await _accountService.VerifyUserTokenAsync(model.Email, model.Token, TenantID))
-                {
-                    return View(new ResetPasswordModel { Email = model.Email, Token = model.Token });
-                }
-                return View();
-            }
-            return BadRequest();
-        }
-
-        [AllowAnonymous]
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ResetPassword(ResetPasswordModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var user = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
-                await _signInManager.SignInAsync(user, false);
-                return RedirectToAction("Index");
-            }
-            return View();
-        }
-
         public IActionResult Index()
         {
             return RedirectToAction("Index","Journals");
@@ -155,71 +69,6 @@ namespace JMS.Controllers
             return View(model);
         }
 
-        public IActionResult ViewProfile()
-        {
-            var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = _userService.GetUser(userId);
-            return View(new JMS.Models.SystemAdmin.SystemAdminProfileModel
-            {
-                City = user.City,
-                Country = user.Country,
-                FirstName = user.FirstName,
-                LastName = user.LastName,
-                PhoneNumber = user.PhoneNumber,
-                State = user.State,
-                Zip = user.Zip,
-                ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
-            }); 
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public IActionResult SaveProfile(JMS.Models.SystemAdmin.SystemAdminProfileModel model)
-        {
-            if (ModelState.IsValid)
-            {
-                var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-                _userService.SaveSystemAdmin(new SystemAdminProfileModel
-                {
-                    City = model.City,
-                    Country = model.Country,
-                    FirstName = model.FirstName,
-                    LastName = model.LastName,
-                    PhoneNumber = model.PhoneNumber,
-                    State = model.State,
-                    UserId = userId,
-                    Zip = model.Zip
-                }, model.ProfileImageFile?.OpenReadStream(), model.ProfileImageFile?.FileName);
-                TempData.Add(Messages.SuccessProfileMessage, Messages.SuccessProfileMessage);
-                return RedirectToAction("ViewProfile");
-            }
-            return View("ViewProfile", model);
-        }
-
-        public IActionResult ChangePassword()
-        {
-            return View();
-        }
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> ChangePassword(ChangePassword changePasswordmodel)
-        {
-            if (ModelState.IsValid)
-            {
-                var result = await _accountService.ChangePassword(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)), changePasswordmodel.Password, changePasswordmodel.ConfirmPassword);
-                if (result.Succeeded)
-                {
-                    TempData.Add(Messages.SuccessPasswordChangeMessage, Messages.SuccessPasswordChangeMessage);
-                    ModelState.Clear();
-                }
-                else
-                {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("Password", error.Description);
-                    }                    
-                }
-            }
-            return View();
-        }
+        
     }
 }

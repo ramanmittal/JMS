@@ -1,16 +1,17 @@
 ﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
 @inject JMS.Service.ServiceContracts.IFileService fileService
 @inject JMS.Service.ServiceContracts.IUserService userService
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @using System.Security.Claims
 @{
     var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
     var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
-    JMS.Entity.Entities.ApplicationUser user=null;
+    JMS.Entity.Entities.ApplicationUser user = null;
     var now = DateTime.UtcNow;
     if (User.Identity.IsAuthenticated)
     {
         user = userService.GetUser(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
-        user.PhoneNumber="(921) 191-6804";
+        user.PhoneNumber = "(921) 191-6804";
     }
 }
 <!DOCTYPE html>
@@ -210,7 +211,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                             <ul aria-labelledby="dropdownSubMenu1" id="lg-cont" class="dropdown-menu border-0 shadow">
                                 <!-- The user image in the menu -->
                                 <li><a class="nav-link" id="logout">LOG OUT</a></li>
-                               
+
                             </ul>
                         </li>
                     </ul>
@@ -240,10 +241,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <footer class="main-footer">
             <!-- To the right -->
             <div class="float-right d-none d-sm-inline">
-              
+
             </div>
             <!-- Default to the left -->
-            <strong>Copyright &copy; @now.Year-@(now.Year+1) <a href="https://adminlte.io"></a></strong> 
+            <strong>Copyright &copy; @now.Year-@(now.Year + 1) <a href="https://adminlte.io"></a></strong>
         </footer>
     </div>
     <!-- Button trigger modal -->
@@ -278,7 +279,18 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script>
         $('#logout').on('click', function (event) {
             $("lg-cont").addClass('show');
+            $(".loader").show();
             event.stopPropagation();
+            $.ajax({
+                type: "POST",
+                data: {
+                    __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
+                },
+                url: "@Url.Action("Logout","Account")",
+                success: function (data) {
+                    window.location.href = "@Url.Action("Login","Account")";
+                }
+            });
         });
         $('body').on('click', function (e) {
             if (!$('li.dropdown.mega-dropdown').is(e.target)

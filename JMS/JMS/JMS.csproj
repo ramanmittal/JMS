@@ -27,6 +27,7 @@
 
   <ItemGroup>
     <Folder Include="Models\EmailModels\" />
+    <Folder Include="Views\Home\" />
   </ItemGroup>
 
 </Project>

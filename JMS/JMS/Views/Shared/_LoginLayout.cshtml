@@ -1,10 +1,15 @@
-﻿
+﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
+@inject JMS.Service.ServiceContracts.IFileService fileService
+@{
+    var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
+    var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
+}
 <!DOCTYPE html>
 <html>
 <head>
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <title>@(ViewBag.Title != null ? $"JSM | {ViewBag.Title}" : "JSM")</title>
+    <title>@(ViewBag.Title != null ? $"{title} | {ViewBag.Title}" : $"{title}")</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
@@ -16,14 +21,18 @@
     <link rel="stylesheet" href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css">
     <!-- Theme style -->
     <link rel="stylesheet" href="~/css/adminlte.min.css">
+    <link href="~/plugins/toastr/toastr.css" rel="stylesheet" />
     <!-- Google Font: Source Sans Pro -->
     <link href="~/css/style.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition login-page">
+    <div class="loader" style="display: none;">
+        <span class="spin"></span>
+    </div>
     <div class="login-box">
         <div class="login-logo">
-            <img src="~/img/logo.png" />
+            <img src="@Url.Content(logo)" class="brand-image" style="max-height:100px;max-width:100%" />
         </div>
 
         @RenderBody()
@@ -37,6 +46,7 @@
     <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
     <!-- AdminLTE App -->
     <script src="~/js/adminlte.min.js"></script>
-
+    <script src="~/plugins/toastr/toastr.min.js"></script>
+    @RenderSection("scripts", required: false)
 </body>
 </html>

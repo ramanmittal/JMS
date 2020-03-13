@@ -30,7 +30,15 @@ namespace JMS.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            if (!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+            else if (User.IsInRole(RoleName.SystemAdmin))
+            {
+                return RedirectToAction("Index", "SystemAdmin");
+            }
+            return Unauthorized();
         }
 
 

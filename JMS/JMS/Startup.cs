@@ -70,8 +70,8 @@ namespace JMS
             services.AddRazorPages();
             //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
             services.ConfigureApplicationCookie(option => {
-                var defaultcookie = option.Cookie;
-                option.Cookie = new JMSCookiesBuilder(httpContextAccessor);
+                var defaultcookie = option.Cookie;                
+                option.Cookie = new JMSCookiesBuilder(httpContextAccessor);               
                 option.Cookie.Domain = defaultcookie.Domain;
                 option.Cookie.Expiration = defaultcookie.Expiration;
                 option.Cookie.HttpOnly = defaultcookie.HttpOnly;
@@ -81,8 +81,9 @@ namespace JMS
                     option.Cookie.Name = defaultcookie.Name;
                 option.Cookie.SameSite = defaultcookie.SameSite;
                 option.Cookie.SecurePolicy = defaultcookie.SecurePolicy;
+                option.EventsType = typeof(MyCookieAuthenticationEvents);
             });
-
+            services.AddScoped<MyCookieAuthenticationEvents>();
         }        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -115,14 +116,14 @@ namespace JMS
                  pattern: $"{Configuration[JMSSetting.DefaultTenant]}/systemsettings",
                  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Settings" }
                  );
-                endpoints.MapControllerRoute(
-                  name: "jms",
-                  pattern: $"{Configuration[JMSSetting.DefaultTenant]}",
-                  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
-                  );
+                //endpoints.MapControllerRoute(
+                //  name: "jms",
+                //  pattern: $"{Configuration[JMSSetting.DefaultTenant]}",
+                //  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
+                //  );
                 endpoints.MapControllerRoute(
                   name: "InitializeJMS",
-                  pattern: "InitializeJMS",
+                  pattern: $"{Configuration[JMSSetting.DefaultTenant]}/InitializeJMS",
                   defaults: new { controller = "Home", action = "InitializeJMS" }
                   );
                 endpoints.MapControllerRoute(
