@@ -46,7 +46,7 @@ namespace JMS.Service.Services
             var user = _context.Users.SingleOrDefault(x => x.Email == email && x.Tenant.JournalPath == tenantId);
             if (user != null)
             {
-                await _userManager.ResetPasswordAsync(user, token, password);
+                var result = await _userManager.ResetPasswordAsync(user, token, password);
             }
             return user;
         }

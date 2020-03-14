@@ -22,13 +22,15 @@ namespace JMS.Service.Services
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IFileService _fileService;
+        private readonly IMaskService _maskService;
         public readonly IConfiguration _configuration;
-        public TenantService(ApplicationDbContext applicationDbContext, IFileService fileService, IConfiguration configuration, UserManager<ApplicationUser> userManager)
+        public TenantService(ApplicationDbContext applicationDbContext, IFileService fileService, IConfiguration configuration, UserManager<ApplicationUser> userManager, IMaskService maskService)
         {
             _applicationDbContext = applicationDbContext;
             _fileService = fileService;
             _configuration = configuration;
             _userManager = userManager;
+            _maskService = maskService;
         }
         public IEnumerable<string> GetTenantPaths()
         {
@@ -63,7 +65,7 @@ namespace JMS.Service.Services
                     _applicationDbContext.Tenants.Add(tenant);
                     var path = _fileService.SaveFile(stream, journalLogo);
                     tenant.JournalLogo = path;
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber, FirstName = model.FirstName, LastName = model.LastName, Tenant = tenant };
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, Tenant = tenant };
                     await _userManager.CreateAsync(user);
                     _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
                     _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, Tenant = tenant });
@@ -123,7 +125,7 @@ namespace JMS.Service.Services
             var user=_applicationDbContext.Users.Single(x => x.Id == editJournalAdminModel.UserId);
             user.FirstName = editJournalAdminModel.FirstName;
             user.LastName = editJournalAdminModel.LastName;
-            user.PhoneNumber = editJournalAdminModel.PhoneNumber;
+            user.PhoneNumber = _maskService.RemovePhoneMasking(editJournalAdminModel.PhoneNumber);
             user.IsDisabled = !editJournalAdminModel.Active;
             _applicationDbContext.SaveChanges();
         }
@@ -135,7 +137,7 @@ namespace JMS.Service.Services
             {
                 try
                 {
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = model.PhoneNumber, FirstName = model.FirstName, LastName = model.LastName, TenantId = model.TenantId, IsDisabled = !model.Active };
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, TenantId = model.TenantId, IsDisabled = !model.Active };
                     await _userManager.CreateAsync(user);
                     _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
                     _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, TenantId = model.TenantId });

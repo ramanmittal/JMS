@@ -22,7 +22,7 @@ namespace JMS.Models.SystemAdmin
         [Required]
         [DisplayName("PhoneNumber")]
         [Phone]
-        [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "The Phone Number field is not a valid phone number")]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Invalid Phone number.")]
         public string PhoneNumber { get; set; }
         [Required]
         [DisplayName("Country")]

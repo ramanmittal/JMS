@@ -60,6 +60,7 @@ namespace JMS
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IUserService, UserService>();
+            services.AddScoped<IMaskService, Maskservice>();
             services.RemoveAll<IUserValidator<ApplicationUser>>();
             services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>

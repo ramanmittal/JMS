@@ -65,7 +65,7 @@
                             <tr>
                                 <td>@($"{item.FirstName} {item.LastName}")</td>
                                 <td>@item.Email</td>
-                                <td>@item.PhoneNumber</td>
+                                <td class="phonenumber">@item.PhoneNumber</td>
                                 <td>@(item.Active ? "Active" : "InActive")</td>
                                 <td>
                                     <a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top" href="javascript:edtjrndlg(@item.UserId);"></a>

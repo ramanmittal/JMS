@@ -36,7 +36,7 @@ namespace JMS.Models.Journals
         public string Email { get; set; }
         [DisplayName("Phone Number")]
         [Phone]
-        [RegularExpression(@"^(\+\s?)?((?<!\+.*)\(\+?\d+([\s\-\.]?\d+)?\)|\d+)([\s\-\.]?(\(\d+([\s\-\.]?\d+)?\)|\d+))*(\s?(x|ext\.?)\s?\d+)?$", ErrorMessage = "The Phone Number field is not a valid phone number")]
+        [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Invalid Phone number.")]
         [Required]
         public string PhoneNumber { get; set; }
         public bool IsActive { get; set; }

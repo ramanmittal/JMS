@@ -16,5 +16,7 @@ namespace JMS.Setting
         public const string SuccessProfileMessage = "Profile has been saved successfully.";
         public const string SuccessPasswordRecoverEmailMessage = "Password recovery link has been emailed. Click the link in the email to recover your password";
         public const string SuccessPasswordChangeMessage = "Password has been changed successfully.";
+        public const string PasswordValidationMessage = "The Password Field must have at least 6 characters, 1 digit, 1 lowercase letter, 1 uppercase letter.";
+        public const string NewPasswordValidationMessage = "The New Password Field must have at least 6 characters, 1 digit, 1 lowercase letter, 1 uppercase letter.";
     }
 }

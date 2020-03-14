@@ -18,11 +18,13 @@ namespace JMS.Service.Services
         private readonly ApplicationDbContext _context;
         private readonly IFileService _fileService;
         private readonly IConfiguration _configuration;
-        public UserService(ApplicationDbContext context, IFileService fileService, IConfiguration configuration)
+        private readonly IMaskService _maskService;
+        public UserService(ApplicationDbContext context, IFileService fileService, IConfiguration configuration, IMaskService maskService)
         {
             _context = context;
             _fileService = fileService;
             _configuration = configuration;
+            _maskService = maskService;
         }
         public IEnumerable<ApplicationUser> GetTenantUserByRole(long tenantid, string role)
         {
@@ -59,7 +61,7 @@ namespace JMS.Service.Services
             var user = GetUser(systemAdminProfileModel.UserId);
             user.FirstName = systemAdminProfileModel.FirstName;
             user.LastName = systemAdminProfileModel.LastName;
-            user.PhoneNumber = systemAdminProfileModel.PhoneNumber;
+            user.PhoneNumber = _maskService.RemovePhoneMasking(systemAdminProfileModel.PhoneNumber);
             user.Country = systemAdminProfileModel.Country;
             user.City = systemAdminProfileModel.City;
             user.State = systemAdminProfileModel.State;

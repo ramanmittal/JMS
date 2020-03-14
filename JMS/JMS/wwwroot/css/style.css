@@ -102,4 +102,7 @@
 .validation-summary-errors {
     color: #dc3545 !important;
 }
+.grid-image{
+    max-width:100%
+}
 
