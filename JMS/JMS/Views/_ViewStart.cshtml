@@ -1,3 +1,26 @@
-﻿@{
-    Layout = "_Layout";
+﻿@inject Microsoft.Extensions.Configuration.IConfiguration configuration
+@{
+    @if (User.Identity.IsAuthenticated)
+    {
+        @if (Context.Request.RouteValues["tenant"].ToString() == configuration[JMS.Service.Settings.JMSSetting.DefaultTenant])
+        {
+            Layout = "_Layout";
+        }
+        else
+        {
+            
+        }
+    }
+    else
+    {
+        @if (Context.Request.RouteValues["tenant"].ToString() == configuration[JMS.Service.Settings.JMSSetting.DefaultTenant])
+        {
+            Layout = "_LoginLayout";
+        }
+        else
+        {
+            Layout = "_JournalLoginLayout";
+        }
+    }
+    
 }

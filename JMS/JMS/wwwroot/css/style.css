@@ -105,4 +105,15 @@
 .grid-image{
     max-width:100%
 }
+/*.login-container .login-box-msg{
+    display:none;
+}
+.login-container .card{
+    box-shadow:none;
+    background:none
+}
+.login-container .card-body {
+    box-shadow: none;
+    background: none
+}*/
 

@@ -3,6 +3,7 @@ using JMS.Service.ServiceContracts;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -14,20 +15,24 @@ namespace JMS.Services
         private readonly IMemoryCache _cache;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IConfiguration _configuration;
+        private const string journalLogoKey = "journalLogo";
+        private const string journalNameKey = "journalName";
+        private const string journalTitleKey = "journalTitle";
         public CacheService(IMemoryCache cache, ApplicationDbContext applicationDbContext, IConfiguration configuration)
         {
             _applicationDbContext = applicationDbContext;
             _cache = cache;
             _configuration = configuration;
         }
-        public void DeleteValue(string key, long? journalId = null)
+        public void DeleteValue(string key, string journalPath = null)
         {
-            if (journalId.HasValue)
+            if (!string.IsNullOrEmpty(journalPath))
             {
-                var dict = GetJournalValues(journalId.Value);
+                var dict = GetJournalValues(journalPath);
                 if (dict.ContainsKey(key))
                 {
-                    dict.Remove(key);
+                    object value;
+                    dict.TryRemove(key,out value);
                 }
             }
             else
@@ -36,18 +41,18 @@ namespace JMS.Services
             }
         }
 
-        public object GetValue(string key, long? journalId = null)
+        public object GetValue(string key, string journalPath = null)
         {
-            if (journalId.HasValue)
+            if (!string.IsNullOrEmpty(journalPath))
             {
-                var dict = GetJournalValues(journalId.Value);
+                var dict = GetJournalValues(journalPath);
                 if (dict.ContainsKey(key))
                 {
                     return dict[key];
                 }
                 else
                 {
-                    var setting = _applicationDbContext.JournalSettings.FirstOrDefault(x => x.TenantId == journalId && x.Key == key);
+                    var setting = _applicationDbContext.JournalSettings.FirstOrDefault(x => x.Tenant.JournalPath == journalPath && x.Key == key);
                     object value = null;
                     if (setting == null)
                     {
@@ -57,7 +62,7 @@ namespace JMS.Services
                     {
                         value = setting.Value;
                     }
-                    SetValue(key, value, journalId.Value);
+                    SetValue(key, value, journalPath);
                     return value;
                 }
             }
@@ -81,19 +86,12 @@ namespace JMS.Services
             }
         }
 
-        public void SetValue(string key, object value, long? journalId = null)
+        public void SetValue(string key, object value, string journalPath = null)
         {
-            if (journalId.HasValue)
+            if (!string.IsNullOrEmpty(journalPath))
             {
-                var dict = GetJournalValues(journalId.Value);
-                if (dict.ContainsKey(key))
-                {
-                    dict[key] = value;
-                }
-                else
-                {
-                    dict.Add(key, value);
-                }
+                var dict = GetJournalValues(journalPath);
+                dict[key] = value;
             }
             else
             {
@@ -101,15 +99,52 @@ namespace JMS.Services
             }
         }
 
-        private Dictionary<string, object> GetJournalValues(long journalId)
+        private ConcurrentDictionary<string, object> GetJournalValues(string journalPath)
         {
-            Dictionary<string, object> dict = null;
-            if (!_cache.TryGetValue(journalId, out dict))
+            ConcurrentDictionary<string, object> dict = null;
+            if (!_cache.TryGetValue(journalPath, out dict))
             {
-                dict = new Dictionary<string, object>();
-                _cache.Set(journalId, dict);
+                dict = new ConcurrentDictionary<string, object>();
+                _cache.Set(journalPath, dict);
             }
             return dict;
+        }
+        public string GetJournalLogo(string journalPath)
+        {
+            var logo = GetValue(journalLogoKey, journalPath);
+            if (logo == null)
+            {
+                var journal = _applicationDbContext.Tenants.First(x => x.JournalPath == journalPath);
+                logo = journal.JournalLogo;
+                SetValue(journalLogoKey, journal.JournalLogo, journalPath);
+            }
+            return (string)logo;
+        }
+        public string GetJournalTitle(string journalPath)
+        {
+            var title = GetValue(journalTitleKey, journalPath);
+            if (title == null)
+            {
+                var journal = _applicationDbContext.Tenants.First(x => x.JournalPath == journalPath);
+                title = journal.JournalTitle;
+                SetValue(journalTitleKey, journal.JournalTitle, journalPath);
+            }
+            return (string)title;
+        }
+        public string GetJournalName(string journalPath)
+        {
+            var name = GetValue(journalNameKey, journalPath);
+            if (name == null)
+            {
+                var journal = _applicationDbContext.Tenants.First(x => x.JournalPath == journalPath);
+                name = journal.JournalName;
+                SetValue(journalNameKey, journal.JournalName, journalPath);
+            }
+            return (string)name;
+        }
+        public void ClearJournalCache(string journalPath)
+        {
+            GetJournalValues(journalPath).Clear();
         }
     }
 }

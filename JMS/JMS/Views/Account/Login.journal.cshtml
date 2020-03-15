@@ -1,0 +1,13 @@
+﻿@model JMS.ViewModels.SystemAdmin.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+}
+@section contentheader{
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Login</h1>          
+        </div>
+    </div>
+    }
+
+    <partial name="_loginfrom" model="@Model" />

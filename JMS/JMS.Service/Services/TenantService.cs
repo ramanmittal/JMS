@@ -23,14 +23,16 @@ namespace JMS.Service.Services
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly IFileService _fileService;
         private readonly IMaskService _maskService;
+        private readonly ICacheService _cahceService;
         public readonly IConfiguration _configuration;
-        public TenantService(ApplicationDbContext applicationDbContext, IFileService fileService, IConfiguration configuration, UserManager<ApplicationUser> userManager, IMaskService maskService)
+        public TenantService(ApplicationDbContext applicationDbContext, IFileService fileService, IConfiguration configuration, UserManager<ApplicationUser> userManager, IMaskService maskService, ICacheService cahceService)
         {
             _applicationDbContext = applicationDbContext;
             _fileService = fileService;
             _configuration = configuration;
             _userManager = userManager;
             _maskService = maskService;
+            _cahceService = cahceService;
         }
         public IEnumerable<string> GetTenantPaths()
         {
@@ -112,6 +114,7 @@ namespace JMS.Service.Services
             }
             _applicationDbContext.SaveChanges();
             _fileService.RemoveFile(oldfile);
+            _cahceService.ClearJournalCache(tenant.JournalPath);
         }
         public void DeleteTenant(long id)
         {

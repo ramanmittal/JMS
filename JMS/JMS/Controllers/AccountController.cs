@@ -52,7 +52,7 @@ namespace JMS.Controllers
             {
                 return RedirectToAction("Home", "Index");
             }
-            return View();
+            return View(viewName:string.IsNullOrEmpty(TenantID)? "Login" : "Login.journal");
         }
         [HttpPost]
         [AllowAnonymous]
@@ -68,7 +68,7 @@ namespace JMS.Controllers
                 }
                 TempData.Add(Messages.InvalidLoginAttempt, Messages.InvalidLoginAttempt);
             }
-            return View();
+            return View(viewName: string.IsNullOrEmpty(TenantID) ? "Login" : "Login.journal");
         }
         [HttpPost]
         [AllowAnonymous]
@@ -82,7 +82,7 @@ namespace JMS.Controllers
         [AllowAnonymous]
         public IActionResult ForGotPassword()
         {
-            return View();
+            return View(viewName: string.IsNullOrEmpty(TenantID) ? "ForGotPassword" : "ForGotPassword.journal");
         }
         [HttpPost]
         [AllowAnonymous]
@@ -99,7 +99,7 @@ namespace JMS.Controllers
                     TempData.Add(Messages.SuccessPasswordRecoverEmailMessage, Messages.SuccessPasswordRecoverEmailMessage);
                 }
             }
-            return View();
+            return View(viewName: string.IsNullOrEmpty(TenantID) ? "ForGotPassword" : "ForGotPassword.journal");
         }
         [AllowAnonymous]
         [HttpGet]
@@ -111,7 +111,7 @@ namespace JMS.Controllers
                 {
                     return View(new ResetPasswordModel { Email = model.Email, Token = model.Token });
                 }
-                return View();
+                return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal");
             }
             return BadRequest();
         }
@@ -127,7 +127,7 @@ namespace JMS.Controllers
                 await _signInManager.SignInAsync(user, false);
                 return RedirectToAction("Index", "Home");
             }
-            return View();
+            return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal");
         }
         public IActionResult ViewProfile()
         {
