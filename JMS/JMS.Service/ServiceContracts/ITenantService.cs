@@ -1,4 +1,5 @@
 ﻿using JMS.Entity.Entities;
+using JMS.ViewModels.Admin;
 using JMS.ViewModels.Journals;
 using System;
 using System.Collections.Generic;
@@ -24,5 +25,8 @@ namespace JMS.Service.ServiceContracts
         void SaveTenantAdmin(EditJournalAdminModel editJournalAdminModel);
         Task CreateTenantAdmin(CreateJournalAdminModel model);
         Task DeleteTenantAdmin(long userId);
+        Tenant GetTenantByUserId(long userId);
+        void SaveTenant(AdminJournalSettingModel model, Stream stream, string fileName);
+        void SaveTenantContactSetting(JournalContactSettingModel model, long userId);
     }
 }

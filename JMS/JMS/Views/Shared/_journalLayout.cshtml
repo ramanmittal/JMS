@@ -4,8 +4,10 @@
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @using System.Security.Claims
 @{
-    var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
-    var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
+    var tenant = Context.Request.RouteValues["tenant"] as string;
+    var title = cacheService.GetJournalTitle(tenant);
+    var logo = fileService.GetFile(cacheService.GetJournalLogo(tenant));
+
     JMS.Entity.Entities.ApplicationUser user = null;
     var now = DateTime.UtcNow;
     if (User.Identity.IsAuthenticated)
@@ -300,7 +302,13 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 $('li.dropdown.mega-dropdown').removeClass('open');
             }
         });
-         $('.phonenumber').mask('(000) 000-0000')
+        $('.phonenumber').mask('(000) 000-0000')
+        $('.issn').mask('0000-000x', {
+            "translation": {
+                0: { pattern: /[0-9]/ },
+                x: { pattern: /[0-9X]/ }
+            }
+        });
     </script>
     @RenderSection("scripts", required: false)
 

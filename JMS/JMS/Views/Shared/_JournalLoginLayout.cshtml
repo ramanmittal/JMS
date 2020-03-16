@@ -1,5 +1,7 @@
 ﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
 @inject JMS.Service.ServiceContracts.IFileService fileService
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+
 @{
     var tenant = Context.Request.RouteValues["tenant"] as string;
     var title = cacheService.GetJournalTitle(tenant);

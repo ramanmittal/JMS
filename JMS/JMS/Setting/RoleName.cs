@@ -8,5 +8,6 @@ namespace JMS.Setting
     public class RoleName
     {
         public const string SystemAdmin = "SystemAdmin";
+        public const string Admin = "Admin";
     }
 }

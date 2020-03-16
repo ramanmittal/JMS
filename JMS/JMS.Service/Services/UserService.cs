@@ -85,5 +85,10 @@ namespace JMS.Service.Services
         {
             return string.IsNullOrEmpty(user?.ProfileImage) ? _configuration[JMSSetting.DefaultAvtar] : _fileService.GetFile(user.ProfileImage);
         }
+
+        public ApplicationUser GetUserByEmail(string email, string path)
+        {
+            return _context.Users.FirstOrDefault(x => x.Email == email && x.Tenant.JournalPath == path);
+        }
     }
 }

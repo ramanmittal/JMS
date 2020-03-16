@@ -50,7 +50,7 @@ namespace JMS.Controllers
         {
             if (User.Identity.IsAuthenticated)
             {
-                return RedirectToAction("Home", "Index");
+                return RedirectToAction("Index", "Home");
             }
             return View(viewName:string.IsNullOrEmpty(TenantID)? "Login" : "Login.journal");
         }
@@ -61,10 +61,14 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.Rememberme, false);
-                if (result.Succeeded)
+                var user = _userService.GetUserByEmail(model.Email, TenantID);
+                if (user != null)
                 {
-                    return RedirectToAction("Index", "Home");
+                    var result = await _signInManager.PasswordSignInAsync(user, model.Password, model.Rememberme, false);
+                    if (result.Succeeded)
+                    {
+                        return RedirectToAction("Index", "Home");
+                    }
                 }
                 TempData.Add(Messages.InvalidLoginAttempt, Messages.InvalidLoginAttempt);
             }
@@ -96,8 +100,8 @@ namespace JMS.Controllers
                 {
                     var emailBody = await _razorViewToStringRenderer.RenderViewToStringAsync(@"/Views/EmailTemplates/ResetPassword.cshtml", new ForgotpasswordEmailModel { Email = model.Email, Token = token });
                     _emailSender.SendEmail(new MailMessage(_configuration[JMSSetting.SenderEmail], model.Email, _configuration[JMSSetting.ResetPasswordSubject], emailBody) { IsBodyHtml = true });
-                    TempData.Add(Messages.SuccessPasswordRecoverEmailMessage, Messages.SuccessPasswordRecoverEmailMessage);
                 }
+                TempData.Add(Messages.SuccessPasswordRecoverEmailMessage, Messages.SuccessPasswordRecoverEmailMessage);
             }
             return View(viewName: string.IsNullOrEmpty(TenantID) ? "ForGotPassword" : "ForGotPassword.journal");
         }
@@ -123,9 +127,14 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
-                await _signInManager.SignInAsync(user, false);
-                return RedirectToAction("Index", "Home");
+                var result = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
+                if (result.Succeeded)
+                {
+                    var user = _userService.GetUserByEmail(model.Email, TenantID);
+                    await _signInManager.SignInAsync(user, false);
+                    return RedirectToAction("Index", "Home"); 
+                }
+                ModelState.AddModelError("Password", result.Errors.First().Description);
             }
             return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal");
         }

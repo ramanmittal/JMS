@@ -8,7 +8,7 @@ namespace JMS.Entity.Entities
     public class ApplicationUser : IdentityUser<long>
     {
         public long? TenantId { get; set; }
-        public Tenant Tenant { get; set; }
+        public virtual Tenant Tenant { get; set; }
         public string FirstName { get; set; }
         public string LastName { get; set; }
         public bool? IsDisabled { get; set; }

@@ -1,0 +1,87 @@
+﻿@model JMS.Models.Admin.AdminJournalSettingModel
+@{
+    ViewBag.Title = "Journal Settings";
+}
+<div class="card card-primary">
+    <div class="card-header"><h3>Journal Settings</h3></div>
+    <form method="post" asp-action="JournalSettings" asp-controller="Admin" id="edt-frm" onsubmit="edtfrm()" enctype="multipart/form-data">
+        <div class="card-body">
+            <div>
+                <img id="logo-img" src="@Model.LogoPath" height=100 width=100 />
+            </div>
+            <div class="form-group">
+                <label>Logo</label>
+                <div class="input-group">
+                    <div class="custom-file">
+                        <input type="file" class="custom-file-input" name="logo" asp-for="Logo" accept="image/jpg, image/jpeg, image/png">
+                        <label class="custom-file-label" asp-for="Logo"></label>
+                        <span asp-validation-for="Logo"></span>
+                    </div>
+
+                </div>
+            </div>
+            <div class="form-group">
+                <label>Journal Title</label>
+                <input type="text" class="form-control" asp-for="JournalTitle" />
+                <span asp-validation-for="JournalTitle"></span>
+            </div>
+            <div class="form-group">
+                <label>Journal Name</label>
+                <input type="text" class="form-control" asp-for="JournalName" />
+                <span asp-validation-for="JournalName"></span>
+            </div>
+            <div class="form-group">
+                <label>Publisher</label>
+                <input type="text" class="form-control" asp-for="Publisher" />
+                <span asp-validation-for="Publisher"></span>
+            </div>
+            <div class="form-group">
+                <label>Onlne ISSN</label>
+                <input type="text" class="form-control issn" asp-for="OnlneISSNNumber" />
+                <span asp-validation-for="OnlneISSNNumber"></span>
+            </div>
+            <div class="form-group">
+                <label>Print ISSN</label>
+                <input type="text" class="form-control issn" asp-for="PrintISSNNumber" />
+                <span asp-validation-for="PrintISSNNumber"></span>
+            </div>
+            <div class="custom-control custom-checkbox">
+                <input class="custom-control-input" type="checkbox" asp-for="IsActive">
+                <label class="custom-control-label" asp-for="IsActive">Active</label>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="Save" class="btn btn-primary" />
+            </div>
+        </div>
+    </form>
+</div>
+@section scripts{
+    <script>
+        function edtfrm() {
+            if ($("#edt-frm").valid()) {
+                $(".loader").show();
+            }
+        }
+        function readURL(input) {
+            if (input.files && input.files[0]) {
+                var reader = new FileReader();
+
+                reader.onload = function (e) {
+                    $('#logo-img').attr('src', e.target.result);
+                }
+
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+        $("#Logo").change(function () {
+            readURL(this);
+        });
+        @if (TempData.ContainsKey(JMS.Setting.Messages.SuccessJournalSettingMessage))
+        {
+            <text>
+                 toastr["success"]("@TempData[JMS.Setting.Messages.SuccessJournalSettingMessage]")
+            </text>
+        }
+    </script>
+}

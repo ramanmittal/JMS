@@ -38,6 +38,10 @@ namespace JMS.Controllers
             {
                 return RedirectToAction("Index", "SystemAdmin");
             }
+            else if (User.IsInRole(RoleName.Admin))
+            {
+                return RedirectToAction("Index", "Admin");
+            }
             return Unauthorized();
         }
 

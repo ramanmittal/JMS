@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Identity;
 using JMS.Service.Enums;
 using System.Threading.Tasks;
+using JMS.ViewModels.Admin;
 
 namespace JMS.Service.Services
 {
@@ -113,7 +114,8 @@ namespace JMS.Service.Services
                 tenant.JournalLogo = _fileService.SaveFile(stream, fileName);
             }
             _applicationDbContext.SaveChanges();
-            _fileService.RemoveFile(oldfile);
+            if (stream != null && !string.IsNullOrEmpty(fileName))
+                _fileService.RemoveFile(oldfile);
             _cahceService.ClearJournalCache(tenant.JournalPath);
         }
         public void DeleteTenant(long id)
@@ -174,6 +176,44 @@ namespace JMS.Service.Services
                 }
             }
                 
+        }
+
+        public Tenant GetTenantByUserId(long userId)
+        {
+            return _applicationDbContext.Users.Include(x=>x.Tenant).Where(x=>x.Id==userId).Select(x=>x.Tenant).First();
+        }
+
+        public void SaveTenant(AdminJournalSettingModel model, Stream stream, string fileName)
+        {
+            var tenant = _applicationDbContext.Users.Where(x => x.Id == model.UserId).Select(x => x.Tenant).First();
+            tenant.IsDisabled = !model.IsActive;
+            tenant.JournalName = model.JournalName;
+            tenant.JournalTitle = model.JournalTitle;
+            tenant.Publisher = model.Publisher;
+            tenant.OnlineISSN = model.OnlneISSNNumber;
+            tenant.PrintISSN = model.PrintISSNNumber;
+            var oldfile = tenant.JournalLogo;
+            if (stream != null && !string.IsNullOrEmpty(fileName))
+            {
+                tenant.JournalLogo = _fileService.SaveFile(stream, fileName);
+            }
+            _applicationDbContext.SaveChanges();
+            if (stream != null && !string.IsNullOrEmpty(fileName))
+                _fileService.RemoveFile(oldfile);
+            _cahceService.ClearJournalCache(tenant.JournalPath);
+        }
+
+        public void SaveTenantContactSetting(JournalContactSettingModel model,long userId)
+        {
+            var tenant = _applicationDbContext.Users.Where(x => x.Id == userId).Select(x => x.Tenant).First();
+            tenant.FirstLine = model.Address;
+            tenant.Country = model.Country;
+            tenant.City = model.City;
+            tenant.State = model.State;
+            tenant.Zip = model.Zip;
+            tenant.Email = model.Email;
+            tenant.PhoneNumber = model.Phone;
+            _applicationDbContext.SaveChanges();
         }
     }
 }

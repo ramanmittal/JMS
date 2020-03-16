@@ -41,14 +41,15 @@ namespace JMS.Service.Services
             return false;
         }
 
-        public async Task<ApplicationUser> ResetPassword(string email, string token, string password, string tenantId)
+        public async Task<IdentityResult> ResetPassword(string email, string token, string password, string tenantId)
         {
             var user = _context.Users.SingleOrDefault(x => x.Email == email && x.Tenant.JournalPath == tenantId);
             if (user != null)
             {
                 var result = await _userManager.ResetPasswordAsync(user, token, password);
+                return result;
             }
-            return user;
+            return null;
         }
 
         public async Task<IdentityResult> ChangePassword(long userId,string password,string confirmPassword)

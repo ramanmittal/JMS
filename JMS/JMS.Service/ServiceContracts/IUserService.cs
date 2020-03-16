@@ -15,5 +15,6 @@ namespace JMS.Service.ServiceContracts
         void SaveSystemAdmin(SystemAdminProfileModel systemAdminProfileModel, Stream fileStream, string fileName);
         string GetUserProfileImage(long userid);
         string GetUserProfileImage(ApplicationUser user);
+        ApplicationUser GetUserByEmail(string email, string path);
     }
 }
