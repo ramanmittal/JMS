@@ -28,5 +28,10 @@ namespace JMS.Service.ServiceContracts
         Tenant GetTenantByUserId(long userId);
         void SaveTenant(AdminJournalSettingModel model, Stream stream, string fileName);
         void SaveTenantContactSetting(JournalContactSettingModel model, long userId);
+        string AboutUsContent(string tenantPath);
+        string FooterContent(string tenantPath);
+        string AdditionalContent(string tenantPath);
+        string PrivacyPolicyContent(string tenantPath);
+        void SaveAppearanceSettings(AppearanceSettingsModel model, long userId);
     }
 }

@@ -1,0 +1,24 @@
+﻿@model string
+@{
+    ViewBag.Title = "Privacy Statement";
+}
+@if (!string.IsNullOrEmpty(Model))
+{
+    @*<div class="row">
+            <div class="col-md-12">
+
+            </div>
+        </div>*@
+    @Html.Raw(Model)
+}
+<style type="text/css">
+    .content-wrapper > .content {
+        padding: unset
+    }
+
+        .content-wrapper > .content > .container {
+            max-width: unset;
+            padding: unset;
+            margin: unset
+        }
+</style>

@@ -13,5 +13,9 @@ namespace JMS.Service.Settings
         public const string SystemLogo = "SystemLogo";
         public const string SystemTitle = "SystemTitle";
         public const string DefaultAvtar = "DefaultAvtar";
+        public const string AboutUsContent = "AboutUsContent";
+        public const string FooterContent = "FooterContent";
+        public const string AdditionalContent = "AdditionalContent";
+        public const string PrivacyPolicyContent = "PrivacyPolicyContent";
     }
 }

@@ -1,0 +1,62 @@
+﻿@model JMS.ViewModels.Admin.AppearanceSettingsModel
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+@{
+    ViewBag.Title = "Appearance Settings";
+}
+
+<div class="card card-primary">
+    <div class="card-header"><h3>Contact Settings</h3></div>
+    <form method="post" asp-action="AppearanceSettings" asp-controller="Admin" id="edt-frm" onsubmit="return edtfrm()" enctype="multipart/form-data">
+        <div class="card-body">
+            <div class="form-group">
+                <label>AboutUs Content</label>
+                <textarea class="form-control summernote" asp-for="AboutUsContent"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Footer Content</label>
+                <textarea class="form-control summernote" asp-for="FooterContent"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Additional Content</label>
+                <textarea class="form-control summernote" asp-for="AdditionalContent"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Privacy Policy Content</label>
+                <textarea class="form-control summernote" asp-for="PrivacyPolicyContent"></textarea>
+            </div>
+        </div>
+        <div class="card-footer">
+            <input type="submit" value="Save" class="btn btn-primary" />
+        </div>
+    </form>
+</div>
+@section scripts{
+    <script>
+        function edtfrm() {
+            $(".loader").show();
+            $.ajax({
+                "method": "POST",
+                "url": "@Url.Action("AppearanceSettings")",
+                "data": {
+                    "AboutUsContent": $('#AboutUsContent').summernote('code'),
+                    "FooterContent": $('#FooterContent').summernote('code'),
+                    "AdditionalContent": $('#AdditionalContent').summernote('code'),
+                    "PrivacyPolicyContent": $('#PrivacyPolicyContent').summernote('code'),
+                    "__RequestVerificationToken": "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
+                },
+                "success": function () {
+                    $(".loader").hide();
+                    toastr["success"]("@JMS.Setting.Messages.SuccessAppearanceSettingMessage");
+                    location.reload();
+                }
+            });
+            return false
+        }
+        @if (TempData.ContainsKey(JMS.Setting.Messages.SuccessContactSettingMessage))
+        {
+            <text>
+                 toastr["success"]("@TempData[JMS.Setting.Messages.SuccessContactSettingMessage]")
+            </text>
+        }
+    </script>
+}

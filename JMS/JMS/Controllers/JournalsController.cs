@@ -170,5 +170,19 @@ namespace JMS.Controllers
             await _tenantService.DeleteTenantAdmin(id);
             return Json(new { Success = true });
         }
+        [AllowAnonymous]
+        [Route("{tenant}/About")]
+        public IActionResult About()
+        {
+            var aboutUsContent = _tenantService.AboutUsContent(TenantID);
+            return View(model: aboutUsContent);
+        }
+        [AllowAnonymous]
+        [Route("{tenant}/privacy")]
+        public IActionResult privacy()
+        {
+            var aboutUsContent = _tenantService.PrivacyPolicyContent(TenantID);
+            return View(model: aboutUsContent);
+        }
     }
 }

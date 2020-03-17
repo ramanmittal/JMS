@@ -116,4 +116,6 @@
     box-shadow: none;
     background: none
 }*/
-
+body .popover {
+    display: none !important;
+}

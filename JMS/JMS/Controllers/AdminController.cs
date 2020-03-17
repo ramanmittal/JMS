@@ -3,21 +3,23 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
+using JMS.Helpers;
 using JMS.Models.Admin;
 using JMS.Service.ServiceContracts;
 using JMS.Setting;
 using JMS.ViewModels.Admin;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 
 namespace JMS.Controllers
 {
     [Authorize(Roles = RoleName.Admin)]
-    public class AdminController : Controller
+    public class AdminController : BaseController
     {
         private readonly ITenantService _tenantService;
         private readonly IFileService _fileService;
-        public AdminController(ITenantService tenantService, IFileService fileService)
+        public AdminController(ITenantService tenantService, IFileService fileService, IConfiguration configuration) : base(configuration)
         {
             _tenantService = tenantService;
             _fileService = fileService;
@@ -91,6 +93,30 @@ namespace JMS.Controllers
                 return RedirectToAction("ContactSettings");
             }
             return View();
+        }
+
+        public IActionResult AppearanceSettings()
+        {
+            var model = new AppearanceSettingsModel
+            {
+                AboutUsContent = _tenantService.AboutUsContent(TenantID),
+                AdditionalContent = _tenantService.AdditionalContent(TenantID),
+                FooterContent = _tenantService.FooterContent(TenantID),
+                PrivacyPolicyContent = _tenantService.PrivacyPolicyContent(TenantID)
+            };
+            return View(model);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult AppearanceSettings(AppearanceSettingsModel model)
+        {
+            var userId = long.Parse(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+            _tenantService.SaveAppearanceSettings(model, userId);
+            if (Request.IsAjaxRequest())
+            {
+                return Ok();
+            }
+            return RedirectToAction("AppearanceSettings");
         }
     }
 }

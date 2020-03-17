@@ -1,5 +1,6 @@
 ﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
 @inject JMS.Service.ServiceContracts.IFileService fileService
+@inject JMS.Service.ServiceContracts.ITenantService tenantService
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 
 @{
@@ -121,8 +122,8 @@ scratch. This page gets rid of all links and provides the needed markup only.
                         <div class="col-md-4">
                             @RenderBody()
                         </div>
-                        <div class="col-md-6 col-md-offset-2">
-
+                        <div class="col-md-6 offset-md-2">
+                            @Html.Raw(tenantService.AdditionalContent(tenant)??"")
                         </div>
                     </div>
 
@@ -133,11 +134,9 @@ scratch. This page gets rid of all links and provides the needed markup only.
         </div>
         <!-- /.content-wrapper -->
         <!-- Main Footer -->
-        <footer class="main-footer">
+        <footer class="main-footer" style="padding:0px;border:0px;">
             <!-- To the right -->
-            <div class="float-right d-none d-sm-inline">
-
-            </div>
+            @Html.Raw(tenantService.FooterContent(tenant))
             <!-- Default to the left -->
             @*<strong>Copyright &copy; @now.Year-@(now.Year + 1) <a href="https://adminlte.io"></a></strong>*@
         </footer>

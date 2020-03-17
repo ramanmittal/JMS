@@ -2,7 +2,7 @@
 @{
     @if (User.Identity.IsAuthenticated)
     {
-        @if (Context.Request.RouteValues["tenant"].ToString() == configuration[JMS.Service.Settings.JMSSetting.DefaultTenant])
+        @if (configuration[JMS.Service.Settings.JMSSetting.DefaultTenant].Equals(Context.Request.RouteValues["tenant"].ToString(),StringComparison.OrdinalIgnoreCase ))
         {
             Layout = "_Layout";
         }
@@ -13,7 +13,7 @@
     }
     else
     {
-        @if (Context.Request.RouteValues["tenant"].ToString() == configuration[JMS.Service.Settings.JMSSetting.DefaultTenant])
+        @if (configuration[JMS.Service.Settings.JMSSetting.DefaultTenant].Equals(Context.Request.RouteValues["tenant"].ToString(),StringComparison.OrdinalIgnoreCase))
         {
             Layout = "_LoginLayout";
         }

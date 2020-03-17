@@ -215,5 +215,72 @@ namespace JMS.Service.Services
             tenant.PhoneNumber = model.Phone;
             _applicationDbContext.SaveChanges();
         }
+
+        public string AboutUsContent(string tenantPath)
+        {
+            return _applicationDbContext.JournalSettings.Where(x => x.Tenant.JournalPath == tenantPath && x.Key == JMSSetting.AboutUsContent).Select(x => x.Value).FirstOrDefault();
+        }
+        public string FooterContent(string tenantPath)
+        {
+            return _applicationDbContext.JournalSettings.Where(x => x.Tenant.JournalPath == tenantPath && x.Key == JMSSetting.FooterContent).Select(x => x.Value).FirstOrDefault();
+        }
+        public string AdditionalContent(string tenantPath)
+        {
+            return _applicationDbContext.JournalSettings.Where(x => x.Tenant.JournalPath == tenantPath && x.Key == JMSSetting.AdditionalContent).Select(x => x.Value).FirstOrDefault();
+        }
+        public string PrivacyPolicyContent(string tenantPath)
+        {
+            return _applicationDbContext.JournalSettings.Where(x => x.Tenant.JournalPath == tenantPath && x.Key == JMSSetting.PrivacyPolicyContent).Select(x => x.Value).FirstOrDefault();
+        }
+
+        public void SaveAppearanceSettings(AppearanceSettingsModel model, long userId)
+        {
+            var tenantId = GetTenantByUserId(userId).Id;
+            var setting = _applicationDbContext.JournalSettings.Where(x => x.TenantId == tenantId && x.Key == JMSSetting.AboutUsContent).FirstOrDefault();
+            if (setting == null)
+            {
+                setting = new JournalSetting();
+                setting.Key = JMSSetting.AboutUsContent; setting.Value = model.AboutUsContent; setting.TenantId = tenantId;
+                _applicationDbContext.JournalSettings.Add(setting);
+            }
+            else
+            {
+                setting.Value = model.AboutUsContent;
+            }
+            setting = _applicationDbContext.JournalSettings.Where(x => x.TenantId == tenantId && x.Key == JMSSetting.AdditionalContent).FirstOrDefault();
+            if (setting == null)
+            {
+                setting = new JournalSetting();
+                setting.Key = JMSSetting.AdditionalContent; setting.Value = model.AdditionalContent; setting.TenantId = tenantId;
+                _applicationDbContext.JournalSettings.Add(setting);
+            }
+            else
+            {
+                setting.Value = model.AdditionalContent;
+            }
+            setting = _applicationDbContext.JournalSettings.Where(x => x.TenantId == tenantId && x.Key == JMSSetting.FooterContent).FirstOrDefault();
+            if (setting == null)
+            {
+                setting = new JournalSetting();
+                setting.Key = JMSSetting.FooterContent; setting.Value = model.FooterContent; setting.TenantId = tenantId;
+                _applicationDbContext.JournalSettings.Add(setting);
+            }
+            else
+            {
+                setting.Value = model.FooterContent;
+            }
+            setting = _applicationDbContext.JournalSettings.Where(x => x.TenantId == tenantId && x.Key == JMSSetting.PrivacyPolicyContent).FirstOrDefault();
+            if (setting == null)
+            {
+                setting = new JournalSetting();
+                setting.Key = JMSSetting.PrivacyPolicyContent; setting.Value = model.PrivacyPolicyContent; setting.TenantId = tenantId;
+                _applicationDbContext.JournalSettings.Add(setting);
+            }
+            else
+            {
+                setting.Value = model.PrivacyPolicyContent;
+            }
+            _applicationDbContext.SaveChanges();
+        }
     }
 }

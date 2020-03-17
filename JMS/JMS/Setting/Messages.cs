@@ -15,6 +15,7 @@ namespace JMS.Setting
         public const string SuccessSettingMessage = "Settings have been saved successfully";
         public const string SuccessJournalSettingMessage = "Journals Settings have been saved successfully";
         public const string SuccessContactSettingMessage = "Contact Settings have been saved successfully";
+        public const string SuccessAppearanceSettingMessage = "Appearance Settings have been saved successfully";
         public const string SuccessProfileMessage = "Profile has been saved successfully.";
         public const string SuccessPasswordRecoverEmailMessage = "Password recovery link has been emailed. Click the link in the email to recover your password";
         public const string SuccessPasswordChangeMessage = "Password has been changed successfully.";
