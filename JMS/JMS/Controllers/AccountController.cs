@@ -47,7 +47,8 @@ namespace JMS.Controllers
         [HttpGet]
         [AllowAnonymous]
         public IActionResult Login()
-        {
+        {          
+            
             if (User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Index", "Home");

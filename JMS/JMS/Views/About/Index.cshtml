@@ -1,0 +1,25 @@
+﻿@model string
+@{
+    ViewBag.Title = "About";
+    Layout = "_journalLayout";
+}
+@if (!string.IsNullOrEmpty(Model))
+{
+    @*<div class="row">
+            <div class="col-md-12">
+
+            </div>
+        </div>*@
+    @Html.Raw(Model)
+}
+<style type="text/css">
+    .content-wrapper > .content {
+        padding: unset
+    }
+
+        .content-wrapper > .content > .container {
+            max-width: unset;
+            padding: unset;
+            margin: unset
+        }
+</style>

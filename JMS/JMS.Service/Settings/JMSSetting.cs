@@ -10,6 +10,10 @@ namespace JMS.Service.Settings
         public const string DefaultTenant = "DefaultTenant";
         public const string ResetPasswordSubject = "ResetPasswordSubject";
         public const string SenderEmail = "SenderEmail";
+        public const string SMTPServer = "SMTPServer";
+        public const string SMTPPort = "SMTPPort";
+        public const string SMTPUserName = "SMTPUserName";
+        public const string SMTPPassword = "SMTPPassword";
         public const string SystemLogo = "SystemLogo";
         public const string SystemTitle = "SystemTitle";
         public const string DefaultAvtar = "DefaultAvtar";

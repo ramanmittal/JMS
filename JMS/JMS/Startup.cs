@@ -22,6 +22,7 @@ using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using JMS.Services;
+using JMS.Models;
 
 namespace JMS
 {
@@ -56,7 +57,7 @@ namespace JMS
             services.AddScoped<ISystemService, SystemService>();
             services.AddScoped<IAccountService, AccountService>();
             services.AddScoped<IRazorViewToStringRenderer, RazorViewToStringRenderer>();
-            services.AddScoped<IEmailSender, LogEmailSender>();
+            services.AddScoped<IEmailSender, SMTPEmailSender>();
             services.AddScoped<ITenantService, TenantService>();
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IUserService, UserService>();
@@ -85,6 +86,7 @@ namespace JMS
                 option.EventsType = typeof(MyCookieAuthenticationEvents);
             });
             services.AddScoped<MyCookieAuthenticationEvents>();
+            services.Configure<UserMenu>(Configuration.GetSection("Menus"));
         }        
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
