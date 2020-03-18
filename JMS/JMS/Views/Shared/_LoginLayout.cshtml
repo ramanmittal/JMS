@@ -1,8 +1,7 @@
 ﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
-@inject JMS.Service.ServiceContracts.IFileService fileService
 @{
     var title = cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemTitle);
-    var logo = fileService.GetFile(cacheService.GetValue(JMS.Service.Settings.JMSSetting.SystemLogo) as string);
+    var logo = (cacheService.GetSystemLogo());
 }
 <!DOCTYPE html>
 <html>

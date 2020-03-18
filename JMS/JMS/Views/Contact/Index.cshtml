@@ -1,4 +1,27 @@
-﻿
-@{ 
+﻿@model JMS.ViewModels.Admin.JournalContactSettingModel
+@{
     Layout = "_journalLayout";
+}
+
+@section contentheader{
+    <div class="row">
+        <div class="col-md-12">
+            <h1>
+                Contact Information
+                <hr />
+            </h1>
+        </div>
+    </div>
+}
+@if (Model != null)
+{
+    <div class="row">
+        <div class="col-md-12">
+            <p>@Model.Address</p>
+            <p>@Model.Country, @Model.City, @Model.State</p>
+            <p>PO.Box: @Model.Zip</p>
+            <p>@Model.Phone</p>
+            <p>@Model.Email</p>
+        </div>
+    </div>
 }

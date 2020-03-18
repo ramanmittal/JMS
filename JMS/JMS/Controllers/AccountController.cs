@@ -114,7 +114,7 @@ namespace JMS.Controllers
             {
                 if (await _accountService.VerifyUserTokenAsync(model.Email, model.Token, TenantID))
                 {
-                    return View(new ResetPasswordModel { Email = model.Email, Token = model.Token });
+                    return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal", new ResetPasswordModel { Email = model.Email, Token = model.Token });
                 }
                 return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal");
             }

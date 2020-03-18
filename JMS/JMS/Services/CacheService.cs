@@ -1,5 +1,6 @@
 ﻿using JMS.Entity.Data;
 using JMS.Service.ServiceContracts;
+using JMS.Service.Settings;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using System;
@@ -15,13 +16,15 @@ namespace JMS.Services
         private readonly IMemoryCache _cache;
         private readonly ApplicationDbContext _applicationDbContext;
         private readonly IConfiguration _configuration;
+        private readonly IFileService _fileService;
         private const string journalLogoKey = "journalLogo";
         private const string journalNameKey = "journalName";
         private const string journalTitleKey = "journalTitle";
-        public CacheService(IMemoryCache cache, ApplicationDbContext applicationDbContext, IConfiguration configuration)
+        public CacheService(IMemoryCache cache, IFileService fileService, ApplicationDbContext applicationDbContext, IConfiguration configuration)
         {
             _applicationDbContext = applicationDbContext;
             _cache = cache;
+            _fileService = fileService;
             _configuration = configuration;
         }
         public void DeleteValue(string key, string journalPath = null)
@@ -145,6 +148,26 @@ namespace JMS.Services
         public void ClearJournalCache(string journalPath)
         {
             GetJournalValues(journalPath).Clear();
+        }
+
+        public string GetSystemLogo()
+        {
+            string value = null;
+            if (!_cache.TryGetValue(JMSSetting.SystemLogo, out value))
+            {
+                var setting = _applicationDbContext.SystemSettings.FirstOrDefault(x => x.Key == JMSSetting.SystemLogo);
+                if (setting == null)
+                {
+                    value = _configuration[JMSSetting.SystemLogo];                    
+                }
+                else
+                {
+                    value = setting.Value;
+                    value = _fileService.GetFile(value);
+                }
+                SetValue(JMSSetting.SystemLogo, value);
+            }
+            return value;
         }
     }
 }

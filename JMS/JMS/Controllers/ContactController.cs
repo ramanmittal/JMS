@@ -19,8 +19,8 @@ namespace JMS.Controllers
         [AllowAnonymous]
         public IActionResult Index()
         {
-            
-            return View();
+            var journal = _tenantService.GetContactSettings(TenantID);
+            return View(journal);
         }
     }
 }
