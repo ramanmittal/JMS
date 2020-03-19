@@ -282,5 +282,24 @@ namespace JMS.Service.Services
             }
             _applicationDbContext.SaveChanges();
         }
+
+        public JournalContactSettingModel GetContactSettings(string tenantPath)
+        {
+            var tenant = _applicationDbContext.Tenants.FirstOrDefault(x => x.JournalPath == tenantPath);
+            if (tenant == null)
+            {
+                return null;
+            }
+            return new JournalContactSettingModel
+            {
+                Address = tenant.FirstLine,
+                City = tenant.City,
+                Country = tenant.Country,
+                Email = tenant.Email,
+                Phone = tenant.PhoneNumber,
+                State = tenant.State,
+                Zip = tenant.Zip
+            };
+        }
     }
 }

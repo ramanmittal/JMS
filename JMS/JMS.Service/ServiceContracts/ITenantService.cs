@@ -33,5 +33,6 @@ namespace JMS.Service.ServiceContracts
         string AdditionalContent(string tenantPath);
         string PrivacyPolicyContent(string tenantPath);
         void SaveAppearanceSettings(AppearanceSettingsModel model, long userId);
+        JournalContactSettingModel GetContactSettings(string tenantPath);
     }
 }

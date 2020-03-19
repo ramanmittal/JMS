@@ -14,5 +14,6 @@ namespace JMS.Service.ServiceContracts
         string GetJournalName(string journalPath);
         string GetJournalTitle(string journalPath);
         string GetJournalLogo(string journalPath);
+        string GetSystemLogo();
     }
 }
