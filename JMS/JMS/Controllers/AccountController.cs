@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using System.Text;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace JMS.Controllers
 {
@@ -99,7 +101,9 @@ namespace JMS.Controllers
                 var token = await _accountService.GetResetPasswordTokenByEmail(model.Email, TenantID);
                 if (token != null)
                 {
-                    var emailBody = await _razorViewToStringRenderer.RenderViewToStringAsync(@"/Views/EmailTemplates/ResetPassword.cshtml", new ForgotpasswordEmailModel { Email = model.Email, Token = token });
+                    byte[] tokenGeneratedBytes = Encoding.UTF8.GetBytes(token);
+                    var codeEncoded = WebEncoders.Base64UrlEncode(tokenGeneratedBytes);
+                    var emailBody = await _razorViewToStringRenderer.RenderViewToStringAsync(@"/Views/EmailTemplates/ResetPassword.cshtml", new ForgotpasswordEmailModel { Email = model.Email, Token = codeEncoded });
                     _emailSender.SendEmail(new MailMessage(_configuration[JMSSetting.SenderEmail], model.Email, _configuration[JMSSetting.ResetPasswordSubject], emailBody) { IsBodyHtml = true });
                 }
                 TempData.Add(Messages.SuccessPasswordRecoverEmailMessage, Messages.SuccessPasswordRecoverEmailMessage);
@@ -112,7 +116,9 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                if (await _accountService.VerifyUserTokenAsync(model.Email, model.Token, TenantID))
+                var codeDecodedBytes = WebEncoders.Base64UrlDecode(model.Token);
+                var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
+                if (await _accountService.VerifyUserTokenAsync(model.Email, codeDecoded, TenantID))
                 {
                     return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal", new ResetPasswordModel { Email = model.Email, Token = model.Token });
                 }
@@ -128,7 +134,9 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _accountService.ResetPassword(model.Email, model.Token, model.Password, TenantID);
+                var codeDecodedBytes = WebEncoders.Base64UrlDecode(model.Token);
+                var codeDecoded = Encoding.UTF8.GetString(codeDecodedBytes);
+                var result = await _accountService.ResetPassword(model.Email, codeDecoded, model.Password, TenantID);
                 if (result.Succeeded)
                 {
                     var user = _userService.GetUserByEmail(model.Email, TenantID);

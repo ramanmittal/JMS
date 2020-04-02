@@ -3,6 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netcoreapp3.0</TargetFramework>
     <UserSecretsId>aspnet-JMS-6F888E81-626A-4812-8EF8-674AC6B86FA8</UserSecretsId>
+    <Configurations>Debug;Release;QA</Configurations>
   </PropertyGroup>
 
 

@@ -50,7 +50,7 @@ namespace JMS
                 .AddDefaultTokenProviders();
             var mvc = services.AddControllersWithViews(
                 //options => options.Filters.Add<MultiTenantActionFilter>()
-                );
+                ).AddJsonOptions(options => { options.JsonSerializerOptions.PropertyNamingPolicy = null; });
 #if (DEBUG)
             mvc.AddRazorRuntimeCompilation();
 #endif
