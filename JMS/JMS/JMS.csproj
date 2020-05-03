@@ -29,6 +29,7 @@
   <ItemGroup>
     <Folder Include="Models\EmailModels\" />
     <Folder Include="Views\Home\" />
+    <Folder Include="wwwroot\uploaded\" />
   </ItemGroup>
 
 </Project>

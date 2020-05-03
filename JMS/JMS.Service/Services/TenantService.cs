@@ -68,7 +68,7 @@ namespace JMS.Service.Services
                     _applicationDbContext.Tenants.Add(tenant);
                     var path = _fileService.SaveFile(stream, journalLogo);
                     tenant.JournalLogo = path;
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, Tenant = tenant };
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, Tenant = tenant, EmailConfirmed = true };
                     await _userManager.CreateAsync(user);
                     _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
                     _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, Tenant = tenant });
@@ -142,7 +142,7 @@ namespace JMS.Service.Services
             {
                 try
                 {
-                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, TenantId = model.TenantId, IsDisabled = !model.Active };
+                    var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, TenantId = model.TenantId, IsDisabled = !model.Active, EmailConfirmed = true };
                     await _userManager.CreateAsync(user);
                     _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
                     _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, TenantId = model.TenantId });

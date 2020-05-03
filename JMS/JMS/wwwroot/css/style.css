@@ -119,3 +119,6 @@
 body .popover {
     display: none !important;
 }
+.tooltip {
+    pointer-events: none;
+}

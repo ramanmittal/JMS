@@ -48,7 +48,7 @@ namespace JMS.Service.Services
                     var SystemUserEmail = _configuration[JMSSetting.SystemUserEmail];
                     if (_applicationDbContext.Users.Count(x => x.TenantId == null && x.UserName == SystemUserEmail) == 0)
                     {
-                        var user = new ApplicationUser { UserName = SystemUserEmail, Email = SystemUserEmail };
+                        var user = new ApplicationUser { UserName = SystemUserEmail, Email = SystemUserEmail, EmailConfirmed = true };
                         await _userManager.CreateAsync(user);
                         await _userManager.AddToRoleAsync(user, Role.SystemAdmin.ToString());
                     }
