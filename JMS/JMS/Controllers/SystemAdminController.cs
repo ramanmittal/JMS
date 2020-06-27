@@ -27,7 +27,7 @@ namespace JMS.Controllers
         
         private readonly ISystemService _systemService;        
        
-        public SystemAdminController(IConfiguration configuration,ISystemService systemService) : base(configuration)
+        public SystemAdminController(ISystemService systemService)
         {  
             _systemService = systemService;            
         }

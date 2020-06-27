@@ -5,16 +5,13 @@ using System.Threading.Tasks;
 using JMS.Service.Settings;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-
+using Microsoft.Extensions.DependencyInjection;
 namespace JMS.Controllers
 {
     public abstract class BaseController : Controller
     {
-        protected readonly IConfiguration _configuration;
-        public BaseController(IConfiguration configuration)
-        {
-            _configuration = configuration;
-        }
+        protected IConfiguration _configuration { get { return HttpContext.RequestServices.GetService<IConfiguration>(); } }
+       
         public string TenantID
         {
             get

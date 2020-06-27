@@ -12,7 +12,7 @@ namespace JMS.Controllers
     public class PrivacyController : BaseController
     {
         private readonly ITenantService _tenantService;
-        public PrivacyController(ITenantService tenantService, IConfiguration configuration) : base(configuration)
+        public PrivacyController(ITenantService tenantService)
         {
             _tenantService = tenantService;
         }

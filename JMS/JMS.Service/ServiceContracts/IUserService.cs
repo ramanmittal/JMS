@@ -1,9 +1,11 @@
 ﻿using JMS.Entity.Entities;
 using JMS.ViewModels.SystemAdmin;
+using JMS.ViewModels.Users;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace JMS.Service.ServiceContracts
 {
@@ -16,5 +18,7 @@ namespace JMS.Service.ServiceContracts
         string GetUserProfileImage(long userid);
         string GetUserProfileImage(ApplicationUser user);
         ApplicationUser GetUserByEmail(string email, string path);
+
+        Task<UserGridModel> GetJournalUsers(long tenantId, UserGridSearchModel userGridSearchModel);
     }
 }

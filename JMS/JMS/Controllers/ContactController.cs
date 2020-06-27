@@ -12,7 +12,7 @@ namespace JMS.Controllers
     public class ContactController : BaseController
     {
         private readonly ITenantService _tenantService;
-        public ContactController(ITenantService tenantService, IConfiguration configuration) : base(configuration)
+        public ContactController(ITenantService tenantService)
         {
             _tenantService = tenantService;
         }

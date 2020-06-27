@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Linq;
 using System.Net.Mail;
 using System.Security.Claims;
 using System.Threading.Tasks;
@@ -28,7 +26,7 @@ namespace JMS.Controllers
         private readonly IFileService _fileService;
         private readonly SignInManager<ApplicationUser> _signInManager;
         private readonly IRazorViewToStringRenderer _razorViewToStringRenderer;
-        public AccountController(IConfiguration configuration, IUserService userservice, IAccountService accountService, IEmailSender emailSender, IFileService fileService, SignInManager<ApplicationUser> signInManager, IRazorViewToStringRenderer razorViewToStringRenderer) : base(configuration)
+        public AccountController(IUserService userservice, IAccountService accountService, IEmailSender emailSender, IFileService fileService, SignInManager<ApplicationUser> signInManager, IRazorViewToStringRenderer razorViewToStringRenderer) 
         {
             _userService = userservice;
             _accountService = accountService;

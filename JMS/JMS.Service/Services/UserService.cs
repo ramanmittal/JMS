@@ -10,6 +10,11 @@ using JMS.ViewModels.SystemAdmin;
 using System.IO;
 using Microsoft.Extensions.Configuration;
 using JMS.Service.Settings;
+using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
+using JMS.ViewModels.Users;
+using JMS.Service.Enums;
+using Microsoft.AspNetCore.Identity;
 
 namespace JMS.Service.Services
 {
@@ -89,6 +94,87 @@ namespace JMS.Service.Services
         public ApplicationUser GetUserByEmail(string email, string path)
         {
             return _context.Users.FirstOrDefault(x => x.Email == email && x.Tenant.JournalPath == path);
+        }
+
+        public async Task<UserGridModel> GetJournalUsers(long tenantId, UserGridSearchModel userGridSearchModel)
+        {
+            string[] roles = null;
+            if (userGridSearchModel.Roles != null)
+            {
+                roles = userGridSearchModel.Roles.Split(",").Select(x => x.Trim()).ToArray();
+                if (roles.Any())
+                {
+                    roles = roles.Select(x => ((Role)int.Parse(x)).ToString()).ToArray();
+                }
+            }
+            var users = _context.Users.Where(x => x.TenantId == tenantId && (x.FirstName.ToLower() + " " + x.LastName.ToLower()).Contains(userGridSearchModel.Name)
+                         && x.Email.Contains(userGridSearchModel.Email));
+            if (userGridSearchModel.Status.HasValue)
+            {
+                users = userGridSearchModel.Status.Value ? users.Where(x => x.IsDisabled != true) : users.Where(x => x.IsDisabled == true);
+            }
+            IQueryable<IdentityRole<long>> dbRoles = roles != null && roles.Any() ? _context.Roles.Where(x => roles.Contains(x.Name)) : _context.Roles;
+            var filteredUsers = (from userRole in _context.UserRoles
+                        join user in users on userRole.UserId equals user.Id
+                        join role in dbRoles on userRole.RoleId equals role.Id
+
+                        select new { UserId = user.Id, user.FirstName, user.LastName, user.Email, user.ProfileImage } into g
+                        group g by g.UserId into g
+                        select new
+                        {
+                            UserId = g.Key,
+                            FirstName = g.Max(x => x.FirstName),
+                            LastName = g.Max(x => x.LastName),
+                            Email = g.Max(x => x.Email),
+                            ProfileImage = g.Max(x => x.ProfileImage)
+                        });
+            if (userGridSearchModel.sortField == "Name" && userGridSearchModel.sortOrder == "asc")
+            {
+                filteredUsers = filteredUsers.OrderBy(x => x.FirstName).ThenBy(x => x.LastName);
+            }
+            else if (userGridSearchModel.sortField == "Name" && userGridSearchModel.sortOrder == "desc")
+            {
+                filteredUsers = filteredUsers.OrderByDescending(x => x.FirstName).ThenByDescending(x => x.LastName);
+            }
+            if (userGridSearchModel.sortField == "Email" && userGridSearchModel.sortOrder == "asc")
+            {
+                filteredUsers = filteredUsers.OrderBy(x => x.Email);
+            }
+            else if (userGridSearchModel.sortField == "Email" && userGridSearchModel.sortOrder == "desc")
+            {
+                filteredUsers = filteredUsers.OrderByDescending(x => x.Email);
+            }
+
+            var extractedUsers = await filteredUsers.Skip((userGridSearchModel.pageIndex - 1) * userGridSearchModel.pageSize).Take(userGridSearchModel.pageSize).Select(x => new { x.UserId, x.FirstName, x.LastName, x.Email, x.ProfileImage }).ToArrayAsync();
+            var userIds = extractedUsers.Select(x => x.UserId);
+            var userRoles = await (from userRole in _context.UserRoles
+                                 join role in _context.Roles on userRole.RoleId equals role.Id
+                                 join user in _context.Users on userRole.UserId equals user.Id
+                                 where userIds.Contains(userRole.UserId)
+                                 select new { UserId = userRole.UserId, Role = role.Name, user.IsDisabled }
+                        ).ToArrayAsync();
+            var groupedUsers = userRoles.GroupBy(x => x.UserId);
+            var data = new UserGridRowModel[extractedUsers.Length];
+            for (int i = 0; i < extractedUsers.Length; i++)
+            {
+                var currentUser = extractedUsers[i];
+                var groupedUser = groupedUsers.First(z => z.Key == currentUser.UserId);
+                data[i] = new UserGridRowModel
+                {
+                    ProfileImage = string.IsNullOrEmpty(currentUser.ProfileImage) ? _configuration[JMSSetting.DefaultAvtar] : _fileService.GetFile(currentUser.ProfileImage),
+                    FirstName = currentUser.FirstName,
+                    LastName = currentUser.LastName,
+                    IsDisabled = groupedUser.First().IsDisabled,
+                    UserId = currentUser.UserId,
+                    UserName = currentUser.Email,
+                    Roles = groupedUser.Select(x => x.Role).ToArray()
+                };
+            }
+            return new UserGridModel
+            {
+                Data = data,
+                TotalItems = await filteredUsers.CountAsync()
+            };
         }
     }
 }

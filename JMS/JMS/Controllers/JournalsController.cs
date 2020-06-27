@@ -1,19 +1,12 @@
-﻿using JMS.Models.Journals;
-using JMS.Service.Enums;
+﻿using JMS.Service.Enums;
 using JMS.Service.ServiceContracts;
 using JMS.Setting;
 using JMS.ViewModels.Journals;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Linq;
-using System.Linq.Expressions;
 using static JMS.Models.Journals.EditJournalModel;
-using JMS.Helpers;
-using Microsoft.Extensions.Configuration;
-using JMS.Models;
-using Microsoft.Extensions.Options;
 
 namespace JMS.Controllers
 {
@@ -23,7 +16,7 @@ namespace JMS.Controllers
         private readonly ITenantService _tenantService;
         private readonly IFileService _fileService;
         private readonly IUserService _userService;
-        public JournalsController(ITenantService tenantService, IFileService fileService, IUserService userService, IConfiguration configuration) : base(configuration)
+        public JournalsController(ITenantService tenantService, IFileService fileService, IUserService userService)
         {
             _tenantService = tenantService;
             _fileService = fileService;

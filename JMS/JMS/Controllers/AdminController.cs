@@ -19,7 +19,7 @@ namespace JMS.Controllers
     {
         private readonly ITenantService _tenantService;
         private readonly IFileService _fileService;
-        public AdminController(ITenantService tenantService, IFileService fileService, IConfiguration configuration) : base(configuration)
+        public AdminController(ITenantService tenantService, IFileService fileService)
         {
             _tenantService = tenantService;
             _fileService = fileService;

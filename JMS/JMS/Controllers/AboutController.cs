@@ -12,7 +12,7 @@ namespace JMS.Controllers
     public class AboutController : BaseController
     {
         private readonly ITenantService _tenantService;
-        public AboutController(ITenantService tenantService, IConfiguration configuration) : base(configuration)
+        public AboutController(ITenantService tenantService)
         {
             _tenantService = tenantService;
         }

@@ -119,11 +119,7 @@ namespace JMS
                  pattern: $"{Configuration[JMSSetting.DefaultTenant]}/systemsettings",
                  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Settings" }
                  );
-                //endpoints.MapControllerRoute(
-                //  name: "jms",
-                //  pattern: $"{Configuration[JMSSetting.DefaultTenant]}",
-                //  defaults: new { tenant = Configuration[JMSSetting.DefaultTenant], controller = "SystemAdmin", action = "Login" }
-                //  );
+                
                 endpoints.MapControllerRoute(
                   name: "InitializeJMS",
                   pattern: $"{Configuration[JMSSetting.DefaultTenant]}/InitializeJMS",
