@@ -59,7 +59,7 @@ namespace JMS.Service.Services
 
         public async Task CreateTenant(CreateJournalModel model, Stream stream, string journalLogo)
         {
-            var roleId = _applicationDbContext.Roles.Single(x => x.Name == Role.Admin.ToString()).Id;
+            var roleIds = _applicationDbContext.Roles.Where(x => x.Name == Role.Admin.ToString() || x.Name == Role.JournalAdmin.ToString()).Select(x => x.Id);
             using (var transaction = _applicationDbContext.Database.BeginTransaction())
             {
                 try
@@ -70,8 +70,10 @@ namespace JMS.Service.Services
                     tenant.JournalLogo = path;
                     var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, Tenant = tenant, EmailConfirmed = true };
                     await _userManager.CreateAsync(user);
-                    _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
-                    _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, Tenant = tenant });
+                    foreach (var roleId in roleIds)
+                    {
+                        _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
+                    }
                     _applicationDbContext.SaveChanges();
                     transaction.Commit();
                 }
@@ -137,15 +139,17 @@ namespace JMS.Service.Services
 
         public async Task CreateTenantAdmin(CreateJournalAdminModel model)
         {
-            var roleId=_applicationDbContext.Roles.Single(x => x.Name == Role.Admin.ToString()).Id;
+            var roleIds = _applicationDbContext.Roles.Where(x => x.Name == Role.Admin.ToString() || x.Name == Role.JournalAdmin.ToString()).Select(x => x.Id);
             using (var transaction = _applicationDbContext.Database.BeginTransaction())
             {
                 try
                 {
                     var user = new ApplicationUser { UserName = model.Email, Email = model.Email, PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber), FirstName = model.FirstName, LastName = model.LastName, TenantId = model.TenantId, IsDisabled = !model.Active, EmailConfirmed = true };
                     await _userManager.CreateAsync(user);
-                    _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
-                    _applicationDbContext.JournalAdmins.Add(new JournalAdmin { ApplicationUser = user, TenantId = model.TenantId });
+                    foreach (var roleId in roleIds)
+                    {
+                        _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
+                    }                    
                     _applicationDbContext.SaveChanges();
                     transaction.Commit();
                 }
@@ -159,13 +163,11 @@ namespace JMS.Service.Services
 
         public async Task DeleteTenantAdmin(long userId)
         {
-            var user = _applicationDbContext.Users.Include(x=>x.JournalAdmin).Single(x => x.Id == userId);
-            var journalAdmins = user.JournalAdmin;
+            var user = _applicationDbContext.Users.Single(x => x.Id == userId);
             using (var transaction = _applicationDbContext.Database.BeginTransaction())
             {
                 try
                 {
-                    _applicationDbContext.JournalAdmins.Remove(journalAdmins);
                     await _userManager.DeleteAsync(user);
                     transaction.Commit();
                 }
@@ -300,6 +302,11 @@ namespace JMS.Service.Services
                 State = tenant.State,
                 Zip = tenant.Zip
             };
+        }
+
+        public Tenant GetTenantByJournalPath(string tenantPath)
+        {
+            return _applicationDbContext.Tenants.FirstOrDefault(x => x.JournalPath == tenantPath);
         }
     }
 }

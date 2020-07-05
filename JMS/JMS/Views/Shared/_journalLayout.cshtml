@@ -1,6 +1,6 @@
 ﻿@inject JMS.Service.ServiceContracts.ICacheService cacheService
-@inject JMS.Service.ServiceContracts.IFileService fileService
 @inject JMS.Service.ServiceContracts.IUserService userService
+@inject JMS.Service.ServiceContracts.IFileService fileService
 @inject JMS.Service.ServiceContracts.ITenantService tenantService
 @inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
 @inject Microsoft.Extensions.Options.IOptions<UserMenu> menus
@@ -15,7 +15,7 @@
     var layoutMenu = menus.Value.LoggedOutMenus;
     if (User.Identity.IsAuthenticated)
     {
-        user = userService.GetUser(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+        user = ((JMS.Infra.Sequrity.JMSPrincipal)User).ApplicationUser;
         layoutMenu = menus.Value.LoggedUserMenus;
     }
 }

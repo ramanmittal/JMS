@@ -19,6 +19,9 @@ namespace JMS.Service.ServiceContracts
         string GetUserProfileImage(ApplicationUser user);
         ApplicationUser GetUserByEmail(string email, string path);
 
-        Task<UserGridModel> GetJournalUsers(long tenantId, UserGridSearchModel userGridSearchModel);
+        Task<UserGridModel> GetJournalUsers(string tenantId, UserGridSearchModel userGridSearchModel);
+        Task CreateUser(string tenantId, CreateUserViewModel createUserViewModel);
+        Task SaveUser(string path, EditUserViewModel editUserViewModel);
+        Task DeleteUser(string path,long userId);
     }
 }

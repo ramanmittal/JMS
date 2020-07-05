@@ -9,6 +9,7 @@ namespace JMS.Service.Enums
     public enum Role
     {
         SystemAdmin,
+        JournalAdmin,
         Admin,
         EIC,
         SectionEditor,
@@ -16,9 +17,9 @@ namespace JMS.Service.Enums
     }
     public static class RoleHelper
     {
-        public static IDictionary<int,string> GetRolesForUser()
+        public static IDictionary<int, string> GetRolesForUser()
         {
-           return Enum.GetValues(typeof(Role)).Cast<Role>().ToDictionary(x => (int)x, x => x.ToString());
+            return Enum.GetValues(typeof(Role)).Cast<Role>().Where(x => x != Role.SystemAdmin && x != Role.JournalAdmin).ToDictionary(x => (int)x, x => x.ToString());
         }
     }
 }

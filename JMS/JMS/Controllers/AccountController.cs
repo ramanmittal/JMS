@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
+using Microsoft.Extensions.DependencyInjection;
+using JMS.Infra.Sequrity;
 
 namespace JMS.Controllers
 {
@@ -39,6 +41,16 @@ namespace JMS.Controllers
         public IActionResult ValidateEmail(string email, long tenantId, long? userid)
         {
             if (!_userService.ValidateEmail(email, tenantId, userid))
+            {
+                return Json(data: Messages.EmailNotAvailiable);
+            }
+            return Json(data: true);
+        }
+        [AllowAnonymous]
+        public IActionResult ValidateJournalUserEmail(string email)
+        {
+            var tenant = HttpContext.RequestServices.GetService<ITenantService>().GetTenantByJournalPath(TenantID);
+            if (!_userService.ValidateEmail(email, tenant.Id, null))
             {
                 return Json(data: Messages.EmailNotAvailiable);
             }
@@ -147,8 +159,7 @@ namespace JMS.Controllers
         }
         public IActionResult ViewProfile()
         {
-            var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
-            var user = _userService.GetUser(userId);
+            var user = ((JMSPrincipal)User).ApplicationUser;
             return View(new JMS.Models.SystemAdmin.SystemAdminProfileModel
             {
                 City = user.City,

@@ -1,12 +1,6 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Identity.UI;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -18,11 +12,16 @@ using JMS.Service.Services;
 using JMS.Service.Settings;
 using JMS.Helpers;
 using Microsoft.AspNetCore.Http;
-using IHostingEnvironment = Microsoft.AspNetCore.Hosting.IHostingEnvironment;
 using System.IO;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using JMS.Services;
 using JMS.Models;
+using AutoMapper;
+using Microsoft.AspNetCore.Authentication;
+using JMS.Infra.Sequrity;
+using Microsoft.AspNetCore.Authorization.Infrastructure;
+using Microsoft.AspNetCore.Authorization;
+using System.Collections.Generic;
 
 namespace JMS
 {
@@ -38,7 +37,6 @@ namespace JMS
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            
             services.AddDbContext<ApplicationDbContext>(options =>
                 options.UseSqlServer(
                     Configuration.GetConnectionString("JMS")));
@@ -66,7 +64,7 @@ namespace JMS
             services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>
             {
-                var hostingEnv = x.GetService<IHostingEnvironment>();
+                var hostingEnv = x.GetService<IWebHostEnvironment>();
                 return new LocalFileService(Path.Combine(hostingEnv.WebRootPath, @"uploaded"), @"/uploaded/");
             });
             services.AddRazorPages();
@@ -87,7 +85,11 @@ namespace JMS
             });
             services.AddScoped<MyCookieAuthenticationEvents>();
             services.Configure<UserMenu>(Configuration.GetSection("Menus"));
-        }        
+            services.AddAutoMapper(GetType().Assembly);
+            services.AddScoped<IAuthenticationService, JMSAuthenticationService>();
+            services.AddSingleton<IAuthorizationHandler, PreventDisableUserHandler>();
+            
+        }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env, IHttpContextAccessor httpContextAccessor)

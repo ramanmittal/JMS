@@ -19,13 +19,7 @@ namespace JMS.Service.Services
         }
         public void SendEmail(MailMessage mailMessage)
         {
-            //SmtpClient SmtpServer = new SmtpClient("in-v3.mailjet.com");
-            //SmtpServer.Port = 25;
-            //SmtpServer.Credentials =
-            //new System.Net.NetworkCredential("7a5c11676881b862838cb6fd94734ed0", "dabc4fd93401d6f8a88ceb5d0f09d137");
-            //SmtpServer.EnableSsl = true;
-            //SmtpServer.Send(mailMessage);
-            System.Net.ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
+            ServicePointManager.SecurityProtocol = SecurityProtocolType.Tls | SecurityProtocolType.Tls11 | SecurityProtocolType.Tls12;
 
             var smtp = new SmtpClient
             {

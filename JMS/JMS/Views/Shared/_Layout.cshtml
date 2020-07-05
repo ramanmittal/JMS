@@ -10,7 +10,7 @@
     var now = DateTime.UtcNow;
     if (User.Identity.IsAuthenticated)
     {
-        user = userService.GetUser(long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier)));
+        user = ((JMS.Infra.Sequrity.JMSPrincipal)User).ApplicationUser;
     }
 }
 <!DOCTYPE html>

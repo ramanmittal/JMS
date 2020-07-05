@@ -32,7 +32,6 @@ namespace JMS.Entity.Entities
         public string PhoneNumber { get; set; }
         public string Email { get; set; }
         public virtual ICollection<ApplicationUser> ApplicationUsers { get; set; }
-        public virtual ICollection<JournalAdmin> JournalAdmins { get; set; }
         public virtual ICollection<JournalSetting> JournalSettings { get; set; }
 
     }

@@ -22,20 +22,17 @@ namespace JMS.Entity.Data
         }
         //public ApplicationDbContext() : base(){ }
         public DbSet<Tenant> Tenants { get; set; }
-        public DbSet<JournalAdmin> JournalAdmins { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<JournalSetting> JournalSettings { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>().HasOne(x => x.Tenant).WithMany(x => x.ApplicationUsers).HasForeignKey(x => x.TenantId);
-            builder.Entity<JournalAdmin>().HasOne(x => x.ApplicationUser).WithOne(x => x.JournalAdmin).HasForeignKey<JournalAdmin>(x => x.UserId);
             builder.Entity<ApplicationUser>().HasIndex(x => new { x.TenantId, x.UserName }).IsUnique(true);
             builder.Entity<ApplicationUser>().HasIndex(x => new { x.UserName }).IsUnique(false);
             builder.Entity<ApplicationUser>().Property(x => x.Id).ValueGeneratedOnAdd();
             builder.Entity<Tenant>().HasIndex(x => x.JournalPath).IsUnique(true);
             builder.Entity<Tenant>().HasQueryFilter(m => m.Deleted == null);
-            builder.Entity<Tenant>().HasMany(x => x.JournalAdmins).WithOne(x => x.Tenant).HasForeignKey(x => x.TenantId);
             builder.Entity<JournalSetting>().HasOne(x => x.Tenant).WithMany(x => x.JournalSettings).HasForeignKey(x => x.TenantId);
             builder.Entity<JournalSetting>().HasIndex(x => new { x.TenantId, x.Key }).IsUnique(true);
             builder.Entity<IdentityUserLogin<long>>().HasKey(x => new { x.ProviderKey, x.LoginProvider });
