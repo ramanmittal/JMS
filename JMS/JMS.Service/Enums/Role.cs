@@ -13,7 +13,8 @@ namespace JMS.Service.Enums
         Admin,
         EIC,
         SectionEditor,
-        Reviewer
+        Reviewer,
+        Author
     }
     public static class RoleHelper
     {

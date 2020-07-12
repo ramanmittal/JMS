@@ -6,7 +6,7 @@
 }
 <div class="card card-primary">
     <div class="card-header"><h3>Edit User</h3></div>
-    <form method="post" asp-action="Edit" asp-controller="Users">
+    <form method="post" asp-action="Edit" asp-controller="Users" id="usr-frm">
         @Html.AntiForgeryToken()
         @Html.HiddenFor(x=>x.UserId)
         <div class="card-body">
@@ -36,6 +36,11 @@
                 <label>Roles</label>
                 <select style="display:block;width:100%" asp-items="@Model.AssignedRoles" asp-for="Roles" multiple></select>
                 <span asp-validation-for="Roles"></span>
+            </div>
+            <div class="form-group">
+                <label>Affiliation No</label>
+                <input type="text" class="form-control" asp-for="AffiliationNo" />
+                <span asp-validation-for="AffiliationNo"></span>
             </div>
             <div class="custom-control custom-checkbox">
                 <input class="custom-control-input" type="checkbox" asp-for="IsActive" checked="checked">
@@ -72,5 +77,10 @@
         });
             </text>
         }
+        $("#usr-frm").on('submit', function () {
+            if ($("#usr-frm").valid()) {
+                $(".loader").show();
+            }
+        });
     </script>
 }

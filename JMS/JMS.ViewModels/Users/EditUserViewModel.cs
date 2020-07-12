@@ -26,5 +26,7 @@ namespace JMS.ViewModels.Users
         
         [Required]
         public List<int> Roles { get; set; }
+
+        public string AffiliationNo { get; set; }
     }
 }

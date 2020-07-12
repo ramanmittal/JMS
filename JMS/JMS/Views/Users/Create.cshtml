@@ -4,7 +4,7 @@
 }
 <div class="card card-primary">
     <div class="card-header"><h3>Create User</h3></div>
-    <form method="post" asp-action="Create" asp-controller="Users">
+    <form method="post" asp-action="Create" asp-controller="Users" id="usr-frm">
         @Html.AntiForgeryToken()
         <div class="card-body">
             <h3>
@@ -35,6 +35,11 @@
                 <select style="display:block;width:100%" asp-items="@JMS.Service.Enums.RoleHelper.GetRolesForUser().Select(x=>new SelectListItem(x.Value,x.Key.ToString()))" asp-for="Roles" multiple></select>
                 <span asp-validation-for="Roles"></span>
             </div>
+            <div class="form-group">
+                <label>Affiliation No</label>
+                <input type="text" class="form-control" asp-for="AffiliationNo" />
+                <span asp-validation-for="AffiliationNo"></span>
+            </div>
             <div class="custom-control custom-checkbox">
                 <input class="custom-control-input" type="checkbox" asp-for="IsActive" checked="checked">
                 <label class="custom-control-label" asp-for="IsActive">Active</label>
@@ -50,5 +55,10 @@
     <script>
         $('#PhoneNumber').mask('(000) 000-0000')
         $('#Roles').select2();
+        $("#usr-frm").on('submit', function () {
+            if ($("#usr-frm").valid()) {
+                $(".loader").show();
+            }
+        });
     </script>
 }

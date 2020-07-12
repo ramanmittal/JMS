@@ -17,6 +17,7 @@ using JMS.Service.Enums;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore.Internal;
 using System.ComponentModel.DataAnnotations;
+using JMS.ViewModels.Register;
 
 namespace JMS.Service.Services
 {
@@ -190,8 +191,9 @@ namespace JMS.Service.Services
                 LastName = createUserViewModel.LastName,
                 Email = createUserViewModel.Email,
                 UserName = createUserViewModel.Email,
-                PhoneNumber = createUserViewModel.PhoneNumber,
-                IsDisabled = !createUserViewModel.IsActive
+                PhoneNumber = _maskService.RemovePhoneMasking(createUserViewModel.PhoneNumber),
+                IsDisabled = !createUserViewModel.IsActive,
+                AffiliationNo = createUserViewModel.AffiliationNo
             };
             var selectedRoles = createUserViewModel.Roles.Select(x => ((Role)x).ToString());
             var roles = await _context.Roles.Where(x => selectedRoles.Contains(x.Name)).ToListAsync();
@@ -234,7 +236,9 @@ namespace JMS.Service.Services
             var user = _context.Users.First(x => x.Tenant.JournalPath == path && x.Id == editUserViewModel.UserId);
             user.FirstName = editUserViewModel.FirstName;
             user.LastName = editUserViewModel.LastName;
+            user.PhoneNumber = _maskService.RemovePhoneMasking(editUserViewModel.PhoneNumber);
             user.IsDisabled = !editUserViewModel.IsActive;
+            user.AffiliationNo = editUserViewModel.AffiliationNo;
             var deletedRoles = userRoles.Where(x => !newroles.Contains(dbRoles.Single(y => y.Key == x.RoleId).Value)).ToArray();
             var newRoleIds = dbRoles.Where(x => newroles.Contains(x.Value) && !userRoles.Any(y=>y.RoleId==x.Key)).Select(x=>x.Key).ToList();
             _context.UserRoles.RemoveRange(deletedRoles);
@@ -276,6 +280,45 @@ namespace JMS.Service.Services
                 catch (Exception)
                 {
                     await tr.RollbackAsync();
+                    throw;
+                }
+            }
+        }
+
+        public async Task<ApplicationUser> CreateAuthor(string path, RegisterAuthorModel model)
+        {
+            var tenanID = _context.Tenants.Single(x => x.JournalPath == path).Id;
+            var applicationUser = new ApplicationUser
+            {
+                Country = model.Country,
+                Email = model.Email,
+                UserName = model.Email,
+                FirstName = model.FirstName,
+                LastName = model.LastName,
+                PhoneNumber = model.PhoneNumber,
+                AffiliationNo = model.Affiliation,
+                EmailConfirmed = false,
+                PhoneNumberConfirmed = false,
+                TenantId = tenanID
+            };
+            var authorRoleId = _context.Roles.Single(x => x.Name == Role.Author.ToString()).Id;
+            using (var tr = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    var result = await _userManager.CreateAsync(applicationUser);
+                    if (result.Succeeded)
+                    {
+                        _context.UserRoles.Add(new IdentityUserRole<long> { RoleId = authorRoleId, UserId = applicationUser.Id });
+                        await _context.SaveChangesAsync();
+                        await tr.CommitAsync();
+                        return applicationUser;
+                    }
+                    return null;
+                }
+                catch (Exception)
+                {
+                    tr.Rollback();
                     throw;
                 }
             }

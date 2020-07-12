@@ -71,6 +71,7 @@ namespace JMS.Controllers
                 PhoneNumber = user.PhoneNumber,
                 IsActive = !user.IsDisabled.GetValueOrDefault(),
                 AssignedRoles = existingRoles,
+                AffiliationNo = user.AffiliationNo,
                 IsJournalAdmin = roles.Contains(Role.JournalAdmin.ToString())
             };
             return View(model);

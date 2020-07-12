@@ -1,0 +1,8 @@
+﻿@model JMS.ViewModels.SystemAdmin.ForgotpasswordEmailModel
+@{
+    ViewData["Title"] = "ResetPassword";
+    Layout = null;
+}
+
+    <h1>Click <a href="@Url.Action("ResetPassword","Account",new {token=Model.Token,email= Model.Email},this.Context.Request.Scheme)">here</a> to reset password.</h1>
+

@@ -6,9 +6,9 @@ using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace JMS.Models.Users
+namespace JMS.Models.Register
 {
-    public class CreateUserViewModel
+    public class RegisterAuthorModel
     {
         [Required]
         [DisplayName("First Name")]
@@ -18,17 +18,19 @@ namespace JMS.Models.Users
         public string LastName { get; set; }
         [Required]
         [DataType(DataType.EmailAddress)]
-        [Remote("ValidateJournalUserEmail", "Account")]
+        [Remote("ValidateJournalUserEmail", "Account", ErrorMessage = JMS.Setting.Messages.EmailNotAvailiable)]
         public string Email { get; set; }
         [DisplayName("Phone Number")]
         [Phone]
         [RegularExpression(@"^\(?([0-9]{3})\)?[-. ]?([0-9]{3})[-. ]?([0-9]{4})$", ErrorMessage = "Invalid Phone number.")]
         [Required]
         public string PhoneNumber { get; set; }
-        public string AffiliationNo { get; set; }
-        public bool IsActive { get; set; }
-
         [Required]
-        public List<int> Roles { get; set; }
+        public string Affiliation { get; set; }
+        
+        [Required]
+        public string Country { get; set; }
+
+        
     }
 }

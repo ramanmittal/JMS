@@ -1,4 +1,5 @@
 ﻿using JMS.Entity.Entities;
+using JMS.ViewModels.Register;
 using JMS.ViewModels.SystemAdmin;
 using JMS.ViewModels.Users;
 using System;
@@ -23,5 +24,7 @@ namespace JMS.Service.ServiceContracts
         Task CreateUser(string tenantId, CreateUserViewModel createUserViewModel);
         Task SaveUser(string path, EditUserViewModel editUserViewModel);
         Task DeleteUser(string path,long userId);
+
+        Task<ApplicationUser> CreateAuthor(string path, RegisterAuthorModel model);
     }
 }

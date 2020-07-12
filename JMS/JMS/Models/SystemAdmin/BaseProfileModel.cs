@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace JMS.Models.SystemAdmin
 {
-    public class SystemAdminProfileModel
+    public class BaseProfileModel
     {
         public string ProfileImagePath { get; set; }
         [DisplayName("Profile Image")]

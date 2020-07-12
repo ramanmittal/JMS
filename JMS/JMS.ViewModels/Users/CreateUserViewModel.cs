@@ -17,8 +17,8 @@ namespace JMS.ViewModels.Users
         
         public string PhoneNumber { get; set; }
         public bool IsActive { get; set; }
-        
-        
+
+        public string AffiliationNo { get; set; }
         public List<int> Roles { get; set; }
     }
 }

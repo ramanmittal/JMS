@@ -16,6 +16,7 @@ using System.Text;
 using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using JMS.Infra.Sequrity;
+using JMS.Service.Enums;
 
 namespace JMS.Controllers
 {
@@ -157,10 +158,11 @@ namespace JMS.Controllers
             }
             return View(viewName: string.IsNullOrEmpty(TenantID) ? "ResetPassword" : "ResetPassword.journal");
         }
+        [Authorize]
         public IActionResult ViewProfile()
         {
             var user = ((JMSPrincipal)User).ApplicationUser;
-            return View(new JMS.Models.SystemAdmin.SystemAdminProfileModel
+            return View(new JMS.Models.SystemAdmin.BaseProfileModel
             {
                 City = user.City,
                 Country = user.Country,
@@ -172,9 +174,13 @@ namespace JMS.Controllers
                 ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
             });
         }
+        public IActionResult AdminProfile()
+        {
+            return View();
+        }
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult SaveProfile(JMS.Models.SystemAdmin.SystemAdminProfileModel model)
+        public IActionResult SaveProfile(JMS.Models.SystemAdmin.BaseProfileModel model)
         {
             if (ModelState.IsValid)
             {

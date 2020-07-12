@@ -17,5 +17,6 @@ namespace JMS.Entity.Entities
         public string State { get; set; }
         public string Zip { get; set; }
         public string ProfileImage { get; set; }
+        public string AffiliationNo { get; set; }
     }
 }

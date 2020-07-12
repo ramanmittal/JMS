@@ -26,7 +26,7 @@ namespace JMS.Controllers
         }
         public IActionResult Index()
         {
-            return View();
+            return RedirectToAction("index","Users");
         }
         public IActionResult JournalSettings()
         {

@@ -65,7 +65,7 @@
                     },
                     {
                         name: "Path", itemTemplate: function (value, item) {
-                            return "<span>" + item.path + "</span>"
+                            return `<a href="${window.location.origin + "/" + item.path}">${item.path}</a>`;
                         }
                     },
                     {

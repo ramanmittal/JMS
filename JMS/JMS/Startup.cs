@@ -22,6 +22,9 @@ using JMS.Infra.Sequrity;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using ElmahCore.Sql;
+using ElmahCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 
 namespace JMS
 {
@@ -88,7 +91,13 @@ namespace JMS
             services.AddAutoMapper(GetType().Assembly);
             services.AddScoped<IAuthenticationService, JMSAuthenticationService>();
             services.AddSingleton<IAuthorizationHandler, PreventDisableUserHandler>();
-            
+
+            services.AddElmah<SqlErrorLog>(options =>
+            {
+                options.ConnectionString = Configuration.GetConnectionString("JMS");
+            });
+            services.Configure<IISServerOptions>(options => { options.AllowSynchronousIO = true; });
+            services.Configure<KestrelServerOptions>(options => { options.AllowSynchronousIO = true; });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -108,6 +117,8 @@ namespace JMS
             }
             app.UseHttpsRedirection();
             app.UseStaticFiles();
+            app.UseElmah();
+           
             app.UseMiddleware<MultiTenantMiddleLayer>();
             app.UseRouting();
 

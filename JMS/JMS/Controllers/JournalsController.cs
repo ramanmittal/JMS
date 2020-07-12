@@ -56,7 +56,7 @@ namespace JMS.Controllers
         public IActionResult Edit(long id)
         {
             var journal = _tenantService.GetTenant(id);
-            var users = _userService.GetTenantUserByRole(id, Role.Admin.ToString());
+            var users = _userService.GetTenantUserByRole(id, Role.JournalAdmin.ToString());
             var journalModel = new Models.Journals.EditJournalModel
             {
                 JournalId = id,

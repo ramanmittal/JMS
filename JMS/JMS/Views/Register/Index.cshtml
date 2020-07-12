@@ -1,0 +1,89 @@
+﻿@model JMS.Models.Register.RegisterAuthorModel
+@{
+    ViewBag.Title = "Register";
+}
+@section contentheader{
+    <div class="row">
+        <div class="col-md-4">
+            <h1>Register</h1>
+        </div>
+    </div>
+}
+
+<form asp-action="Index" method="post" id="rgfrm">
+    @Html.AntiForgeryToken()
+    <div class="input-group mb-3 rgfrm">
+        <div>
+            <label>First Name</label>
+            <input type="text" class="form-control" asp-for="FirstName" />
+            <span asp-validation-for="FirstName"></span>
+        </div>
+        <div>
+            <label>Last Name</label>
+            <input type="text" class="form-control" asp-for="LastName" />
+            <span asp-validation-for="LastName"></span>
+        </div>
+        <div>
+            <label>Email</label>
+            <input type="email" class="form-control" asp-for="Email" />
+            <span asp-validation-for="Email"></span>
+        </div>
+        <div>
+            <label>Phone Number</label>
+            <input type="tel" class="form-control" asp-for="PhoneNumber" />
+            <span asp-validation-for="PhoneNumber"></span>
+        </div>
+        <div>
+            <label>Affiliation</label>
+            <input type="tel" class="form-control" asp-for="Affiliation" />
+            <span asp-validation-for="Affiliation"></span>
+        </div>
+        
+        <div>
+            <label>Country</label>
+            <input type="text" class="form-control" asp-for="Country" />
+            <span asp-validation-for="Country"></span>
+        </div>
+
+        <div>
+            <br />
+            <p>By clicking "Register", you agree to the <a asp-controller="privacy" asp-action="index">Privacy Policy</a></p>
+        </div>
+        <div class="col-4">
+            <a class="btn btn-primary btn-block" asp-action="login" asp-controller="account">Sign In</a>
+        </div>
+        <div class="col-4">
+            <button type="submit" class="btn btn-primary btn-block">Register</button>
+        </div>
+    </div>
+</form>
+@section scripts{
+    <script>
+        $('#PhoneNumber').mask('(000) 000-0000');
+        $("#rgfrm").submit(function (e) {
+            if ($("#rgfrm").valid()) {
+                $(".loader").show()
+                $.ajax({
+                    type: "post",
+                    url: $("#rgfrm").attr("action"),
+                    data: $("#rgfrm").serialize(),
+                    contentType: "application/x-www-form-urlencoded",
+                    success: function (responseData, textStatus, jqXHR) {                       
+                        $("#rgfrm")[0].reset();
+                        $("#myModal .modal-body").html(`
+    <h2 class="text-center">Your Account has been Created! Please check your inbox to verify your email address.</h2>
+    <div class="text-center">
+                     <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Ok</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="dltjrn(1)">Resend</button>
+    </div>
+                         `);
+                        $("#myModal").modal();
+                        $(".loader").hide();
+                    },
+
+                })
+                return false;
+            }
+        });
+    </script>
+}

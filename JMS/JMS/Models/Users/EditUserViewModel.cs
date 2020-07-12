@@ -26,7 +26,7 @@ namespace JMS.Models.Users
         public string PhoneNumber { get; set; }
         public bool IsActive { get; set; }
         public IEnumerable<SelectListItem> AssignedRoles { get; set; }
-
+        public string AffiliationNo { get; set; }
         [Required]
         public List<int> Roles { get; set; }
         public bool IsJournalAdmin { get; set; }

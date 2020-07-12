@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using JMS.Models.Register;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,6 +12,7 @@ namespace JMS.MapperProfiles
         public MapperProfile()
         {
             CreateMap<Models.Users.CreateUserViewModel, ViewModels.Users.CreateUserViewModel>();
+            CreateMap<RegisterAuthorModel, ViewModels.Register.RegisterAuthorModel>();
         }
     }
 }
