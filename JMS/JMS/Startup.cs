@@ -23,6 +23,7 @@ using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
 using ElmahCore.Sql;
+using ElmahCore.Postgresql;
 using ElmahCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 
@@ -41,17 +42,21 @@ namespace JMS
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(
+                options.UseNpgsql(
                     Configuration.GetConnectionString("JMS")));
             services.AddIdentity<ApplicationUser, IdentityRole<long>>(options =>
             {
-                options.SignIn.RequireConfirmedAccount = true;
+                options.SignIn.RequireConfirmedAccount = false;
                 options.User.RequireUniqueEmail = false;
+                options.SignIn.RequireConfirmedEmail = false;
             }).AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
-            var mvc = services.AddControllersWithViews(
-                //options => options.Filters.Add<MultiTenantActionFilter>()
-                );
+            var mvc = services.AddControllersWithViews();
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy(AuthorPolicyRequirementHandler.AuthorPolicy, policy =>
+                    policy.Requirements.Add(new AuthorPolicyRequirement()));
+            });
 #if (DEBUG)
             mvc.AddRazorRuntimeCompilation();
 #endif
@@ -63,6 +68,7 @@ namespace JMS
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMaskService, Maskservice>();
+            services.AddScoped<IEmailService, EmailService>();
             services.RemoveAll<IUserValidator<ApplicationUser>>();
             services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>
@@ -71,7 +77,6 @@ namespace JMS
                 return new LocalFileService(Path.Combine(hostingEnv.WebRootPath, @"uploaded"), @"/uploaded/");
             });
             services.AddRazorPages();
-            //services.ConfigureApplicationCookie(option => option.Cookie.Path = @"/jms");
             services.ConfigureApplicationCookie(option => {
                 var defaultcookie = option.Cookie;                
                 option.Cookie = new JMSCookiesBuilder(httpContextAccessor);               
@@ -91,8 +96,9 @@ namespace JMS
             services.AddAutoMapper(GetType().Assembly);
             services.AddScoped<IAuthenticationService, JMSAuthenticationService>();
             services.AddSingleton<IAuthorizationHandler, PreventDisableUserHandler>();
-
-            services.AddElmah<SqlErrorLog>(options =>
+            services.AddSingleton<IAuthorizationHandler, AuthorPolicyRequirementHandler>();
+            services.AddScoped<ISMSService, TwilioSmsService>();
+            services.AddElmah<PgsqlErrorLog>(options =>
             {
                 options.ConnectionString = Configuration.GetConnectionString("JMS");
             });

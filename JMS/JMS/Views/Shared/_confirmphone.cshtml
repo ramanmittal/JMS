@@ -1,0 +1,114 @@
+﻿@model long
+<form id="otp-form" asp-action="Index" asp-controller="ConfirmPhone">
+    @Html.Hidden("userId", Model)
+    @Html.AntiForgeryToken()
+    <div class="form-group">
+        <div>
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" id="1d" class="text-center" />
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" class="text-center" />
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" class="text-center" />
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" class="text-center" />
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" class="text-center" />
+            <input type="password" maxLength="1" size="1" min="0" max="9" pattern="[0-9]{1}" class="text-center" />
+        </div>
+    </div>
+    <div id="err-msg" style="display:none">
+        <span class="text-danger">Invalid Code</span>
+    </div>
+    <div>
+        <button class="btn btn-primary btn-embossed" type="submit">Verify Code</button>        .
+        <a class="text-right" href="javascript:resnd(@Model);">Resend Code</a>
+    </div>
+
+
+</form>
+@using (Html.BeginScripts())
+{ 
+<script>
+        $("#otp-form").submit(function () {
+            event.preventDefault();
+            var inputs = $("#otp-form input[type='password']");
+            var val = "";
+            for (var i = 0; i < inputs.length; i++) {
+                if (!inputs[i].value) {
+                    return;
+                }
+                val = val + inputs[i].value;
+            }
+            var userId = $("#otp-form #userId").val();
+            var __RequestVerificationToken = $("#otp-form input[name='__RequestVerificationToken']").val();
+            $(".loader").show();
+            $.ajax({
+                type: "Post",
+                url: $("#otp-form").attr("action"),
+                data: { "userId": userId, "__RequestVerificationToken": __RequestVerificationToken, "token": val },
+                success: function (responseData, textStatus, jqXHR) {
+                    if (responseData.success) {
+                        window.location.href = "/@(Context.Request.RouteValues["tenant"])";
+                        $("#otp-form #err-msg").hide();
+                    }
+                    else {
+                        $("#otp-form #err-msg").show();
+                    }
+                    $(".loader").hide();
+                }
+            })
+        });
+        $("#1d").focus();
+        $(function () {
+            'use strict';
+            function goToNextInput(e) {
+                var key = e.which,
+                    t = $(e.target),
+                    sib = t.next('input');
+
+                if (key != 9 && (key < 48 || key > 57)) {
+                    e.preventDefault();
+                    return false;
+                }
+
+                if (key === 9) {
+                    return true;
+                }
+
+                if (!sib || !sib.length) {
+                    sib = $("#otp-form").find('input').eq(0);
+                }
+                sib.select().focus();
+            }
+
+            function onKeyDown(e) {
+                var key = e.which;
+
+                if (key === 9 || (key >= 48 && key <= 57)) {
+                    return true;
+                }
+
+                e.preventDefault();
+                return false;
+            }
+
+            function onFocus(e) {
+                $(e.target).select();
+            }
+
+            $("#otp-form").on('keyup', 'input', goToNextInput);
+            $("#otp-form").on('keydown', 'input', onKeyDown);
+            $("#otp-form").on('click', 'input', onFocus);
+
+
+        })
+        function resnd(userId) {
+            $(".loader").show();
+            $.ajax({
+                type: "Get",
+                url: "@Url.Action("ResendCode", "ConfirmPhone")",
+                data: { "userId": userId},
+                success: function (responseData, textStatus, jqXHR) {
+                    $(".loader").hide();
+                    toastr.success("@JMS.Setting.Messages.OTPSendMessage");
+                }
+            })
+        }
+</script>
+}

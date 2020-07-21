@@ -295,7 +295,7 @@ namespace JMS.Service.Services
                 UserName = model.Email,
                 FirstName = model.FirstName,
                 LastName = model.LastName,
-                PhoneNumber = model.PhoneNumber,
+                PhoneNumber = _maskService.RemovePhoneMasking(model.PhoneNumber),
                 AffiliationNo = model.Affiliation,
                 EmailConfirmed = false,
                 PhoneNumberConfirmed = false,
@@ -306,7 +306,7 @@ namespace JMS.Service.Services
             {
                 try
                 {
-                    var result = await _userManager.CreateAsync(applicationUser);
+                    var result = await _userManager.CreateAsync(applicationUser, model.Password);
                     if (result.Succeeded)
                     {
                         _context.UserRoles.Add(new IdentityUserRole<long> { RoleId = authorRoleId, UserId = applicationUser.Id });

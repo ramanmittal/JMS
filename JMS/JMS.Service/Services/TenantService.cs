@@ -15,6 +15,8 @@ using Microsoft.AspNetCore.Identity;
 using JMS.Service.Enums;
 using System.Threading.Tasks;
 using JMS.ViewModels.Admin;
+using Npgsql;
+using System.Data;
 
 namespace JMS.Service.Services
 {

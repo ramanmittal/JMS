@@ -17,6 +17,9 @@ using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using JMS.Infra.Sequrity;
 using JMS.Service.Enums;
+using System;
+using ElmahCore;
+using System.Collections.Generic;
 
 namespace JMS.Controllers
 {
@@ -227,6 +230,53 @@ namespace JMS.Controllers
                 }
             }
             return View();
+        }
+
+        [Authorize(Roles =RoleName.Author)]
+        public IActionResult VerifyEmail()
+        {
+            if (((JMSPrincipal)User).ApplicationUser.EmailConfirmed)
+            {
+                return RedirectToAction("index", "home");
+            }
+            return View();
+        }
+        [Authorize(Roles = RoleName.Author)]
+        public async Task<IActionResult> VerifyPhone()
+        {
+            if (((JMSPrincipal)User).ApplicationUser.PhoneNumberConfirmed)
+            {
+                return RedirectToAction("index", "home");
+            }
+            var user = ((JMSPrincipal)User).ApplicationUser;
+            var userManager = HttpContext.RequestServices.GetService<UserManager<ApplicationUser>>();
+            var otp = await userManager.GenerateChangePhoneNumberTokenAsync(user, user.PhoneNumber);
+            HttpContext.RequestServices.GetService<ISMSService>().Send(new Service.SMS.SMSDetails
+            {
+                Message = $"Your verification code is {otp}",
+                PhoneNumber = new List<string> { user.PhoneNumber }
+            });
+            return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleName.Author)]
+        public async Task<IActionResult> ConfirEmail()
+        {
+            var user = ((JMSPrincipal)User).ApplicationUser;
+            if (!user.EmailConfirmed)
+            {
+                try
+                {
+                    await HttpContext.RequestServices.GetService<IEmailService>().SendEmailConfirmationMail(user);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                }
+                return Ok();
+            }
+            return Forbid();
         }
     }
 }

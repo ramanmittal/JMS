@@ -1,8 +1,8 @@
-﻿@model JMS.ViewModels.SystemAdmin.ForgotpasswordEmailModel
+﻿@model JMS.ViewModels.Register.ConfirmEmailModel
 @{
     ViewData["Title"] = "ResetPassword";
     Layout = null;
 }
 
-    <h1>Click <a href="@Url.Action("ResetPassword","Account",new {token=Model.Token,email= Model.Email},this.Context.Request.Scheme)">here</a> to reset password.</h1>
+    <h1>Click <a href="@Url.Action("Index","ConfirmEmail",new {token=Model.Token,UserId= Model.UserId},this.Context.Request.Scheme)">here</a> to confirm email.</h1>
 

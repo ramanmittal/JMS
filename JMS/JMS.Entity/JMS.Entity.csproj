@@ -5,12 +5,32 @@
     <Configurations>Debug;Release;QA</Configurations>   
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Migrations\20200223142244_pahse1-001.cs" />
+    <Compile Remove="Migrations\20200223142244_pahse1-001.Designer.cs" />
+    <Compile Remove="Migrations\20200306150705_trackable.cs" />
+    <Compile Remove="Migrations\20200306150705_trackable.Designer.cs" />
+    <Compile Remove="Migrations\20200307112801_applicationuser.cs" />
+    <Compile Remove="Migrations\20200307112801_applicationuser.Designer.cs" />
+    <Compile Remove="Migrations\20200307134330_isdisabled.cs" />
+    <Compile Remove="Migrations\20200307134330_isdisabled.Designer.cs" />
+    <Compile Remove="Migrations\20200312090415_Edit-ApplicationUser.cs" />
+    <Compile Remove="Migrations\20200312090415_Edit-ApplicationUser.Designer.cs" />
+    <Compile Remove="Migrations\20200312105314_ProfileImage.cs" />
+    <Compile Remove="Migrations\20200312105314_ProfileImage.Designer.cs" />
+    <Compile Remove="Migrations\20200312120709_Zip.cs" />
+    <Compile Remove="Migrations\20200312120709_Zip.Designer.cs" />
+    <Compile Remove="Migrations\20200711093315_AffiliationNo.cs" />
+    <Compile Remove="Migrations\20200711093315_AffiliationNo.Designer.cs" />
+  </ItemGroup>
+
   
 
   <ItemGroup>
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="3.0.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="3.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="3.0.0" />
+    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="3.1.4" />
   </ItemGroup>
 
 </Project>

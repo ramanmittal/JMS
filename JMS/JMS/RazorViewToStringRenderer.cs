@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using JMS.Service.ServiceContracts;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -82,9 +83,5 @@ namespace JMS
 
             throw new InvalidOperationException(errorMessage);
         }
-    }
-    public interface IRazorViewToStringRenderer
-    {
-        Task<string> RenderViewToStringAsync<TModel>(string viewName, TModel model);
-    }
+    }    
 }

@@ -30,19 +30,36 @@ namespace JMS.Controllers
             {
                 var registerAuthorModel = HttpContext.RequestServices.GetService<IMapper>().Map<JMS.ViewModels.Register.RegisterAuthorModel>(model);
                 var user = await HttpContext.RequestServices.GetService<IUserService>().CreateAuthor(TenantID, registerAuthorModel);
-                var token = await HttpContext.RequestServices.GetService<UserManager<ApplicationUser>>().GenerateEmailConfirmationTokenAsync(user);
-                var emailBody = await HttpContext.RequestServices.GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/ResetPassword.cshtml", new ConfirmEmailModel { UserId = user.Id, Token = token });
                 try
                 {
-                    HttpContext.RequestServices.GetService<IEmailSender>().SendEmail(new MailMessage(_configuration[JMSSetting.SenderEmail], model.Email, _configuration[JMSSetting.ResetPasswordSubject], emailBody) { IsBodyHtml = true });
+                    await HttpContext.RequestServices.GetService<IEmailService>().SendEmailConfirmationMail(user);
                 }
                 catch (Exception ex)
                 {
                     HttpContext.RiseError(ex);
                 }
-                return Ok();
+                return Ok(new { user.Id });
             }
             return BadRequest(ModelState);
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ConfirEmail(long userId)
+        {
+            var user = HttpContext.RequestServices.GetService<IUserService>().GetUser(userId);
+            if (!user.EmailConfirmed)
+            {
+                try
+                {
+                    await HttpContext.RequestServices.GetService<IEmailService>().SendEmailConfirmationMail(user);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                }
+                return Ok(); 
+            }
+            return Forbid();
         }
     }
 }

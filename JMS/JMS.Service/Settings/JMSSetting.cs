@@ -21,5 +21,9 @@ namespace JMS.Service.Settings
         public const string FooterContent = "FooterContent";
         public const string AdditionalContent = "AdditionalContent";
         public const string PrivacyPolicyContent = "PrivacyPolicyContent";
+        public const string TwilioCountryCode = "TwilioCountryCode";
+        public const string TwilioAccountSid = "TwilioAccountSid";
+        public const string TwilioAuthToken = "TwilioAuthToken";
+        public const string TwilioPhoneNumber = "TwilioPhoneNumber";
     }
 }

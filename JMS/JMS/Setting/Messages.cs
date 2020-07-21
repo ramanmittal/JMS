@@ -11,6 +11,7 @@ namespace JMS.Setting
         public const string InvalidLoginAttempt = "Invalid email or password.";
         public const string TenantNotAvailiable = "Journal path is not availiable.";
         public const string EmailNotAvailiable = "Email is already in use.";
+        public const string EmailSent = "Email has been sent.";
         public const string AlphaNumericValidationMessage = "Only Alphabets and Numbers allowed.";
         public const string SuccessSettingMessage = "Settings have been saved successfully";
         public const string SuccessJournalSettingMessage = "Journals Settings have been saved successfully";
@@ -21,5 +22,8 @@ namespace JMS.Setting
         public const string SuccessPasswordChangeMessage = "Password has been changed successfully.";
         public const string PasswordValidationMessage = "The Password Field must have at least 6 characters, 1 digit, 1 lowercase letter, 1 uppercase letter.";
         public const string NewPasswordValidationMessage = "The New Password Field must have at least 6 characters, 1 digit, 1 lowercase letter, 1 uppercase letter.";
+        public const string SuccessPhoneVerificationMessage = "Your Phone Number has been verified successfully.";
+        public const string success = "success";
+        public const string OTPSendMessage = "OTP has been send successfully.";
     }
 }

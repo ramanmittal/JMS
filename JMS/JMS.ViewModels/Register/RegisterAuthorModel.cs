@@ -18,5 +18,6 @@ namespace JMS.ViewModels.Register
         public string Affiliation { get; set; }
 
         public string Country { get; set; }
+        public string Password { get; set; }
     }
 }

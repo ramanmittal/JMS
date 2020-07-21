@@ -20,6 +20,21 @@ namespace JMS.Controllers
                 return tenantId.Equals( _configuration[JMSSetting.DefaultTenant],StringComparison.CurrentCultureIgnoreCase) ? null : tenantId;
             }
         }
+
+        protected void AddSuccessMessage(string message)
+        {
+            List<string> messages = null;
+            if (TempData.ContainsKey(JMS.Setting.Messages.success))
+            {
+                messages = (List<string>)TempData[JMS.Setting.Messages.success];
+            }
+            else
+            {
+                messages = new List<string>();
+                TempData.Add(JMS.Setting.Messages.success, messages);
+            }
+            messages.Add(message);
+        }
         
     }
 }

@@ -24,12 +24,17 @@ namespace JMS.Helpers
             var path = httpContext.Request.Path.Value;
             if (path != "/")
             {
-                if (!tenants.Contains(httpContext.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries)[0], StringComparer.OrdinalIgnoreCase))
+                var tenantpath = (httpContext.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries)[0]);
+                var tenant = tenants.FirstOrDefault(x => x.Equals(tenantpath, StringComparison.OrdinalIgnoreCase));
+                if (tenant == null)
                 {
                     httpContext.Response.StatusCode = 404;
+                    await httpContext.Response.CompleteAsync();
                 }
                 else
                 {
+                    if (tenantpath != tenant)
+                        httpContext.Request.Path = new PathString(ReplaceFirstOccurrence(httpContext.Request.Path.Value, tenantpath, tenant));
                     await _next(httpContext);
                 }
             }
@@ -38,6 +43,12 @@ namespace JMS.Helpers
                 httpContext.Response.Redirect($"/{configuration[JMSSetting.DefaultTenant]}");
             }
             
+        }
+        public static string ReplaceFirstOccurrence(string Source, string Find, string Replace)
+        {
+            int Place = Source.IndexOf(Find);
+            string result = Source.Remove(Place, Find.Length).Insert(Place, Replace);
+            return result;
         }
     }
 }

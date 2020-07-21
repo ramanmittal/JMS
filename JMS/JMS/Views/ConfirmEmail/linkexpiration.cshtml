@@ -1,0 +1,7 @@
+﻿
+<h3>Invalid Verification Url</h3>
+@if (!User.Identity.IsAuthenticated)
+{
+    <p>Click the below button to Sign In.</p>
+    <a asp-action="Login" asp-controller="Account" class="btn btn-primary">Sign In</a>
+}

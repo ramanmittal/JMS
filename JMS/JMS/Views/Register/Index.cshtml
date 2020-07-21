@@ -38,11 +38,21 @@
             <input type="tel" class="form-control" asp-for="Affiliation" />
             <span asp-validation-for="Affiliation"></span>
         </div>
-        
+
         <div>
             <label>Country</label>
             <input type="text" class="form-control" asp-for="Country" />
             <span asp-validation-for="Country"></span>
+        </div>
+        <div>
+            <label>Password</label>
+            <input type="password" class="form-control" asp-for="Password" />
+            <span asp-validation-for="Password"></span>
+        </div>
+        <div>
+            <label>Confirm Password</label>
+            <input type="password" class="form-control" asp-for="ConfirmPassword" />
+            <span asp-validation-for="ConfirmPassword"></span>
         </div>
 
         <div>
@@ -74,10 +84,10 @@
     <h2 class="text-center">Your Account has been Created! Please check your inbox to verify your email address.</h2>
     <div class="text-center">
                      <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Ok</button>
-                     <button type="button" class="btn btn-primary btn-lg" onclick="dltjrn(1)">Resend</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="rsncnfmail(${responseData.id})">Resend</button>
     </div>
                          `);
-                        $("#myModal").modal();
+                        $("#myModal").modal({ backdrop: 'static', keyboard: false });
                         $(".loader").hide();
                     },
 
@@ -85,5 +95,18 @@
                 return false;
             }
         });
+        function rsncnfmail(id) {
+            $(".loader").show()
+            $.ajax({
+                type: "post",
+                url: "@Url.Action("ConfirEmail", "Register")",
+                data: { userId: id, __RequestVerificationToken: $("#rgfrm input[name='__RequestVerificationToken']").val()},
+                contentType: "application/x-www-form-urlencoded",
+                success: function (responseData, textStatus, jqXHR) {
+                    toastr.success("@JMS.Setting.Messages.EmailSent")
+                    $(".loader").hide();
+                }
+            });
+        }
     </script>
 }
