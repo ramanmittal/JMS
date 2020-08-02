@@ -3,15 +3,17 @@ using System;
 using JMS.Entity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace JMS.Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200726065212_CreateStep")]
+    partial class CreateStep
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -108,51 +110,6 @@ namespace JMS.Entity.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("JMS.Entity.Entities.Contributor", b =>
-                {
-                    b.Property<long>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("bigint")
-                        .HasAnnotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn);
-
-                    b.Property<DateTime>("AddedOn")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<string>("AffiliationNo")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<int>("ContributerRole")
-                        .HasColumnType("integer");
-
-                    b.Property<string>("Country")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("FirstName")
-                        .IsRequired()
-                        .HasColumnType("text");
-
-                    b.Property<string>("LastName")
-                        .HasColumnType("text");
-
-                    b.Property<string>("ORCIDiD")
-                        .HasColumnType("text");
-
-                    b.Property<long>("SubmissionId")
-                        .HasColumnType("bigint");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("SubmissionId");
-
-                    b.ToTable("Contributors");
-                });
-
             modelBuilder.Entity("JMS.Entity.Entities.JournalSetting", b =>
                 {
                     b.Property<long>("Id")
@@ -192,9 +149,6 @@ namespace JMS.Entity.Migrations
                     b.Property<int>("CreateStep")
                         .HasColumnType("integer");
 
-                    b.Property<string>("EditorComment")
-                        .HasColumnType("text");
-
                     b.Property<string>("Keywords")
                         .IsRequired()
                         .HasColumnType("text");
@@ -211,9 +165,6 @@ namespace JMS.Entity.Migrations
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasColumnType("text");
-
-                    b.Property<DateTime>("UpdatedDate")
-                        .HasColumnType("timestamp without time zone");
 
                     b.Property<long>("UserID")
                         .HasColumnType("bigint");
@@ -504,15 +455,6 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.Tenant", "Tenant")
                         .WithMany("ApplicationUsers")
                         .HasForeignKey("TenantId");
-                });
-
-            modelBuilder.Entity("JMS.Entity.Entities.Contributor", b =>
-                {
-                    b.HasOne("JMS.Entity.Entities.Submission", "Submission")
-                        .WithMany()
-                        .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("JMS.Entity.Entities.JournalSetting", b =>

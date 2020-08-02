@@ -10,5 +10,6 @@ namespace JMS.Service.ServiceContracts
         string SaveFile(Stream stream, string fileName);
         void RemoveFile(string fileName);
         string GetFile(string file);
+        byte[] GetFileBytes(string file);
     }
 }

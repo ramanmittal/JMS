@@ -6,6 +6,13 @@
     <Configurations>Debug;Release;QA</Configurations>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Compile Remove="Models\2qQQQQQQQQQQQQQQQQQQQQ]q]q]QQ]\**" />
+    <Content Remove="Models\2qQQQQQQQQQQQQQQQQQQQQ]q]q]QQ]\**" />
+    <EmbeddedResource Remove="Models\2qQQQQQQQQQQQQQQQQQQQQ]q]q]QQ]\**" />
+    <None Remove="Models\2qQQQQQQQQQQQQQQQQQQQQ]q]q]QQ]\**" />
+  </ItemGroup>
+
 
   <ItemGroup>
     <PackageReference Include="AutoMapper" Version="10.0.0" />

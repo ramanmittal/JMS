@@ -1,0 +1,118 @@
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+<div>
+    <button style="float:right;margin:10px;" target="@Url.Action("AddSubmissionFile","Submission",new {id=ViewContext.RouteData.Values["id"]})" class="btn btn-primary modal-link">Add File</button>
+    <button style="float:left;margin:10px;" target="@Url.Action("MovetoContributer","Submission",new {id=ViewContext.RouteData.Values["id"]})" class="btn btn-primary" id="cnt">Continue</button>
+</div>
+<br>
+
+<script src="~/plugins/jsgrid/jsgrid.js"></script>
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+<div id="jsGrid"></div>
+<script>
+    $("#cnt").click(function () {
+        var url = $(this).attr("target");
+        $(".loader").show();
+        $.ajax({
+             url: url,
+            type: "Get",
+            success: function () {
+                $("#stepcont").steps("next")
+                $(".loader").hide();
+            }
+        })
+    });
+    $(".sub-files").on("click", ".modal-link", function () {
+        var url = $(this).attr("target");
+        $(".loader").show();
+        $("#myModal .modal-body").load(url, function () {
+            $("#myModal").modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $(".loader").hide();
+        });
+    });
+        $(function () {
+            $("#jsGrid").jsGrid({
+                  noDataContent :"No Files.",
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                },
+
+                autoload: true,
+                 paging: true,
+               controller: {
+                   loadData: function (filter) {
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("GetSubmissionfiles", "Submission",new {id=ViewContext.RouteData.Values["id"]})",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "File Name", type: "text", itemTemplate: function (value, item) {
+                            return `<a href='@Url.Action("DownloadSubmissionFile", "submission")/${item.submissionFileID}'>` + item.fileName+"</a>"
+                        }
+                    },
+                    {
+                        name: "Upload Date", type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.uploadDate+"</span>"
+                        }
+                    },
+                    {
+                        name: "Artical Component", type: "text",  itemTemplate: function (value, item) {
+                            return "<span>" + (item.articalComponent) + "</span>"
+                        }
+                    },
+
+                    {
+                        name: "", type: "control", itemTemplate: function (value, item) {
+                            return `<a class="fa fa-edit modal-link" title="Edit" data-toggle="tooltip" data-placement="top"  target="@Url.Action("EditSubmissionFile", "Submission")?id=${item.submissionFileID}"></a>
+                                    <a class="fas fa-trash-alt black" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltfiledlg(${item.submissionFileID});"></a>`
+                        }
+                    }
+               ]
+            });
+
+        });
+      function dltfiledlg(submissionFileID) {
+          $("#myModal .modal-body").html(`
+                <h3 class="text-center">Are you sure you want to remove this file?</h3>
+                <div  class="text-center">
+                     <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Cancel</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="dltfl(${submissionFileID})">Yes</button>
+                </div>
+                `);
+          $("#myModal").modal({
+              backdrop: 'static',
+              keyboard: false
+          })
+      }
+     function dltfl(submissionFileID) {
+            $(".loader").show();
+            $.ajax({
+                type: "POST",
+                data: {
+                    id: submissionFileID,
+                    __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
+                },
+                url: "@Url.Action("RemoveSubmissionFile")",
+                success: function (data) {
+                    $("#jsGrid").jsGrid("loadData").done(function () {
+                        $(".loader").hide();
+                        $("#myModal").modal("hide");
+                        toastr.success("File has been removed.");
+                    });
+                }
+            });
+        }
+</script>

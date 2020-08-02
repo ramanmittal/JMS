@@ -39,6 +39,10 @@ namespace JMS.Service.Services
         {
             return _imgDirectoryVirtaulPath + file;
         }
+        public byte[] GetFileBytes(string file)
+        {
+            return File.ReadAllBytes(Path.Combine(_imgDirectoryPath, file)) ;
+        }
         private static void CopyStream(Stream input, Stream output)
         {
             byte[] buffer = new byte[8 * 1024];

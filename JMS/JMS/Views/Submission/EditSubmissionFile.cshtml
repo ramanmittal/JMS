@@ -1,0 +1,62 @@
+﻿@model JMS.ViewModels.Submissions.EditSubmissionFileModel
+@inject JMS.Service.ServiceContracts.ISubmissionService submissionService
+<style type="text/css">
+    .select2-container .select2-selection--single {
+        height: auto;
+    }
+</style>
+<form asp-action="EditSubmissionFile" method="POST" id="upld-frm">
+    @Html.AntiForgeryToken()
+    @Html.HiddenFor(x => x.SubmissionFileId)
+    
+    <div class="form-group">
+        <label asp-for="ArticleComponentId" class="control-label"></label>
+        @Html.DropDownListFor(x => x.ArticleComponentId, submissionService.GetArticleComponent(ViewContext.HttpContext.Request.RouteValues["tenant"].ToString()).Select(x => new SelectListItem(x.Value, x.Key.ToString())), null, new { @class = "form-control", style = "" })
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Description" class="control-label"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="Creator" class="control-label"></label>
+        <input type="text" asp-for="Creator" class="form-control" />
+
+    </div>
+    <div class="form-group">
+        <label asp-for="Subject" class="control-label"></label>
+        <input type="text" asp-for="Subject" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <input type="submit" value="Save File" class="btn btn-primary" />
+        <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+    </div>
+</form>
+
+<script type="text/javascript">                
+                 $('#ArticleComponentId').select2();
+                 $("#upld-frm").submit(function(event){
+                     event.preventDefault();                     
+                     $(".loader").show();
+                     var form_data = new FormData(this)
+                     $.ajax({
+                         type: 'POST',
+                         url: $(this).attr("action"),
+                         processData: false,
+                         contentType: false,
+                         cache: false,
+                         data: form_data,
+                         success: function (response) {
+                             $("#jsGrid").jsGrid("loadData").done(function () {
+                                 $(".loader").hide();
+                                 $("#myModal").modal("hide");
+                                 toastr.success("File has been saved.");
+                             });
+                         }
+                     });
+                 })
+</script>
+
+
+

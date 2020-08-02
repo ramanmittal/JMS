@@ -1,0 +1,77 @@
+﻿@model JMS.Models.Submissions.EditContributerModel
+
+    <form asp-action="EditContributer" method="post" id="cntr-edit-frm">
+        @Html.HiddenFor(x=>x.ContributerId)
+        @Html.HiddenFor(x=>x.SubmissionId)
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label asp-for="FirstName" class="control-label"></label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="LastName" class="control-label"></label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Country" class="control-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ORCIDiD" class="control-label"></label>
+            <input asp-for="ORCIDiD" class="form-control" />
+            <span asp-validation-for="ORCIDiD" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="AffiliationNo" class="control-label"></label>
+            <input asp-for="AffiliationNo" class="form-control" />
+            <span asp-validation-for="AffiliationNo" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ContributerRole" class="control-label"></label>
+            <select asp-items="Html.GetEnumSelectList<JMS.Entity.Data.ContributerRole>()" asp-for="ContributerRole" class="form-control"></select>
+            <span asp-validation-for="ContributerRole" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Save Contributor" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+    </form>
+<script>
+    debugger;
+    var asdf = $.validator.unobtrusive.parse("#cntr-edit-frm");
+    $("#cntr-edit-frm").off("submit");
+    $("#cntr-edit-frm").submit(function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        if ($("#cntr-edit-frm").valid()) {
+            $(".loader").show();
+            var form_data = new FormData(this)
+            $.ajax({
+                type: 'POST',
+                url: $(this).attr("action"),
+                processData: false,
+                contentType: false,
+                cache: false,
+                data: form_data,
+                success: function (response) {
+                    $("#contr-Grid").jsGrid("loadData").done(function () {
+                        $(".loader").hide();
+                        $("#myModal").modal("hide");
+                        toastr.success("Contributer has been saved.");
+                    });
+                }
+            });
+        }
+        
+    })
+</script>
+
+

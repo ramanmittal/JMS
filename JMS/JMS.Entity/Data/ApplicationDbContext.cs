@@ -24,7 +24,11 @@ namespace JMS.Entity.Data
         public DbSet<Tenant> Tenants { get; set; }
         public DbSet<SystemSetting> SystemSettings { get; set; }
         public DbSet<JournalSetting> JournalSettings { get; set; }
-
+        public DbSet<Submission> Submission { get; set; }
+        public DbSet<TenantArticleComponent> TenantArticleComponent { get; set; }
+        
+        public DbSet<SubmisssionFile> SubmisssionFile { get; set; }
+        public DbSet<Contributor> Contributors { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>().HasOne(x => x.Tenant).WithMany(x => x.ApplicationUsers).HasForeignKey(x => x.TenantId);
@@ -38,6 +42,11 @@ namespace JMS.Entity.Data
             builder.Entity<IdentityUserLogin<long>>().HasKey(x => new { x.ProviderKey, x.LoginProvider });
             builder.Entity<IdentityUserRole<long>>().HasKey(x => new { x.UserId, x.RoleId });
             builder.Entity<IdentityUserToken<long>>().HasKey(x => new { x.UserId, x.Name, x.LoginProvider });
+            builder.Entity<Submission>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserID);
+            builder.Entity<TenantArticleComponent>().HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId);
+            builder.Entity<SubmisssionFile>().HasOne(x=>x.Submission).WithMany().HasForeignKey(x=>x.SubmissionId);
+            builder.Entity<SubmisssionFile>().HasOne(x=>x.TenantArticleComponent).WithMany().HasForeignKey(x=>x.ArticleComponentId);
+            builder.Entity<Contributor>().HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId);
         }
         public override int SaveChanges()
         {

@@ -1,0 +1,64 @@
+﻿@model JMS.ViewModels.Submissions.EditSubmissionMetadataModel 
+    <link href="~/plugins/tagify/tagify.css" rel="stylesheet" />
+    <form asp-action="EditMetadata" asp-controller="Submission" id="strtfrm" method="post">
+        @Html.AntiForgeryToken()
+        <div class="form-group">
+            <label asp-for="Prefix" class="control-label"></label>
+            <input asp-for="Prefix" class="form-control" />
+            <span asp-validation-for="Prefix" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Title" class="control-label"></label>
+            <input asp-for="Title" class="form-control" />
+            <span asp-validation-for="Title" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Subtitle" class="control-label"></label>
+            <input asp-for="Subtitle" class="form-control" />
+            <span asp-validation-for="Subtitle" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Abstract" class="control-label"></label>
+            <textarea asp-for="Abstract" class="form-control " rows="5"></textarea>
+            <span asp-validation-for="Abstract" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Keywords" class="control-label"></label>
+            <input asp-for="Keywords" class="form-control" />
+            <p id="Keywords-vld" class="text-danger" style="display: none;margin-bottom: 0px;">Please enter atleast one keyword.</p>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Save Details" class="btn btn-primary" />
+        </div>
+    </form>
+    <script src="~/plugins/tagify/jQuery.tagify.min.js"></script>
+    <script>
+        $('#Keywords').tagify({ delimiters: ",", originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',') });
+        $.validator.unobtrusive.parse("#strtfrm");
+        $("#strtfrm").submit(function (event) {
+            event.preventDefault();
+            var keywords = $("#Keywords").val()  
+            if (!keywords) {
+                $("#Keywords-vld").show();
+            }
+            else {
+                $("#Keywords-vld").hide();
+            }
+            if ($("#strtfrm").valid()) {
+                if (!keywords) {
+                    $("#Keywords-vld").show();
+                    return;
+                }
+                $(".loader").show()
+                $.ajax({
+                    "url": $("#strtfrm").attr("action"),
+                    "type": "Post",
+                    "data": $("#strtfrm").serialize(),
+                    "success": function () {
+                        $("#stepcont").steps("next");
+                        $(".loader").hide();
+                    }
+                });
+            }
+        });
+    </script>

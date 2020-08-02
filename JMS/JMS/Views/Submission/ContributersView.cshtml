@@ -1,0 +1,130 @@
+﻿@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+<div>
+    <button style="float:right;margin:10px;" target="@Url.Action("AddContributer","Submission",new {id=ViewContext.RouteData.Values["id"]})" class="btn btn-primary modal-link">Add Contributer</button>
+    <button style="float:left;margin:10px;" target="@Url.Action("MovetoFinish","Submission",new {id=ViewContext.RouteData.Values["id"]})" class="btn btn-primary" id="contri-cnt">Continue</button>
+</div>
+<br>
+<script src="~/plugins/jsgrid/jsgrid.js"></script>
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+<div id="contr-Grid"></div>
+<script>
+    $("#contri-cnt").click(function () {
+        var url = $(this).attr("target");
+        $(".loader").show();
+        $.ajax({
+             url: url,
+            type: "Post",
+            data: {__RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"},
+            success: function () {
+                $("#stepcont").steps("next")
+                $(".loader").hide();
+            }
+        })
+    });
+    $(".sub-contr").on("click", ".modal-link", function () {
+        var url = $(this).attr("target");
+        $(".loader").show();
+        $("#myModal .modal-body").load(url, function () {
+            $("#myModal").modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $(".loader").hide();
+        });
+    });
+        $(function () {
+            $("#contr-Grid").jsGrid({
+                noDataContent:"No Contributer.",
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                },
+
+                autoload: true,
+                 paging: true,
+               controller: {
+                   loadData: function (filter) {
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("ContributersJson", "Submission",new { submissionId = ViewContext.RouteData.Values["id"]})",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "Name", type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.firstName + " " + (item.lastName||"")+"</span>"
+                        }
+                    },
+                    {
+                        name: "Email", type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.email+"</span>"
+                        }
+                    },
+                    {
+                        name: "Role", type: "text",  itemTemplate: function (value, item) {
+                            return "<span>" + (item.role) + "</span>"
+                        }
+                    },
+
+                    {
+                        name: "", type: "control", itemTemplate: function (value, item) {
+                            return `<a class="fa fa-edit modal-link" title="Edit" data-toggle="tooltip" data-placement="top"  target="@Url.Action("EditContributer", "Submission")?id=${item.contributerId}"></a>
+                                    <a class="fas fa-trash-alt black" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltfiledlg(${item.contributerId});"></a>`
+                        }
+                    }
+               ]
+            });
+
+        });
+    function dltfiledlg(contributerId) {
+          $("#myModal .modal-body").html(`
+                <h3 class="text-center">Are you sure you want to remove this contributer?</h3>
+                <div  class="text-center">
+                     <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Cancel</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="dltfl(${contributerId})">Yes</button>
+                </div>
+                `);
+          $("#myModal").modal({
+              backdrop: 'static',
+              keyboard: false
+          })
+      }
+    function dltfl(contributerId) {
+            $(".loader").show();
+            $.ajax({
+                type: "POST",
+                data: {
+                    contributerId: contributerId,
+                    __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
+                },
+                url: "@Url.Action("RemoveContributor")",
+                success: function (data) {
+                    $("#contr-Grid").jsGrid("loadData").done(function () {
+                        $(".loader").hide();
+                        $("#myModal").modal("hide");
+                        toastr.success("Contributer has been removed.");
+                    });
+                }
+            });
+    }
+    $("contri-cnt").click(function () {
+        var url = $(this).attr("target");
+        $(".loader").show();
+        $.ajax({
+            url: url,
+            type: "Post",
+            success: function () {
+                $("#stepcont").steps("next")
+                $(".loader").hide();
+            }
+        })
+    });
+</script>

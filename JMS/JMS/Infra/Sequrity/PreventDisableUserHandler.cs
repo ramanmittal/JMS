@@ -18,7 +18,8 @@ namespace JMS.Infra.Sequrity
                 var isUserDisabled = ((JMSPrincipal)context.User).ApplicationUser.IsDisabled;
                 if (isUserDisabled != true)
                 {
-                    context.Succeed(requirement);
+                    if (requirement.AllowedRoles.All(x => context.User.IsInRole(x)))
+                        context.Succeed(requirement);
                 }
                 else
                 {

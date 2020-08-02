@@ -1,0 +1,90 @@
+﻿@model JMS.Models.Submissions.AddSubmissionFileViewModel
+<style type="text/css">
+.select2-container .select2-selection--single{
+    height:auto;
+}
+</style>
+<form asp-action="AddSubmissionFile" method="POST" id="upld-frm">
+            @Html.AntiForgeryToken()
+            @Html.HiddenFor(x=>x.SubmissionId)
+            <div class="form-group">
+                    <label for="exampleInputFile">File input</label>
+                    <div class="input-group">
+                      <div class="custom-file">
+                        <input type="file" name="File" class="custom-file-input" id="exampleInputFile" accept="application/pdf"/>
+                        <label class="custom-file-label" for="exampleInputFile">Choose file</label>
+                      </div>                      
+                    </div>
+                    <p id="onlypdf" class="text-danger" style="display: none;margin-bottom: 0px;">Please upload only PDF file.</p>
+                    <p id="req" class="text-danger" style="display: none;">Please upload submission file.</p>
+            </div>
+            <div class="form-group">
+              <label asp-for="ArticleComponentId" class="control-label"></label>
+              @Html.DropDownListFor(x=>x.ArticleComponentId,Model.ArticleComponenets,null,new {@class="form-control",style=""}) 
+            </div>
+                      
+            <div class="form-group">
+                <label asp-for="Description" class="control-label"></label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+            </div>
+            <div class="form-group">
+                <label asp-for="Creator" class="control-label"></label>
+                <input type="text" asp-for="Creator" class="form-control" />
+                
+            </div>
+            <div class="form-group">
+                <label asp-for="Subject" class="control-label"></label>
+                <input type="text" asp-for="Subject" class="form-control" />
+            </div>
+            
+            <div class="form-group">
+                <input type="submit" value="Add File" class="btn btn-primary" />
+                <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+            </div>
+</form>
+        
+        <script type="text/javascript">
+                $("#exampleInputFile").on("change", function() {
+                        var fileName = $(this).val().split("\\").pop();
+                        if(fileName.endsWith(".pdf")){
+                            $(this).siblings(".custom-file-label").addClass("selected").html(fileName);
+                            $("#onlypdf").hide();
+                             $("#req").hide();
+                        }
+                        else{
+                            $("#exampleInputFile").val(''); 
+                             $(this).siblings(".custom-file-label").addClass("selected").html("");
+                            $("#onlypdf").show(); 
+                        }   
+                });
+                 $('#ArticleComponentId').select2();
+                 $("#upld-frm").submit(function(event){
+                     event.preventDefault();
+                     if( !$("#exampleInputFile").val()){
+                        $("#req").show();
+                     }
+                     else{
+                        $("#req").hide();
+                        $(".loader").show();
+                        var form_data=new FormData(this)
+                        $.ajax({
+                            type:'POST',
+                            url: $(this).attr("action"),
+                            processData: false,
+                            contentType: false,                           
+                            cache: false,
+                            data : form_data,
+                            success: function(response){
+                                $("#jsGrid").jsGrid("loadData").done(function () {
+                                    $(".loader").hide();
+                                    $("#myModal").modal("hide");        
+                                    toastr.success("File has been saved.");
+                                });
+                            }
+                        });
+                     }
+                 })
+        </script>
+     
+        
+

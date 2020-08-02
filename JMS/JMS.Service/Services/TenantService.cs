@@ -17,6 +17,7 @@ using System.Threading.Tasks;
 using JMS.ViewModels.Admin;
 using Npgsql;
 using System.Data;
+using Newtonsoft.Json;
 
 namespace JMS.Service.Services
 {
@@ -62,11 +63,13 @@ namespace JMS.Service.Services
         public async Task CreateTenant(CreateJournalModel model, Stream stream, string journalLogo)
         {
             var roleIds = _applicationDbContext.Roles.Where(x => x.Name == Role.Admin.ToString() || x.Name == Role.JournalAdmin.ToString()).Select(x => x.Id);
+            var tenant = new Tenant { JournalName = model.JournalName, JournalPath = model.JournalPath, JournalTitle = model.JournalTitle, IsDisabled = !model.IsActive };
+            _configuration.GetSection("ArticleComponent");
+            var articleComponents = _configuration.GetSection("ArticleComponent").GetChildren().Select(x=>x.Value).ToArray();
             using (var transaction = _applicationDbContext.Database.BeginTransaction())
             {
                 try
-                {
-                    var tenant = new Tenant { JournalName = model.JournalName, JournalPath = model.JournalPath, JournalTitle = model.JournalTitle, IsDisabled = !model.IsActive };
+                {                    
                     _applicationDbContext.Tenants.Add(tenant);
                     var path = _fileService.SaveFile(stream, journalLogo);
                     tenant.JournalLogo = path;
@@ -76,7 +79,17 @@ namespace JMS.Service.Services
                     {
                         _applicationDbContext.UserRoles.Add(new IdentityUserRole<long> { RoleId = roleId, UserId = user.Id });
                     }
+                    for (int i = 0; i < articleComponents.Length; i++)
+                    {
+                        _applicationDbContext.TenantArticleComponent.Add(new TenantArticleComponent
+                        {
+                            Order = i + 1,
+                            Text = articleComponents[i],
+                            Tenant = tenant
+                        });
+                    }
                     _applicationDbContext.SaveChanges();
+                    
                     transaction.Commit();
                 }
                 catch (Exception ex)

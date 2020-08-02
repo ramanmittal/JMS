@@ -1,0 +1,72 @@
+﻿@model JMS.Models.Submissions.AddContributerModel
+
+
+    <style type="text/css">
+        .select2-container .select2-selection--single {
+            height: auto;
+        }
+    </style>
+    <form asp-action="PostAddContirbuter" method="post" asp-controller="submission" id="cntrfrm">
+        @Html.HiddenFor(x=>x.SubmissionId)
+        <div class="form-group">
+            <label asp-for="FirstName" class="control-label"></label>
+            <input asp-for="FirstName" class="form-control" />
+            <span asp-validation-for="FirstName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="LastName" class="control-label"></label>
+            <input asp-for="LastName" class="form-control" />
+            <span asp-validation-for="LastName" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Email" class="control-label"></label>
+            <input asp-for="Email" class="form-control" />
+            <span asp-validation-for="Email" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="Country" class="control-label"></label>
+            <input asp-for="Country" class="form-control" />
+            <span asp-validation-for="Country" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ORCIDiD" class="control-label"></label>
+            <input asp-for="ORCIDiD" class="form-control" />
+            <span asp-validation-for="ORCIDiD" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="AffiliationNo" class="control-label"></label>
+            <input asp-for="AffiliationNo" class="form-control" />
+            <span asp-validation-for="AffiliationNo" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <label asp-for="ContributerRole" class="control-label"></label>
+            <select asp-items="Html.GetEnumSelectList<JMS.Entity.Data.ContributerRole>()" asp-for="ContributerRole" class="form-control"></select>          
+            <span asp-validation-for="ContributerRole" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="submit" value="Create" class="btn btn-primary" />
+            <button type="button" class="btn btn-default" data-dismiss="modal">Cancel</button>
+        </div>
+    </form>
+<script>
+    $.validator.unobtrusive.parse("#cntrfrm");
+    $("#cntrfrm").submit(function(event){
+        event.preventDefault();
+        if ($("#cntrfrm").valid()) {
+            $(".loader").show();
+            $.ajax({
+                "url": $("#cntrfrm").attr("action"),
+                data: $("#cntrfrm").serialize(),
+                type: "Post",
+                success: function () {
+                    $("#contr-Grid").jsGrid("loadData").done(function () {
+                        $(".loader").hide();
+                        $("#myModal").modal("hide");
+                        toastr.success("Contributor has been added.");
+                    }); 
+                }
+            })
+        }
+    });
+</script>
+

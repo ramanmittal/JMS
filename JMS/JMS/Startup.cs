@@ -69,6 +69,7 @@ namespace JMS
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMaskService, Maskservice>();
             services.AddScoped<IEmailService, EmailService>();
+            services.AddScoped<ISubmissionService, SubmissionService>();
             services.RemoveAll<IUserValidator<ApplicationUser>>();
             services.TryAddScoped<IUserValidator<ApplicationUser>, JMSUserValidator>();
             services.AddSingleton<IFileService>(x =>

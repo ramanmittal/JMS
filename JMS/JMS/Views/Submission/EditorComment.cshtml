@@ -1,0 +1,93 @@
+﻿@model JMS.ViewModels.Submissions.EditorCommentModel
+
+
+<div class="row">
+
+    <form asp-action="EditorComment" id="cmntfrm">
+        @Html.AntiForgeryToken()
+        @Html.HiddenFor(x => x.Id)
+        <div class="form-group">
+            <label asp-for="Comment" class="control-label"></label>
+            <textarea asp-for="Comment" class="form-control summernote"></textarea>
+            <span asp-validation-for="Comment" class="text-danger"></span>
+        </div>
+        <div class="form-group">
+            <input type="button" id="savebtn" value="Save" class="btn btn-primary d-inline" />
+            <input type="submit" value="Finish" class="btn btn-primary d-inline" />
+        </div>
+
+    </form>
+
+</div>
+<script>
+    $("#cmntfrm").submit(function (event) {
+        event.preventDefault();
+    })
+    var summernotes = $(".summernote");
+    for (var i = 0; i < summernotes.length; i++) {
+        var item = summernotes[i];
+        $(item).summernote({
+            toolbar: [
+                ['style', ['style']],
+                ['font', ['bold', 'italic', 'underline', 'clear']],
+                ['fontname', ['fontname']],
+                ['color', ['color']],
+                ['para', ['ul', 'ol', 'paragraph']],
+                ['table', ['table']],
+                ['insert', ['link', 'picture', 'video']],
+                ['view', ['fullscreen', 'codeview', 'help']],
+                ['misc', ['clearAll']]
+            ],
+
+            buttons: {
+                clearAll: function () {
+                    var ui = $.summernote.ui;
+                    // create button
+                    var button = ui.button({
+                        contents: '<b>x</b>',
+                        tooltip: 'Clear All',
+                        click: function () {
+                            $(this).parents(".note-editor").prev('textarea').summernote('code', '');
+                            $(this).parents(".note-editor").prev('textarea').summernote({ focus: true });
+                        }
+                    });
+                    return button.render();
+                }
+            },
+
+        });
+    }
+    $("#cmntfrm").submit(function (event) {
+        event.preventDefault();
+        savecmnt(function () {
+            window.location.href = "@Url.Action("Index", "MySubmission")";
+        });
+    })
+    $("#savebtn").click(function (event) {
+        savecmnt(function () {
+            toastr.success("Comments have been saved.");
+            $(".loader").hide();
+        });
+    });
+    function savecmnt(successfunc) {
+        if ($("#cmntfrm").valid()) {
+
+            $(".loader").show();
+            var form_data = new FormData($("#cmntfrm")[0])
+            $.ajax({
+                type: 'POST',
+                url: $("#cmntfrm").attr("action"),
+                processData: false,
+                contentType: false,
+                cache: false,
+                data: form_data,
+                success: function (response) {
+                    successfunc(response);
+                }
+            });
+        }
+
+    }
+</script>
+
+
