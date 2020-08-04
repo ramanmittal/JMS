@@ -1094,7 +1094,7 @@
         _sortingParams: function() {
             if(this.sorting && this._sortField) {
                 return {
-                    sortField: this._sortField.name,
+                    sortField: this._sortField.sortField || this._sortField.name,
                     sortOrder: this._sortOrder
                 };
             }

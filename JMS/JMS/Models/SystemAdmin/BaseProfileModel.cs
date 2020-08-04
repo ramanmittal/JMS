@@ -36,5 +36,6 @@ namespace JMS.Models.SystemAdmin
         [Required]
         [DisplayName("Zip")]
         public string Zip { get; set; }
+        public string AffiliationNo { get; set; }
     }
 }

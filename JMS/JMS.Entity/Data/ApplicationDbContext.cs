@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using System.Net.Security;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +20,7 @@ namespace JMS.Entity.Data
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
         {
-            
+
         }
         //public ApplicationDbContext() : base(){ }
         public DbSet<Tenant> Tenants { get; set; }
@@ -26,9 +28,10 @@ namespace JMS.Entity.Data
         public DbSet<JournalSetting> JournalSettings { get; set; }
         public DbSet<Submission> Submission { get; set; }
         public DbSet<TenantArticleComponent> TenantArticleComponent { get; set; }
-        
+
         public DbSet<SubmisssionFile> SubmisssionFile { get; set; }
         public DbSet<Contributor> Contributors { get; set; }
+        public DbSet<Author> Authors { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>().HasOne(x => x.Tenant).WithMany(x => x.ApplicationUsers).HasForeignKey(x => x.TenantId);
@@ -44,9 +47,18 @@ namespace JMS.Entity.Data
             builder.Entity<IdentityUserToken<long>>().HasKey(x => new { x.UserId, x.Name, x.LoginProvider });
             builder.Entity<Submission>().HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserID);
             builder.Entity<TenantArticleComponent>().HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId);
-            builder.Entity<SubmisssionFile>().HasOne(x=>x.Submission).WithMany().HasForeignKey(x=>x.SubmissionId);
-            builder.Entity<SubmisssionFile>().HasOne(x=>x.TenantArticleComponent).WithMany().HasForeignKey(x=>x.ArticleComponentId);
+            builder.Entity<SubmisssionFile>().HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId);
+            builder.Entity<SubmisssionFile>().HasOne(x => x.TenantArticleComponent).WithMany().HasForeignKey(x => x.ArticleComponentId);
             builder.Entity<Contributor>().HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId);
+            builder.Entity<Author>().HasOne(x => x.User).WithOne().HasForeignKey<Author>(x => x.Id);
+
+            var cascadeFKs = builder.Model.GetEntityTypes()
+            .SelectMany(t => t.GetForeignKeys())
+            .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);
+
+                foreach (var fk in cascadeFKs)
+                    fk.DeleteBehavior = DeleteBehavior.Restrict;
+
         }
         public override int SaveChanges()
         {
@@ -78,7 +90,7 @@ namespace JMS.Entity.Data
                             ((Trackable)entry.Entity).Deleted = DateTime.UtcNow;
                             break;
                     }
-                } 
+                }
             }
         }
 

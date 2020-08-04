@@ -9,7 +9,6 @@ namespace JMS.ViewModels.Submissions
     public class EditorCommentModel
     {
         public long Id { get; set; }
-        [Required]
         [DisplayName("Comment for editor")]
         public string Comment { get; set; }
     }

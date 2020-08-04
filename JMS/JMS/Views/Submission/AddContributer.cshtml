@@ -50,6 +50,7 @@
     </form>
 <script>
     $.validator.unobtrusive.parse("#cntrfrm");
+    $('#ORCIDiD').mask('0000-0000-0000-0000')
     $("#cntrfrm").submit(function(event){
         event.preventDefault();
         if ($("#cntrfrm").valid()) {

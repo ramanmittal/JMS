@@ -23,7 +23,8 @@ namespace JMS.Models.Submissions
         public string Email { get; set; }
         [Required]
         public string Country { get; set; }
-        [DisplayName("ORCID ID")]
+        [DisplayName("ORCID")]
+        [RegularExpression(@"\d{4}-\d{4}-\d{4}-\d{4}", ErrorMessage = "Invalid ORCID")]
         public string ORCIDiD { get; set; }
         [Required]
         [DisplayName("Affiliation")]

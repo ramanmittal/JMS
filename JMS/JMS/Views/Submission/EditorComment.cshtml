@@ -12,17 +12,15 @@
             <span asp-validation-for="Comment" class="text-danger"></span>
         </div>
         <div class="form-group">
-            <input type="button" id="savebtn" value="Save" class="btn btn-primary d-inline" />
-            <input type="submit" value="Finish" class="btn btn-primary d-inline" />
+            <input type="submit"  value="Save" class="btn btn-primary d-inline" />
+            <input type="button" value="Finish" id="fnshbtn" class="btn btn-primary d-inline" />
         </div>
 
     </form>
 
 </div>
 <script>
-    $("#cmntfrm").submit(function (event) {
-        event.preventDefault();
-    })
+
     var summernotes = $(".summernote");
     for (var i = 0; i < summernotes.length; i++) {
         var item = summernotes[i];
@@ -60,13 +58,13 @@
     $("#cmntfrm").submit(function (event) {
         event.preventDefault();
         savecmnt(function () {
-            window.location.href = "@Url.Action("Index", "MySubmission")";
-        });
-    })
-    $("#savebtn").click(function (event) {
-        savecmnt(function () {
             toastr.success("Comments have been saved.");
             $(".loader").hide();
+        });
+    })
+    $("#fnshbtn").click(function (event) {
+        savecmnt(function () {
+             window.location.href = "@Url.Action("Index", "MySubmission")";
         });
     });
     function savecmnt(successfunc) {

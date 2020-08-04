@@ -23,5 +23,6 @@ namespace JMS.ViewModels.SystemAdmin
         public string State { get; set; }
         [Required]
         public string Zip { get; set; }
+        public string AffiliationNo { get; set; }
     }
 }

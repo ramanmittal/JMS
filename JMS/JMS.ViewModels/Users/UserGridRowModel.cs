@@ -6,7 +6,7 @@ namespace JMS.ViewModels.Users
 {
     public class UserGridModel
     {
-        public int TotalItems { get; set; }
+        public int ItemsCount { get; set; }
         public IEnumerable<UserGridRowModel> Data { get; set; }
     }
     public class UserGridRowModel

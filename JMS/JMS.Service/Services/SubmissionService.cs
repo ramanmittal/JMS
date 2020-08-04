@@ -10,6 +10,8 @@ using System.Linq;
 using JMS.Entity.Migrations;
 using SubmisssionFile = JMS.Entity.Entities.SubmisssionFile;
 using Contributor = JMS.Entity.Entities.Contributor;
+using JMS.ViewModels.Users;
+using Microsoft.EntityFrameworkCore;
 
 namespace JMS.Service.Services
 {
@@ -31,6 +33,7 @@ namespace JMS.Service.Services
             submission.Keywords = createSubmissionModel.Keywords;
             submission.UserID = userId;
             submission.UpdatedDate = DateTime.UtcNow;
+            submission.CreatedDate = DateTime.UtcNow;
             submission.CreateStep = 1;
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             context.Submission.Add(submission);
@@ -124,6 +127,7 @@ namespace JMS.Service.Services
             submission.Prefix = model.Prefix;
             submission.Title = model.Title;
             submission.Subtitle = model.Subtitle;
+            submission.CreateStep = Math.Max(1, submission.CreateStep);
             submission.Abstract = model.Abstract;
             submission.Keywords = model.Keywords;
             submission.UpdatedDate = DateTime.UtcNow;
@@ -141,7 +145,6 @@ namespace JMS.Service.Services
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var submission = context.Submission.First(x => x.UserID == userId && x.Id == submissionId);
-            submission.SubmissionStatus = SubmissionStatus.Submission;            
             submission.CreateStep = Math.Max(3, submission.CreateStep);
             context.SaveChanges();
         }
@@ -240,7 +243,56 @@ namespace JMS.Service.Services
             }
             var submission = submissions.FirstOrDefault();
             submission.EditorComment = model.Comment;
+            submission.SubmissionStatus = SubmissionStatus.Submission;
             context.SaveChanges();
+        }
+
+        public SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var allSubmission = context.Submission.Where(x => x.UserID == userID);
+            if (!string.IsNullOrEmpty(model.Title))
+            {
+                allSubmission = allSubmission.Where(x => EF.Functions.ILike(x.Title, model.Title));
+            }
+            if (!string.IsNullOrEmpty(model.Keywords))
+            {
+                allSubmission = allSubmission.Where(x => EF.Functions.ILike(x.Keywords, $"%{model.Keywords}%"));
+            }
+            if (model.Status.HasValue)
+            {
+                allSubmission = allSubmission.Where(x => x.SubmissionStatus == model.Status.Value);
+            }
+            var sortField = "UpdatedDate";
+            var sortOrder = "desc";
+            if (!string.IsNullOrEmpty(model.sortField)&& !string.IsNullOrEmpty(model.sortOrder))
+            {
+                sortField = model.sortField; sortOrder = model.sortOrder;
+            }
+            var filteredSubmission = allSubmission.Select(x => new
+            {
+                x.Id,
+                x.Title,
+                x.Keywords,
+                x.UpdatedDate,
+                x.SubmissionStatus,
+                x.CreatedDate,
+            });
+            filteredSubmission = filteredSubmission.OrderBy(sortField, sortOrder=="asc");
+            var submissions = filteredSubmission.Skip((model.pageIndex - 1) * model.pageSize).Take(model.pageSize);
+            return new SubmissionGridModel
+            {
+                Data = submissions.Select(x => new SubmissionGridRowModel
+                {
+                    Keywords = x.Keywords,
+                    LastActivityDate = x.UpdatedDate.ToString("dd MMM yyyy"),
+                    SubmissionDate = x.CreatedDate.ToString("dd MMM yyyy"),
+                    Title = x.Title,
+                    SubmissionId = x.Id,
+                    Status = x.SubmissionStatus.ToString()
+                }).ToList(),
+                ItemsCount = allSubmission.Count()
+            };
         }
     }
 }

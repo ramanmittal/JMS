@@ -26,5 +26,7 @@ namespace JMS.Service.ServiceContracts
         Task DeleteUser(string path,long userId);
 
         Task<ApplicationUser> CreateAuthor(string path, RegisterAuthorModel model);
+        Author GetAuthor(long userId);
+        void SaveAuthor(AuthorProfileModel authorProfileModel, Stream fileStream, string fileName);
     }
 }

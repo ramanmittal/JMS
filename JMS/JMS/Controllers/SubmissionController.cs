@@ -270,6 +270,12 @@ namespace JMS.Controllers
             }
             return BadRequest();
         }
+        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
+        public IActionResult GetSubmission(SubmissionGridSearchModel model)
+        {
+            return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmissions(((JMSPrincipal)User).ApplicationUser.Id, model));
+        }
+
 
 
     }

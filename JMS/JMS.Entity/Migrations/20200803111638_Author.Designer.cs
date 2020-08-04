@@ -3,15 +3,17 @@ using System;
 using JMS.Entity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace JMS.Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200803111638_Author")]
+    partial class Author
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -527,7 +529,7 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.ApplicationUser", "User")
                         .WithOne()
                         .HasForeignKey("JMS.Entity.Entities.Author", "Id")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -536,7 +538,7 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.Submission", "Submission")
                         .WithMany()
                         .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -545,7 +547,7 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.Tenant", "Tenant")
                         .WithMany("JournalSettings")
                         .HasForeignKey("TenantId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -554,7 +556,7 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.ApplicationUser", "User")
                         .WithMany()
                         .HasForeignKey("UserID")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 
@@ -563,13 +565,13 @@ namespace JMS.Entity.Migrations
                     b.HasOne("JMS.Entity.Entities.TenantArticleComponent", "TenantArticleComponent")
                         .WithMany()
                         .HasForeignKey("ArticleComponentId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
                     b.HasOne("JMS.Entity.Entities.Submission", "Submission")
                         .WithMany()
                         .HasForeignKey("SubmissionId")
-                        .OnDelete(DeleteBehavior.Restrict)
+                        .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
                 });
 

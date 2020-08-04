@@ -6,21 +6,27 @@
 @section scripts{
     <script src="~/plugins/jquery-steps/jquery.steps.js"></script>
     <script>
-        var stepcont= $("#stepcont");        
+        var stepcont= $("#stepcont");
         stepcont.steps({
             headerTag: "h3",
             bodyTag: "section",
             transitionEffect: "slideLeft",
             stepsOrientation: "vertical",
-            enablePagination: false, 
+            enablePagination: false,
             enableKeyNavigation:false,
             enableContentCache:true,
-            startIndex:@Model          
+            startIndex:@Model
         });
         stepcont.show();
     </script>
 }
-
+<div class="row">
+    <div class="col-md-12 text-md-right">
+        @Html.ActionLink("Back to submission", "Index", "MySubmission")
+        <br />
+    </div>
+</div>
+<br />
 <div id="stepcont" style="display:none">
     <h3>Submission Details</h3>
     <section data-mode="async" class="sub-files" data-url='@Url.Action("EditMetadata","Submission",new {id=ViewContext.RouteData.Values["id"]})' style="width: 100%;">

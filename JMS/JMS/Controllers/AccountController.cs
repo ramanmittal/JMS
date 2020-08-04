@@ -20,6 +20,7 @@ using JMS.Service.Enums;
 using System;
 using ElmahCore;
 using System.Collections.Generic;
+using JMS.Models.Users;
 
 namespace JMS.Controllers
 {
@@ -165,6 +166,10 @@ namespace JMS.Controllers
         public IActionResult ViewProfile()
         {
             var user = ((JMSPrincipal)User).ApplicationUser;
+            if (User.IsInRole(Role.Author.ToString()))
+            {
+                return AuthorProfile(user);
+            }
             return View(new JMS.Models.SystemAdmin.BaseProfileModel
             {
                 City = user.City,
@@ -177,9 +182,51 @@ namespace JMS.Controllers
                 ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
             });
         }
+        private IActionResult AuthorProfile(ApplicationUser user)
+        {
+            var author = _userService.GetAuthor(user.Id);
+            return View("AuthorProfile", new AuthorProfileModel
+            {
+                City = user.City,
+                Country = user.Country,
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                PhoneNumber = user.PhoneNumber,
+                State = user.State,
+                Zip = user.Zip,
+                AffiliationNo=user.AffiliationNo,
+                ORCID=author.Orcid,
+                ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
+            });
+        }
         public IActionResult AdminProfile()
         {
             return View();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult SaveAuthorProfile(AuthorProfileModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
+                _userService.SaveAuthor(new JMS.ViewModels.Users.AuthorProfileModel
+                {
+                    City = model.City,
+                    Country = model.Country,
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    PhoneNumber = model.PhoneNumber,
+                    State = model.State,
+                    UserId = userId,
+                    Zip = model.Zip,
+                    ORCID=model.ORCID,
+                    AffiliationNo=model.AffiliationNo
+                }, model.ProfileImageFile?.OpenReadStream(), model.ProfileImageFile?.FileName);
+                TempData.Add(Messages.SuccessProfileMessage, Messages.SuccessProfileMessage);
+                return RedirectToAction("ViewProfile");
+            }
+            return View("ViewProfile", model);
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -197,6 +244,7 @@ namespace JMS.Controllers
                     PhoneNumber = model.PhoneNumber,
                     State = model.State,
                     UserId = userId,
+                    AffiliationNo=model.AffiliationNo,
                     Zip = model.Zip
                 }, model.ProfileImageFile?.OpenReadStream(), model.ProfileImageFile?.FileName);
                 TempData.Add(Messages.SuccessProfileMessage, Messages.SuccessProfileMessage);
@@ -204,7 +252,6 @@ namespace JMS.Controllers
             }
             return View("ViewProfile", model);
         }
-
         public IActionResult ChangePassword()
         {
             return View();
@@ -259,7 +306,7 @@ namespace JMS.Controllers
             return View();
         }
         [HttpPost]
-        [ValidateAntiForgeryToken]
+        [ValidateAntiForgeryToken]  
         [Authorize(Roles = RoleName.Author)]
         public async Task<IActionResult> ConfirEmail()
         {

@@ -26,5 +26,6 @@ namespace JMS.Service.ServiceContracts
         void DeleteContributor(long contributerId, long? userID);
         void MovetoFinish(long submissionId, long userId);
         void EditorComment(EditorCommentModel model, long? userID);
+        SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model);
     }
 }

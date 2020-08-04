@@ -27,5 +27,7 @@ namespace JMS.Entity.Entities
         public string EditorComment { get; set; }
         [Required]
         public DateTime UpdatedDate { get; set; }
+        [Required]
+        public DateTime CreatedDate { get; set; }
     }
 }

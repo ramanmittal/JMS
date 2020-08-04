@@ -1,4 +1,90 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@using System.Linq;
+@using System.Linq.Expressions;
+@{
+    ViewData["Title"] = "Submissions";
+    var items = Enum.GetValues(typeof(JMS.Entity.Data.SubmissionStatus)).Cast<JMS.Entity.Data.SubmissionStatus>().Select(x => new KeyValuePair<string, string>(x.ToString(), x.ToString())).ToList();
+    items.Insert(0, new KeyValuePair<string, string>("",""));
+}
+
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+@section contentheader{
+    <h1>Submissions</h1>
+}
+<div class="text-right">
+    <a class="btn btn-primary mb-2" asp-action="Create" asp-controller="Submission">Create Submission</a>
+</div>
+
+<div id="jsGrid" style="display:none"></div>
+@section scripts{
+    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    <script>
+        $(function () {
+            $(".loader").show();
+            $("#jsGrid").jsGrid({
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                    $("#jsGrid").show();
+                    $(".loader").hide();
+                },
+                paging: true,
+                pageSize: 10,
+                pageLoading: true,
+                autoload: true,
+                filtering: true,
+                sorting :true,
+               controller: {
+                   loadData: function (filter) {
+                var d = $.Deferred();
+                $.ajax({
+                    url: "@Url.Action("GetSubmission", "Submission")",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "Title", sortField: "Title", type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.title+"</span>"
+                        }
+                    },
+                    {
+                        name: "Keywords", sorting:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.keywords+"</span>"
+                        }
+                    },
+                    {
+                        name: "Last Update", sortField:"UpdatedDate", filtering:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.lastActivityDate+"</span>"
+                        }
+                    },
+                    {
+                        name: "Submission Date", sortField:"CreatedDate", filtering: false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.submissionDate + "</span>"
+                        }
+                    },
+                    {
+                        name: "Status", sorting:false, type: "select", valueField: "Key", textField: "Key", valueType:"string", items:@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(items)), itemTemplate: function (value, item) {
+                            return "<span>" + item.status + "</span>"
+                        }
+                    },
+                    {
+                        name: "", type: "control", itemTemplate: function (value, item) {
+                            return `<a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top"  href="@Url.Action("Edit", "Submission")/${item.submissionId}"></a>
+                                    <a class="fas fa-trash-alt" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltusrdlg(${item.submissionId});"></a>`
+                        }
+                    }
+               ]
+            });
+
+        });
+
+    </script>
+}
+

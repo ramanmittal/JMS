@@ -60,11 +60,12 @@
             <p>By clicking "Register", you agree to the <a asp-controller="privacy" asp-action="index">Privacy Policy</a></p>
         </div>
         <div class="col-4">
-            <a class="btn btn-primary btn-block" asp-action="login" asp-controller="account">Sign In</a>
-        </div>
-        <div class="col-4">
             <button type="submit" class="btn btn-primary btn-block">Register</button>
         </div>
+        <div class="col-4">
+            <a asp-action="login" asp-controller="account">Sign In</a>
+        </div>
+
     </div>
 </form>
 @section scripts{

@@ -1,4 +1,4 @@
 ﻿@model long
 <h3>Your email has been successfully verified. Now verify Phone Number.</h3>
 <p>Please enter the 6-digit verification code sent to your phone.</p>
-<partial name="_confirmphone" model="@((JMS.Infra.Sequrity.JMSPrincipal)User).ApplicationUser.Id" />
+<partial name="_confirmphone" model="@Model" />

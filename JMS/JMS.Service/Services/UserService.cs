@@ -76,6 +76,7 @@ namespace JMS.Service.Services
             user.City = systemAdminProfileModel.City;
             user.State = systemAdminProfileModel.State;
             user.Zip = systemAdminProfileModel.Zip;
+            user.AffiliationNo = systemAdminProfileModel.AffiliationNo;
             string oldImgFile = user.ProfileImage;
             if (fileStream != null && !string.IsNullOrEmpty(fileName))
             {
@@ -84,6 +85,24 @@ namespace JMS.Service.Services
             _context.SaveChanges();
             if (fileStream != null && !string.IsNullOrEmpty(fileName) && !string.IsNullOrEmpty(oldImgFile))
                 _fileService.RemoveFile(oldImgFile);
+        }
+
+        public void SaveAuthor(AuthorProfileModel authorProfileModel, Stream fileStream, string fileName) {
+            var author = _context.Authors.Single(x => x.Id == authorProfileModel.UserId);
+            author.Orcid = authorProfileModel.ORCID;
+            using (var tr = _context.Database.BeginTransaction())
+            {
+                try
+                {
+                    SaveSystemAdmin(authorProfileModel, fileStream, fileName);
+                    tr.Commit();
+                }
+                catch (Exception ex)
+                {
+                    tr.Rollback();
+                    throw;
+                }                
+            }            
         }
 
         public string GetUserProfileImage(long userid)
@@ -178,7 +197,7 @@ namespace JMS.Service.Services
             return new UserGridModel
             {
                 Data = data,
-                TotalItems = await filteredUsers.CountAsync()
+                ItemsCount = await filteredUsers.CountAsync()
             };
         }
         public async Task CreateUser(string tenantId, CreateUserViewModel createUserViewModel)
@@ -310,6 +329,7 @@ namespace JMS.Service.Services
                     if (result.Succeeded)
                     {
                         _context.UserRoles.Add(new IdentityUserRole<long> { RoleId = authorRoleId, UserId = applicationUser.Id });
+                        _context.Authors.Add(new Author { User = applicationUser });
                         await _context.SaveChangesAsync();
                         await tr.CommitAsync();
                         return applicationUser;
@@ -322,6 +342,12 @@ namespace JMS.Service.Services
                     throw;
                 }
             }
+        }
+
+        public Author GetAuthor(long userId)
+        {
+            var author = _context.Authors.SingleOrDefault(x => x.Id == userId);
+            return author;
         }
     }
 }
