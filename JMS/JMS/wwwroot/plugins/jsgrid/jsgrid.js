@@ -688,7 +688,7 @@
         },
 
         _setItemFieldValue: function(item, field, value) {
-            var props = field.name.split('.');
+            var props = (field.searchField||field.name).split('.');
             var current = item;
             var prop = props[0];
 

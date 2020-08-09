@@ -12,6 +12,8 @@ using SubmisssionFile = JMS.Entity.Entities.SubmisssionFile;
 using Contributor = JMS.Entity.Entities.Contributor;
 using JMS.ViewModels.Users;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using JMS.ViewModels.Enums;
 
 namespace JMS.Service.Services
 {
@@ -265,7 +267,7 @@ namespace JMS.Service.Services
             }
             var sortField = "UpdatedDate";
             var sortOrder = "desc";
-            if (!string.IsNullOrEmpty(model.sortField)&& !string.IsNullOrEmpty(model.sortOrder))
+            if (!string.IsNullOrEmpty(model.sortField) && !string.IsNullOrEmpty(model.sortOrder))
             {
                 sortField = model.sortField; sortOrder = model.sortOrder;
             }
@@ -278,7 +280,7 @@ namespace JMS.Service.Services
                 x.SubmissionStatus,
                 x.CreatedDate,
             });
-            filteredSubmission = filteredSubmission.OrderBy(sortField, sortOrder=="asc");
+            filteredSubmission = filteredSubmission.OrderBy(sortField, sortOrder == "asc");
             var submissions = filteredSubmission.Skip((model.pageIndex - 1) * model.pageSize).Take(model.pageSize);
             return new SubmissionGridModel
             {
@@ -293,6 +295,79 @@ namespace JMS.Service.Services
                 }).ToList(),
                 ItemsCount = allSubmission.Count()
             };
+        }
+        public AssignedSubmissionCount SubmissionCount(string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var statuses = new SubmissionStatus[] { SubmissionStatus.Submission, SubmissionStatus.Review };
+            var assigned = context.Submission.Count(x => x.EditorId != null && statuses.Contains(x.SubmissionStatus) && x.User.Tenant.JournalPath == journalPath);
+            var unAssigned = context.Submission.Count(x => x.EditorId == null && statuses.Contains(x.SubmissionStatus) && x.User.Tenant.JournalPath == journalPath);
+            return new AssignedSubmissionCount { Assigned = assigned, UnAssigned = unAssigned };
+        }
+        public EICSubmissionGridModel JournalSubmission(string journalPath, EditorSubmissionGridSearchModel model)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var statuses = new SubmissionStatus[] { SubmissionStatus.Submission, SubmissionStatus.Review };
+            var dbSubmission = context.Submission.Where(x => x.User.Tenant.JournalPath == journalPath && statuses.Contains(x.SubmissionStatus));
+            if (model.AssignedStatus == EditorAssignedStatus.UnAssigned)
+            {
+                dbSubmission = dbSubmission.Where(x => x.EditorId == null);
+            }
+            else if (model.AssignedStatus == EditorAssignedStatus.Assigned) {
+                dbSubmission = dbSubmission.Where(x => x.EditorId != null);
+                if (model.EditerId.HasValue)
+                {
+                    dbSubmission = dbSubmission.Where(x => x.EditorId == model.EditerId.Value);
+                }
+            }
+            var submissions = dbSubmission.Select(x => new
+            {
+                x.User.FirstName,
+                x.User.LastName,
+                x.UpdatedDate,
+                x.Prefix,
+                x.SubmissionStatus,
+                SubmissionID = x.Id,
+                x.Subtitle,
+                x.Title
+            });
+            if (!string.IsNullOrEmpty(model.SrchText))
+            {
+                submissions = submissions.Where(x => EF.Functions.ILike(x.Subtitle, $"%{model.SrchText}%") || EF.Functions.ILike(x.Title, $"%{model.SrchText}%") || EF.Functions.ILike(x.Prefix, $"%{model.SrchText}%"));
+            }
+            if (!string.IsNullOrEmpty(model.Author))
+            {
+                submissions = submissions.Where(x => EF.Functions.ILike(x.FirstName + " " + x.LastName, $"%{model.Author}%"));
+            }
+            if (model.SubmissionStatus.HasValue)
+            {
+                submissions = submissions.Where(x => x.SubmissionStatus == model.SubmissionStatus);
+            }
+            if (string.IsNullOrEmpty(model.sortOrder) || model.sortOrder == "desc")
+            {
+                submissions = submissions.OrderByDescending(x => x.UpdatedDate);
+            }
+            else
+            {
+                submissions = submissions.OrderBy(x => x.UpdatedDate);
+            }
+            return new EICSubmissionGridModel
+            {
+                ItemsCount = submissions.Count(),
+                Data = submissions.Skip((model.pageIndex - 1) * model.pageSize).Take(model.pageSize).ToList().Select(x => new EICSubmissionGridModelItem
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    LastUpdated = x.UpdatedDate.ToString("dd MMM yyyy"),
+                    Prefix = x.Prefix,
+                    Status = x.SubmissionStatus.ToString(),
+                    SubmissionID = x.SubmissionID,
+                    SubTitle = x.Subtitle,
+                    Title = x.Title
+                })
+            };
+
+
         }
     }
 }

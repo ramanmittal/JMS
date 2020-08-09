@@ -1,0 +1,129 @@
+﻿@using JMS.Helpers;
+@using JMS.ViewModels.Enums;
+@model JMS.ViewModels.Submissions.AssignedSubmissionCount
+@{
+    ViewData["Title"] = "Submissions";
+    var items = HtmlHelpers.GetActiveSubmissionStatus();
+    items.Insert(0, new KeyValuePair<string, string>("", ""));
+}
+<style>
+    .select2-container {
+        display: inline-block;
+    }
+
+        .select2-container .select2-selection--single {
+            height: auto;
+        }
+</style>
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+@section contentheader{
+    <h1>Active Submissions</h1>
+}
+<div class="row">
+    <div class="col-md-10">
+        <div><input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.ALL.ToString()" checked="checked" /><span>All(@(Model.UnAssigned+Model.Assigned))</span></div>
+        <div><input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.UnAssigned.ToString()" /><span>Unassigned(@Model.UnAssigned)</span></div>
+        <div> <input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.Assigned.ToString()" id="assigned" /><span>Assigned(@Model.Assigned)</span></div>
+
+        <div>
+            <select class="select" disabled>
+                <option value=""></option>
+                @foreach (var item in Model.Editors)
+                {
+                    <option value="@item.Key">@item.Value</option>
+                }
+            </select>
+        </div>
+
+
+    </div>
+    <div class="col-md-2">
+        <a class="btn btn-primary mb-2" asp-action="Create" asp-controller="Submission">Create Submission</a>
+    </div>
+
+
+</div>
+<br />
+<div id="jsGrid" style="display: none"></div>
+@section scripts{
+    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    <script>
+        $(function () {
+            $("input[name='1']").change(function (e) {
+                if ($(this).val() == '@EditorAssignedStatus.Assigned.ToString()') {
+                    $(".select").prop("disabled", false);
+                } else {
+                    $(".select").prop("disabled", true);
+                }
+                $("#jsGrid").jsGrid("loadData");
+            });
+            $(".loader").show();
+            $("#jsGrid").jsGrid({
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                    $("#jsGrid").show();
+                    $(".loader").hide();
+                },
+                paging: true,
+                pageSize: 10,
+                pageLoading: true,
+                autoload: true,
+                filtering: true,
+                sorting :true,
+               controller: {
+                   loadData: function (filter) {
+                       var d = $.Deferred();
+                       var assignedStatus = $("input[name='1']:checked").val();
+                       filter["assignedStatus"] = assignedStatus;
+                       if (assignedStatus ==="@EditorAssignedStatus.Assigned.ToString()") {
+                           filter["editerId"] = $(".select").val();
+                       }
+                $.ajax({
+                    url: "@Url.Action("GetActiveSubmission", "Submission")",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "Author", sorting: false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.firstName + " " + item.lastName+"</span>"
+                        }
+                    },
+                    {
+                        name: "Title", searchField:"SrchText", sorting:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.prefix + " " + item.title + ": " + item.subTitle+"</span>"
+                        }
+                    },
+                    {
+                        name: "Last Update", sortField:"UpdatedDate", filtering:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.lastUpdated+"</span>"
+                        }
+                    },
+                    {
+                        name: "Status", "searchField":"SubmissionStatus", sorting: false, valueField: "Key",items:@Html.Raw(Newtonsoft.Json.JsonConvert.SerializeObject(items)), textField: "Key", valueType: "string", type: "select", itemTemplate: function (value, item) {
+                            return "<span>" + item.status + "</span>"
+                        }
+                    },
+                    {
+                        name: "", type: "control", itemTemplate: function (value, item) {
+                            return `<a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top"  href="@Url.Action("Edit", "Submission")/${item.submissionId}"></a>
+                                    <a class="fas fa-trash-alt" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltusrdlg(${item.submissionId});"></a>`
+                        }
+                    }
+               ]
+            });
+            $(".select").select2({ dropdownAutoWidth: true, width: 'auto', placeholder: "Assigned editor", allowClear: true, });
+            $(".select").on("change", function (e) { $("#jsGrid").jsGrid("loadData"); });
+        });
+
+    </script>
+}
+

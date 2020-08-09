@@ -51,7 +51,7 @@ namespace JMS.Entity.Data
             builder.Entity<SubmisssionFile>().HasOne(x => x.TenantArticleComponent).WithMany().HasForeignKey(x => x.ArticleComponentId);
             builder.Entity<Contributor>().HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId);
             builder.Entity<Author>().HasOne(x => x.User).WithOne().HasForeignKey<Author>(x => x.Id);
-
+            builder.Entity<Submission>().HasOne(x => x.Editor).WithMany().HasForeignKey(x => x.EditorId);
             var cascadeFKs = builder.Model.GetEntityTypes()
             .SelectMany(t => t.GetForeignKeys())
             .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);

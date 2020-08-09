@@ -7,7 +7,9 @@ using System.Threading.Tasks;
 using AutoMapper;
 using JMS.Infra.Sequrity;
 using JMS.Models.Submissions;
+using JMS.Service.Enums;
 using JMS.Service.ServiceContracts;
+using JMS.Setting;
 using JMS.ViewModels.Submissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -275,8 +277,22 @@ namespace JMS.Controllers
         {
             return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmissions(((JMSPrincipal)User).ApplicationUser.Id, model));
         }
+        [Authorize(Roles = RoleName.EIC)]
+        [HttpGet]
+        public IActionResult ActiveSubmission()
+        {
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            var model = submissionService.SubmissionCount(TenantID);
+            var userService = HttpContext.RequestServices.GetService<IUserService>();
+            model.Editors = userService.GetJounalEditors(TenantID);
 
-
+            return View(model);
+        }
+        [HttpGet]
+        public IActionResult GetActiveSubmission(EditorSubmissionGridSearchModel model)
+        {
+            return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().JournalSubmission(TenantID, model));
+        }
 
     }
 }

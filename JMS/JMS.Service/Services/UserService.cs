@@ -9,6 +9,7 @@ using System.Text;
 using JMS.ViewModels.SystemAdmin;
 using System.IO;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
 using JMS.Service.Settings;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
@@ -28,13 +29,15 @@ namespace JMS.Service.Services
         private readonly IFileService _fileService;
         private readonly IConfiguration _configuration;
         private readonly IMaskService _maskService;
-        public UserService(ApplicationDbContext context, IFileService fileService, IConfiguration configuration, IMaskService maskService, UserManager<ApplicationUser> userManager)
+        private readonly IServiceProvider _serviceProvider;
+        public UserService(ApplicationDbContext context, IFileService fileService, IConfiguration configuration, IMaskService maskService, UserManager<ApplicationUser> userManager, IServiceProvider serviceProvider)
         {
             _context = context;
             _fileService = fileService;
             _configuration = configuration;
             _maskService = maskService;
             _userManager = userManager;
+            _serviceProvider = serviceProvider;
         }
         public IEnumerable<ApplicationUser> GetTenantUserByRole(long tenantid, string role)
         {
@@ -137,7 +140,8 @@ namespace JMS.Service.Services
             {
                 users = userGridSearchModel.Status.Value ? users.Where(x => x.IsDisabled != true) : users.Where(x => x.IsDisabled == true);
             }
-            IQueryable<IdentityRole<long>> dbRoles = roles != null && roles.Any() ? _context.Roles.Where(x => roles.Contains(x.Name)) : _context.Roles;
+            var accpetedRoles = _context.Roles.Where(x => x.Name != Role.Author.ToString() && x.Name != Role.JournalAdmin.ToString() && x.Name != Role.SystemAdmin.ToString());
+            IQueryable<IdentityRole<long>> dbRoles = roles != null && roles.Any() ? accpetedRoles.Where(x => roles.Contains(x.Name)) : accpetedRoles;
             var filteredUsers = (from userRole in _context.UserRoles
                                  join user in users on userRole.UserId equals user.Id
                                  join role in dbRoles on userRole.RoleId equals role.Id
@@ -172,7 +176,7 @@ namespace JMS.Service.Services
             var extractedUsers = await filteredUsers.Skip((userGridSearchModel.pageIndex - 1) * userGridSearchModel.pageSize).Take(userGridSearchModel.pageSize).Select(x => new { x.UserId, x.FirstName, x.LastName, x.Email, x.ProfileImage }).ToArrayAsync();
             var userIds = extractedUsers.Select(x => x.UserId);
             var userRoles = await (from userRole in _context.UserRoles
-                                   join role in _context.Roles on userRole.RoleId equals role.Id
+                                   join role in accpetedRoles on userRole.RoleId equals role.Id
                                    join user in _context.Users on userRole.UserId equals user.Id
                                    where userIds.Contains(userRole.UserId)
                                    select new { UserId = userRole.UserId, Role = role.Name, user.IsDisabled }
@@ -348,6 +352,21 @@ namespace JMS.Service.Services
         {
             var author = _context.Authors.SingleOrDefault(x => x.Id == userId);
             return author;
+        }
+
+        public IDictionary<long,string> GetJounalEditors(string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var editorRoles = context.Roles.Where(x => x.Name == Role.EIC.ToString() || x.Name == Role.SectionEditor.ToString());
+            var userIds = (from usrRole in context.UserRoles
+                           join
+                           role in editorRoles on usrRole.RoleId equals role.Id
+                           select usrRole.UserId).Distinct();
+            var users = (from user in context.Users.Where(x => x.Tenant.JournalPath == journalPath)
+                         join
+                         userId in userIds on user.Id equals userId
+                         select new { user.Id, user.FirstName, user.LastName }).ToList();
+            return users.ToDictionary(x => x.Id, x => $"{ x.FirstName} {x.LastName}");
         }
     }
 }

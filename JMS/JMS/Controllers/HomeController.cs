@@ -46,6 +46,10 @@ namespace JMS.Controllers
             {
                 return RedirectToAction("Index", "MySubmission");
             }
+            else if (User.IsInRole(RoleName.EIC))
+            {
+                return RedirectToAction("ActiveSubmission", "Submission");
+            }
             return Unauthorized();
         }
 

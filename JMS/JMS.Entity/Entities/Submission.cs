@@ -24,6 +24,8 @@ namespace JMS.Entity.Entities
         public int CreateStep { get; set; }
         public ApplicationUser User { get; set; }
         public long UserID { get; set; }
+        public virtual ApplicationUser Editor { get; set; }
+        public long? EditorId { get; set; }
         public string EditorComment { get; set; }
         [Required]
         public DateTime UpdatedDate { get; set; }

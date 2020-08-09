@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Html;
+﻿using JMS.Entity.Data;
+using JMS.Entity.Entities;
+using Microsoft.AspNetCore.Html;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Razor;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -33,6 +35,12 @@ namespace JMS.Helpers
                 httpContext.Items[ScriptsKey] = pageScripts;
             }
             return pageScripts;
+        }
+
+        public static List<KeyValuePair<string, string>> GetActiveSubmissionStatus()
+        {
+            var status = new List<SubmissionStatus> { SubmissionStatus.Submission, SubmissionStatus.Review };
+            return status.Select(x => new KeyValuePair<string, string>(x.ToString(), x.ToString())).ToList();
         }
         private class ScriptBlock : IDisposable
         {

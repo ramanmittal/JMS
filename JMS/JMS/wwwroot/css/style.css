@@ -137,3 +137,6 @@ body .popover {
 .black{
     color:black;
 }
+.jsgrid-cell {
+    overflow: auto;
+}

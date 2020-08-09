@@ -20,7 +20,7 @@ namespace JMS.Service.Enums
     {
         public static IDictionary<int, string> GetRolesForUser()
         {
-            return Enum.GetValues(typeof(Role)).Cast<Role>().Where(x => x != Role.SystemAdmin && x != Role.JournalAdmin).ToDictionary(x => (int)x, x => x.ToString());
+            return Enum.GetValues(typeof(Role)).Cast<Role>().Where(x => x != Role.SystemAdmin && x != Role.JournalAdmin && x!=Role.Author).ToDictionary(x => (int)x, x => x.ToString());
         }
     }
 }

@@ -27,5 +27,8 @@ namespace JMS.Service.ServiceContracts
         void MovetoFinish(long submissionId, long userId);
         void EditorComment(EditorCommentModel model, long? userID);
         SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model);
+        EICSubmissionGridModel JournalSubmission(string journalPath, EditorSubmissionGridSearchModel model);
+
+        AssignedSubmissionCount SubmissionCount(string journalPath);
     }
 }
