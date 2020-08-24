@@ -33,7 +33,7 @@
     </form>
     <script src="~/plugins/tagify/jQuery.tagify.min.js"></script>
     <script>
-        $('#Keywords').tagify({ delimiters: ",", originalInputValueFormat: valuesArr => valuesArr.map(item => item.value).join(',') });
+        $('#Keywords').tagify({ delimiters: ",", originalInputValueFormat: valuesArr => valuesArr.map(item => item.value) });
         $.validator.unobtrusive.parse("#strtfrm");
         $("#strtfrm").submit(function (event) {
             event.preventDefault();

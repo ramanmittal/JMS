@@ -3,15 +3,17 @@ using System;
 using JMS.Entity.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 namespace JMS.Entity.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20200818174226_ReviewRequest")]
+    partial class ReviewRequest
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -81,9 +83,6 @@ namespace JMS.Entity.Migrations
                         .HasColumnType("text");
 
                     b.Property<string>("SecurityStamp")
-                        .HasColumnType("text");
-
-                    b.Property<string>("Specialization")
                         .HasColumnType("text");
 
                     b.Property<string>("State")
@@ -210,11 +209,11 @@ namespace JMS.Entity.Migrations
                     b.Property<string>("EditorComment")
                         .HasColumnType("text");
 
-                    b.Property<int>("ReviewType")
-                        .HasColumnType("integer");
-
                     b.Property<long>("ReviewerID")
                         .HasColumnType("bigint");
+
+                    b.Property<int>("ReviewerType")
+                        .HasColumnType("integer");
 
                     b.Property<long>("SubmissionId")
                         .HasColumnType("bigint");

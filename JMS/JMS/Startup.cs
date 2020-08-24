@@ -68,6 +68,7 @@ namespace JMS
             services.AddScoped<ICacheService, CacheService>();
             services.AddScoped<IUserService, UserService>();
             services.AddScoped<IMaskService, Maskservice>();
+            services.AddScoped<IReviewService, ReviewService>();
             services.AddScoped<IEmailService, EmailService>();
             services.AddScoped<ISubmissionService, SubmissionService>();
             services.RemoveAll<IUserValidator<ApplicationUser>>();

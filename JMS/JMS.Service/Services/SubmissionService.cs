@@ -14,6 +14,7 @@ using JMS.ViewModels.Users;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using JMS.ViewModels.Enums;
+using Z.EntityFramework.Plus;
 
 namespace JMS.Service.Services
 {
@@ -23,6 +24,39 @@ namespace JMS.Service.Services
         public SubmissionService(IServiceProvider serviceProvider)
         {
             _serviceProvider = serviceProvider;
+        }
+        public void RemoveSubmission(long submissionId, long userId)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submission = context.Submission.First(x => x.Id == submissionId && x.UserID == userId);
+            RemoveSubmission(submission);
+        }
+        public void RemoveSubmission(long submissionId, string path) {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submission=context.Submission.First(x => x.Id == submissionId && x.User.Tenant.JournalPath == path);
+            RemoveSubmission(submission);
+        }
+        private void RemoveSubmission(Submission submission)
+        {
+            long submissionID = submission.Id;
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var files = context.SubmisssionFile.Where(x => x.SubmissionId == submissionID);
+            var contributers = context.Contributors.Where(x => x.SubmissionId == submissionID);            
+            using (var tr = context.Database.BeginTransaction())
+            {
+                try
+                {
+                    files.Delete();
+                    contributers.Delete();
+                    context.Submission.Where(x => x.Id == submissionID).Delete();
+                    tr.Commit();
+                }
+                catch (Exception)
+                {
+                    tr.Rollback();
+                    throw;
+                }
+            }
         }
         public long CreateSubmission(CreateSubmissionModel createSubmissionModel, long userId)
         {
@@ -70,10 +104,19 @@ namespace JMS.Service.Services
             return context.TenantArticleComponent.Where(x => x.Tenant.JournalPath == journalPath).OrderBy(x => x.Order).ToDictionary(x => x.Id, x => x.Text);
         }
 
-        public Submission GetSubmission(long SubmissionId, long userId)
+        public Submission GetSubmission(long SubmissionId, long? userId = null, string journalPath = null)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var submission = context.Submission.First(x => x.Id == SubmissionId && x.UserID == userId);
+            var submissions = context.Submission.Where(x => x.Id == SubmissionId);
+            if (userId.HasValue)
+            {
+                submissions = submissions.Where(x => x.UserID == userId);
+            }
+            if (!string.IsNullOrEmpty(journalPath))
+            {
+                submissions = submissions.Where(x => x.User.Tenant.JournalPath == journalPath);
+            }
+            var submission = submissions.First();
             return submission;
         }
 
@@ -253,6 +296,7 @@ namespace JMS.Service.Services
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var allSubmission = context.Submission.Where(x => x.UserID == userID);
+            
             if (!string.IsNullOrEmpty(model.Title))
             {
                 allSubmission = allSubmission.Where(x => EF.Functions.ILike(x.Title, model.Title));
@@ -304,16 +348,21 @@ namespace JMS.Service.Services
             var unAssigned = context.Submission.Count(x => x.EditorId == null && statuses.Contains(x.SubmissionStatus) && x.User.Tenant.JournalPath == journalPath);
             return new AssignedSubmissionCount { Assigned = assigned, UnAssigned = unAssigned };
         }
-        public EICSubmissionGridModel JournalSubmission(string journalPath, EditorSubmissionGridSearchModel model)
+        public EICSubmissionGridModel JournalSubmission(string journalPath, EditorSubmissionGridSearchModel model, long? assignerId = null)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var statuses = new SubmissionStatus[] { SubmissionStatus.Submission, SubmissionStatus.Review };
             var dbSubmission = context.Submission.Where(x => x.User.Tenant.JournalPath == journalPath && statuses.Contains(x.SubmissionStatus));
+            if (assignerId.HasValue)
+            {
+                dbSubmission = dbSubmission.Where(x => x.EditorId == assignerId);
+            }
             if (model.AssignedStatus == EditorAssignedStatus.UnAssigned)
             {
                 dbSubmission = dbSubmission.Where(x => x.EditorId == null);
             }
-            else if (model.AssignedStatus == EditorAssignedStatus.Assigned) {
+            else if (model.AssignedStatus == EditorAssignedStatus.Assigned)
+            {
                 dbSubmission = dbSubmission.Where(x => x.EditorId != null);
                 if (model.EditerId.HasValue)
                 {
@@ -368,6 +417,140 @@ namespace JMS.Service.Services
             };
 
 
+        }
+
+        public EditorSubmissionViewModel GetEditorSubmissionViewModel(long submissionId, string journalPath = null)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissions = context.Submission.Where(x => x.Id == submissionId && x.SubmissionStatus != SubmissionStatus.Draft);
+            if (!string.IsNullOrEmpty(journalPath))
+            {
+                submissions = submissions.Where(x => x.User.Tenant.JournalPath == journalPath);
+            }
+            var submission = submissions.First();
+            var model = new EditorSubmissionViewModel
+            {
+                Abstract = submission.Abstract,
+                Comments = submission.EditorComment,
+                SubmissionId = submission.Id,
+                EditorId = submission.EditorId,
+                Keywords = submission.Keywords,
+                Prefix = submission.Prefix,
+                SubmissionStatus = submission.SubmissionStatus.ToString(),
+                SubTitle = submission.Subtitle,
+                Title = submission.Title,
+                Files = context.SubmisssionFile.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.TenantArticleComponent.Text, x.FileName, x.UploadedOn, x.Id }).ToList().Select(x => new SubmissionFileListModel
+                {
+                    SubmissionFileID = x.Id,
+                    ArticalComponent = x.Text,
+                    FileName = x.FileName,
+                    UploadDate = x.UploadedOn.ToString("dd MMM yyyy")
+                }).ToList()
+            };
+            return model;
+        }
+        public void AssignEditor(long submissionId, long? editorId, string journalPath = null)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissions = context.Submission.Where(x => x.Id == submissionId && x.SubmissionStatus != SubmissionStatus.Draft);
+            if (!string.IsNullOrEmpty(journalPath))
+            {
+                submissions = submissions.Where(x => x.User.Tenant.JournalPath == journalPath);
+            }
+            var submission = submissions.First();
+            submission.EditorId = editorId;
+            context.SaveChanges();
+        }
+
+        public SubmisssionFile GetSubmissionFile(long submissionFileId, string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissionFile = context.SubmisssionFile.Where(x => x.Id == submissionFileId && x.Submission.User.Tenant.JournalPath == journalPath).First();
+            return submissionFile;
+        }
+
+        public SubmissionFileDetailsViewModel SubmisssionFileDetails(long submissionFileId, string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissionFile = context.SubmisssionFile.IncludeMultiple(x=>x.TenantArticleComponent).Where(x => x.Id == submissionFileId && x.Submission.User.Tenant.JournalPath == journalPath).First();
+            var model = new SubmissionFileDetailsViewModel
+            {
+                ArticleComponent = submissionFile.TenantArticleComponent.Text,
+                Creator = submissionFile.Creator,
+                Description = submissionFile.Description,
+                FileName = submissionFile.FileName,
+                Subject = submissionFile.Subject,
+                UploadedOn = submissionFile.UploadedOn.ToString("dd MMM yyyy")
+            };
+            return model;
+        } 
+
+        public void MoveToReview(long submissionId, string journalPath = null)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissions = context.Submission.Where(x => x.Id == submissionId);
+            if (!string.IsNullOrEmpty(journalPath))
+            {
+                submissions = submissions.Where(x => x.User.Tenant.JournalPath == journalPath);
+            }
+            submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Review });
+
+        }
+
+        public void RejectSubmission(long submissionID,string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissions = context.Submission.Where(x => x.Id == submissionID && x.User.Tenant.JournalPath == journalPath);
+             submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Review });
+        }
+
+        public RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var statuses = new SubmissionStatus[] { SubmissionStatus.Submission, SubmissionStatus.Review };
+            var dbSubmission = context.Submission.Where(x => x.User.Tenant.JournalPath == journalPath && x.SubmissionStatus== SubmissionStatus.Rejected);
+            var submissions = dbSubmission.Select(x => new
+            {
+                x.User.FirstName,
+                x.User.LastName,
+                x.UpdatedDate,
+                x.Prefix,
+                x.SubmissionStatus,
+                SubmissionID = x.Id,
+                x.Subtitle,
+                x.Title
+            });
+            if (!string.IsNullOrEmpty(model.SrchText))
+            {
+                submissions = submissions.Where(x => EF.Functions.ILike(x.Subtitle, $"%{model.SrchText}%") || EF.Functions.ILike(x.Title, $"%{model.SrchText}%") || EF.Functions.ILike(x.Prefix, $"%{model.SrchText}%"));
+            }
+            if (!string.IsNullOrEmpty(model.Author))
+            {
+                submissions = submissions.Where(x => EF.Functions.ILike(x.FirstName + " " + x.LastName, $"%{model.Author}%"));
+            }
+            
+            if (string.IsNullOrEmpty(model.sortOrder) || model.sortOrder == "desc")
+            {
+                submissions = submissions.OrderByDescending(x => x.UpdatedDate);
+            }
+            else
+            {
+                submissions = submissions.OrderBy(x => x.UpdatedDate);
+            }
+            return new RejectedSubmissionGridModel
+            {
+                ItemsCount = submissions.Count(),
+                Data = submissions.Skip((model.pageIndex - 1) * model.pageSize).Take(model.pageSize).ToList().Select(x => new RejectedSubmissionGridRowModel
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    LastUpdated = x.UpdatedDate.ToString("dd MMM yyyy"),
+                    Prefix = x.Prefix,
+                    SubmissionID = x.SubmissionID,
+                    SubTitle = x.Subtitle,
+                    Title = x.Title
+                })
+            };
         }
     }
 }

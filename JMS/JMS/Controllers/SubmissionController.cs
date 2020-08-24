@@ -13,6 +13,7 @@ using JMS.Setting;
 using JMS.ViewModels.Submissions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ActionConstraints;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
 using EditContributerModel = JMS.Models.Submissions.EditContributerModel;
@@ -45,7 +46,23 @@ namespace JMS.Controllers
             }
             return BadRequest();
         }
-
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Roles = RoleName.EIC)]
+        [NonAction]
+        private IActionResult RemoveSubmission(long submissionId)
+        {
+            HttpContext.RequestServices.GetService<ISubmissionService>().RemoveSubmission(submissionId, TenantID);
+            return Ok();
+        }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
+        public IActionResult RemoveSubmissionByAuthor(long submissionId)
+        {
+            HttpContext.RequestServices.GetService<ISubmissionService>().RemoveSubmission(submissionId, ((JMSPrincipal)User).ApplicationUser.Id);
+            return Ok();
+        }
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
         public IActionResult EditMetadata(long id)
         {
@@ -146,12 +163,22 @@ namespace JMS.Controllers
             var files = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmissionFiles(id, ((JMSPrincipal)User).ApplicationUser.Id);
             return Ok(files);
         }
-        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
+        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy,Roles = RoleName.EditorRoles)]
         [HttpGet]
         public IActionResult DownloadSubmissionFile(long id)
         {
             var submissionFile = HttpContext.RequestServices.GetService<ISubmissionService>().
             GetSubmissionFile(id, ((JMSPrincipal)User).ApplicationUser.Id);
+            var bytes = HttpContext.RequestServices.GetService<IFileService>().GetFileBytes(submissionFile.FileId);
+
+            return File(bytes, "application/pdf", submissionFile.FileName);
+        }
+        [Authorize(Roles =RoleName.EditorRoles)]
+        [HttpGet]
+        public IActionResult DownloadSubmittedFile(long id)
+        {
+            var submissionFile = HttpContext.RequestServices.GetService<ISubmissionService>().
+            GetSubmissionFile(id, TenantID);
             var bytes = HttpContext.RequestServices.GetService<IFileService>().GetFileBytes(submissionFile.FileId);
 
             return File(bytes, "application/pdf", submissionFile.FileName);
@@ -288,10 +315,85 @@ namespace JMS.Controllers
 
             return View(model);
         }
+        [Authorize(Roles = RoleName.EditorRoles)]
         [HttpGet]
+        public IActionResult MyAssigned()
+        {
+            return View();
+        }
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
         public IActionResult GetActiveSubmission(EditorSubmissionGridSearchModel model)
         {
+            if (User.IsInRole(RoleName.SectionEditor))
+            {
+                return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().JournalSubmission(TenantID, model, ((JMSPrincipal)User).ApplicationUser.Id));
+            }
             return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().JournalSubmission(TenantID, model));
+        }
+
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        [ActionName("View")]
+        public IActionResult SubmissionView(long id)
+        {
+            var status = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmission(id, journalPath: TenantID).SubmissionStatus;
+            return View((int)status);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        public IActionResult SubmissionDetails(long id)
+        {
+            var model = HttpContext.RequestServices.GetService<ISubmissionService>().GetEditorSubmissionViewModel(id, TenantID);
+            var userService = HttpContext.RequestServices.GetService<IUserService>();
+            model.Editors = userService.GetJounalEditors(TenantID);
+            return PartialView(model);
+        }
+
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        public IActionResult FileDetails(long id)
+        {
+            var submissionFile = HttpContext.RequestServices.GetService<ISubmissionService>().SubmisssionFileDetails(id, TenantID);            
+            return PartialView(submissionFile);
+        }
+        [HttpPost]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        [ValidateAntiForgeryToken]
+        public IActionResult AssignEditor(long submissionId,long? editorId)
+        {
+            HttpContext.RequestServices.GetService<ISubmissionService>().AssignEditor(submissionId, editorId,TenantID);
+            return Ok();
+        }
+        [HttpPost]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        [ValidateAntiForgeryToken]
+        public IActionResult MoveToReview(long id)
+        {
+            HttpContext.RequestServices.GetService<ISubmissionService>().MoveToReview(id, TenantID);
+            return Ok();
+        }
+
+        [HttpPost]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        [ValidateAntiForgeryToken]
+        public IActionResult RejectSubmission(long id)
+        {
+            HttpContext.RequestServices.GetService<ISubmissionService>().RejectSubmission(id, TenantID);
+            return Ok();
+        }
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        public IActionResult GetRejectedSubmission(RejectedSubmissionGridSearchModel model)
+        {
+            return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().GetRejectedSubmissions(TenantID, model));
+        }
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        public IActionResult RejectedSubmission()
+        {
+            return View();
         }
 
     }

@@ -1,0 +1,55 @@
+﻿@model JMS.ViewModels.Submissions.SubmissionFileDetailsViewModel
+
+<div>
+    <table class="">
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.FileName)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.FileName)
+            </td>
+        </tr>
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.UploadedOn)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.UploadedOn)
+            </td>
+        </tr>
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.Description)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.Description)
+            </td>
+        </tr>
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.Creator)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.Creator)
+            </td>
+        </tr>
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.Subject)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.Subject)
+            </td>
+        </tr>
+        <tr>
+            <td class="text-bold">
+                @Html.DisplayNameFor(model => model.ArticleComponent)
+            </td>
+            <td class="pl-2">
+                @Html.DisplayFor(model => model.ArticleComponent)
+            </td>
+        </tr>
+    </table>
+</div>
+

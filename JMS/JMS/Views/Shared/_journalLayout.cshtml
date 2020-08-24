@@ -44,6 +44,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
 
     <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
     <link href="~/css/style.css" rel="stylesheet" />
+    <link href="~/plugins/datepicker/datepicker.min.css" rel="stylesheet" />
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 </head>
 <body class="hold-transition layout-top-nav">
@@ -55,10 +56,10 @@ scratch. This page gets rid of all links and provides the needed markup only.
         <!-- Navbar -->
         <nav class="main-header navbar navbar-expand-md navbar-dark">
             <div class="container">
-                <a href="index3.html" class="navbar-brand">
-                    <img src="@Url.Content(logo)" alt="AdminLTE Logo" class="brand-image img-circle elevation-3"
+                <a href="@Url.Action("Index","Home")" class="navbar-brand">
+                    <img src="@Url.Content(logo)" alt="@title" class="brand-image img-circle elevation-3"
                          style="opacity: .8">
-                    @*<span class="brand-text font-weight-light">AdminLTE 3</span>*@
+                   
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -273,6 +274,17 @@ scratch. This page gets rid of all links and provides the needed markup only.
             </div>
         </div>
     </div>
+
+    <!-- Modal -->
+    <div class="modal fade" id="lgModal" role="dialog">
+        <div class="modal-dialog modal-xl">
+            <div class="modal-content">
+                <div class="modal-body">
+
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- ./wrapper -->
     <!-- REQUIRED SCRIPTS -->
     <!-- jQuery -->
@@ -287,75 +299,24 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <script src="~/plugins/toastr/toastr.min.js"></script>
     <script src="~/plugins/summernote/summernote.js"></script>
     <script src="~/plugins/select2/js/select2.min.js"></script>
+    <script src="~/plugins/datepicker/datepicker.js"></script>>
     <script src="~/js/site.js"></script>
     <script>
-        $('#logout').on('click', function (event) {
-            $("lg-cont").addClass('show');
-            $(".loader").show();
-            event.stopPropagation();
-            $.ajax({
-                type: "POST",
-                data: {
-                    __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
-                },
-                url: "@Url.Action("Logout","Account")",
-                success: function (data) {
-                    window.location.href = "@Url.Action("Login","Account")";
-                }
-            });
-        });
-        $('body').on('click', function (e) {
-            if (!$('li.dropdown.mega-dropdown').is(e.target)
-                && $('li.dropdown.mega-dropdown').has(e.target).length === 0
-                && $('.open').has(e.target).length === 0
-            ) {
-                $('li.dropdown.mega-dropdown').removeClass('open');
+    $('#logout').on('click', function (event) {
+    $("lg-cont").addClass('show');
+    $(".loader").show();
+    event.stopPropagation();
+    $.ajax({
+        type: "POST",
+        data: {
+            __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"
+        },
+        url: "@Url.Action("Logout","Account")",
+        success: function (data) {
+            window.location.href = "@Url.Action("Login","Account")";
             }
         });
-        $('.phonenumber').mask('(000) 000-0000')
-        $('.issn').mask('0000-000x', {
-            "translation": {
-                0: { pattern: /[0-9]/ },
-                x: { pattern: /[0-9X]/ }
-            }
-        });
-
-        var summernotes = $(".summernote");
-        for (var i = 0; i < summernotes.length; i++) {
-            var item = summernotes[i];
-            $(item).summernote({
-                toolbar: [
-                    ['style', ['style']],
-                    ['font', ['bold', 'italic', 'underline', 'clear']],
-                    ['fontname', ['fontname']],
-                    ['color', ['color']],
-                    ['para', ['ul', 'ol', 'paragraph']],
-                    ['table', ['table']],
-                    ['insert', ['link', 'picture', 'video']],
-                    ['view', ['fullscreen', 'codeview', 'help']],
-                    ['misc', ['clearAll']]
-                ],
-
-                buttons: {
-                    clearAll: function () {
-                        var ui = $.summernote.ui;
-                        // create button
-                        var button = ui.button({
-                            contents: '<b>x</b>',
-                            tooltip: 'Clear All',
-                            click: function () {
-                                $(this).parents(".note-editor").prev('textarea').summernote('code', '');
-                                $(this).parents(".note-editor").prev('textarea').summernote({ focus: true });
-                            }
-                        });
-                        return button.render();
-                    }
-                },
-
-            });
-        }
-
-
+    });
     </script>
     @RenderSection("scripts", required: false)
     @Html.PageScripts()

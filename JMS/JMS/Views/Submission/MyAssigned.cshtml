@@ -6,56 +6,16 @@
     var items = HtmlHelpers.GetActiveSubmissionStatus();
     items.Insert(0, new KeyValuePair<string, string>("", ""));
 }
-<style>
-    .select2-container {
-        display: inline-block;
-    }
-
-        .select2-container .select2-selection--single {
-            height: auto;
-        }
-</style>
 <link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
 <link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
 @section contentheader{
-    <h1>Active Submissions</h1>
+    <h1>My Assigned</h1>
 }
-<div class="row">
-    <div class="col-md-12">
-        <div><input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.ALL.ToString()" checked="checked" /><span>All(@(Model.UnAssigned+Model.Assigned))</span></div>
-        <div><input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.UnAssigned.ToString()" /><span>Unassigned(@Model.UnAssigned)</span></div>
-        <div> <input type="radio" name="1" class="mr-1" value="@EditorAssignedStatus.Assigned.ToString()" id="assigned" /><span>Assigned(@Model.Assigned)</span></div>
-
-        <div>
-            <select class="select" disabled>
-                <option value=""></option>
-                @foreach (var item in Model.Editors)
-                {
-                    <option value="@item.Key">@item.Value</option>
-                }
-            </select>
-        </div>
-
-
-    </div>
-   
-
-
-</div>
-<br />
 <div id="jsGrid" style="display: none"></div>
 @section scripts{
     <script src="~/plugins/jsgrid/jsgrid.js"></script>
     <script>
-        $(function () {
-            $("input[name='1']").change(function (e) {
-                if ($(this).val() == '@EditorAssignedStatus.Assigned.ToString()') {
-                    $(".select").prop("disabled", false);
-                } else {
-                    $(".select").prop("disabled", true);
-                }
-                $("#jsGrid").jsGrid("loadData");
-            });
+        $(function () {            
             $(".loader").show();
             $("#jsGrid").jsGrid({
                height: "auto",
@@ -73,12 +33,7 @@
                 sorting :true,
                controller: {
                    loadData: function (filter) {
-                       var d = $.Deferred();
-                       var assignedStatus = $("input[name='1']:checked").val();
-                       filter["assignedStatus"] = assignedStatus;
-                       if (assignedStatus ==="@EditorAssignedStatus.Assigned.ToString()") {
-                           filter["editerId"] = $(".select").val();
-                       }
+                       var d = $.Deferred();                       
                 $.ajax({
                     url: "@Url.Action("GetActiveSubmission", "Submission")",
                     dataType: "json",
@@ -116,9 +71,7 @@
                         }
                     }
                ]
-            });
-            $(".select").select2({ dropdownAutoWidth: true, width: 'auto', placeholder: "Assigned editor", allowClear: true, });
-            $(".select").on("change", function (e) { $("#jsGrid").jsGrid("loadData"); });
+            });          
         });
 
     </script>

@@ -1,0 +1,68 @@
+﻿@using JMS.Helpers;
+@using JMS.ViewModels.Enums;
+@{
+    ViewData["Title"] = "Rejected Submissions";
+}
+<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+@section contentheader{
+    <h1>Rejected Submissions</h1>
+}
+<div id="jsGrid" style="display: none"></div>
+@section scripts{
+    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    <script>
+        $(function () {            
+            $(".loader").show();
+            $("#jsGrid").jsGrid({
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                    $("#jsGrid").show();
+                    $(".loader").hide();
+                },
+                paging: true,
+                pageSize: 10,
+                pageLoading: true,
+                autoload: true,
+                filtering: true,
+                sorting :true,
+               controller: {
+                   loadData: function (filter) {
+                       var d = $.Deferred();
+                       
+                $.ajax({
+                    url: "@Url.Action("GetRejectedSubmission", "Submission")",
+                    dataType: "json",
+                    data: filter
+                }).done(function(response) {
+                    d.resolve(response);
+                });
+                return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "Author", sorting: false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.firstName + " " + item.lastName+"</span>"
+                        }
+                    },
+                    {
+                        name: "Title", searchField:"SrchText", sorting:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.prefix + " " + item.title + ": " + item.subTitle+"</span>"
+                        }
+                    },
+                    {
+                        name: "Last Update", sortField:"UpdatedDate", filtering:false, type: "text", itemTemplate: function (value, item) {
+                            return "<span>" + item.lastUpdated+"</span>"
+                        }
+                    },
+                    
+                    
+               ]
+            });
+        });
+
+    </script>
+}

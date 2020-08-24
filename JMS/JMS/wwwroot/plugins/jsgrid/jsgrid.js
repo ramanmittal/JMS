@@ -1984,8 +1984,12 @@
             return this.editControl.val();
         },
 
-        _createTextBox: function() {
-            return $("<input>").attr("type", "text")
+        _createTextBox: function () {
+            var input = $("<input>");
+            if (this.id) {
+                input.attr("id", this.id)
+            }
+            return input.attr("type", "text")
                 .prop("readonly", !!this.readOnly);
         }
     });

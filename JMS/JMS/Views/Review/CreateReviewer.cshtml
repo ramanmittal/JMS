@@ -1,0 +1,186 @@
+﻿@model JMS.ViewModels.Review.CreateReviewRequestViewModel
+@using JMS.Entity.Data;
+<link href="~/plugins/tagify/tagify.css" rel="stylesheet" />
+<form asp-action="AssignReviewer" asp-controller="Review" id="asgn-rwr" style="display:none">
+    @Html.AntiForgeryToken()
+    <div class="row">
+        <div class="col-md-6 text-left"><button type="button" class="btn btn-primary" onclick="$('#lgModal').modal('hide')">Cancel</button></div>
+        <div class="col-md-6 text-right"><input type="submit" value="Assign Reviewer" class="btn btn-primary" /></div>
+    </div>
+    <br />
+    <div id="rvGrid"></div>
+    <div class="row">
+        <div class="col-md-12">
+            @Html.HiddenFor(x => x.SubmissionId)
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label asp-for="DueDate" class="control-label"></label>
+                <input type="text" asp-for="DueDate" class="form-control datepicker" />
+                <span id="Vld-Msg-DueDate" class="text-danger" style="display:none"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="ReviewType" class="control-label"></label>
+                <select asp-for="ReviewType" class="form-control" asp-items="Html.GetEnumSelectList<ReviewType>()">
+                </select>
+            </div>
+            <div class="form-group">
+                <label asp-for="EditorComment" class="control-label"></label>
+                <textarea asp-for="EditorComment" class="form-control"></textarea>
+            </div>
+        </div>
+    </div>
+</form>
+
+<script src="~/plugins/tagify/jQuery.tagify.min.js"></script>
+<script>
+
+    var currentDate = new Date();
+    currentDate.setDate(currentDate.getDate() + 1);
+    $('.datepicker').datepicker({ format: 'dd mmm yyyy', startDate: currentDate });
+    var isGridRendered = false;
+    $(".loader").show();
+    $("#rvGrid").jsGrid({
+               height: "auto",
+                width: "100%",
+                onDataLoaded: function (args) {
+                    $('[data-toggle="tooltip"]').tooltip()
+                    $("#asgn-rwr").show();
+                    $(".loader").hide();
+                    if (!isGridRendered) {
+                        $('#spl').tagify({ delimiters: ",", originalInputValueFormat: valuesArr => valuesArr.map(item => item.value) }).on('removeTag', e => $("#rvGrid").jsGrid("loadData")).on('add', e => $("#rvGrid").jsGrid("loadData")).on('edit:updated', e => $("#rvGrid").jsGrid("loadData"));
+                        isGridRendered = true;
+                    }
+                },
+                paging: true,
+                pageSize: 10,
+                pageLoading: true,
+                autoload: true,
+                filtering: true,
+                sorting :true,
+                controller: {
+                loadData: function (filter) {
+                        var d = $.Deferred();
+                        filter["submissionID"] = "@Model.SubmissionId";
+                        if (typeof (filter["Specialization"]) == "string") {
+                            filter["Specialization"] = filter["Specialization"].split(",");
+                        }
+                        $.ajax({
+                            url: "@Url.Action("SelectReviewGridData", "Review")",
+                            contentType: "application/json",
+                            type:"POST",
+                            data: JSON.stringify(filter),
+                            success: function (response) {
+                                d.resolve(response);
+                            }
+                        });
+                        return d.promise();
+                }
+               },
+                fields: [
+                    {
+                        name: "Select Reviewer", filtering:false, sorting: false, itemTemplate: function (value, item) {
+                            return `<div class="icheck-primary"><input type="radio" name="ReviewerId" id="${item.reviewerId}" value="${item.reviewerId}"/> <label for="${item.reviewerId}"></label></div>`
+                        }
+                    },
+                    {
+                        name: "Reviewer", sorting: false, type: "text", itemTemplate: function (value, item) {
+                            return `<p class="mb-0">${item.firstName + " " + item.lastName}</p><p>(${item.email})</p>`
+                        }
+                    },
+                    {
+                        name: "Assigned Request", sortField: "AssignedRequest", searchField: "SrchText", filtering: false,  itemTemplate: function (value, item) {
+                            return "<span>" + item.assignedRequests+"</span>"
+                        }
+                    },
+                    {
+                        name: "Specialization", type: "text", id: "spl", sorting: false, itemTemplate: function (value, item) {
+                            if (item.specialization) {
+                                var txt = "";
+                                for( item1 of item.specialization.split(","))
+                                {
+                                    txt = txt+`<li><a class="tag">${item1}</a></li>`
+                                }
+                                return `<ul class="tags">${txt}</ul>`
+                            }
+                            return "<span>" + "" + "</span>"
+                        }
+                    }
+               ]
+    });
+    $("#asgn-rwr").submit(function (event) {
+        event.preventDefault();
+        if (!$("input[name='ReviewerId']").is(':checked')) {
+            toastr.error("Please select reviewer.")
+            return;
+        }
+        if (startfromtommorow($("#DueDate").val())) {
+            $(".loader").show();
+            $.ajax({
+                url: $("#asgn-rwr").attr("action"),
+                type:"POST",
+                data: $("#asgn-rwr").serialize(),
+                success: function (response) {
+                    $("#lgModal").modal("hide")
+                    $("#jsGrid").jsGrid("loadData");
+                    $(".loader").hide();
+                    toastr.success("Reviewer has been assigned.");
+                }
+            });
+        }
+    });
+    function startfromtommorow(text) {
+        if (text === "") {
+            return true;
+        }
+        var isDateValid = ValidateDate(text)
+        if (!isDateValid) {
+            $("#Vld-Msg-DueDate").html("Invalid date");
+            $("#Vld-Msg-DueDate").show();
+            return false;
+        }
+        else {
+            $("#Vld-Msg-DueDate").hide();
+        }
+        var isdateinrange = (Number(new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate())) <= Number(new Date(text)));
+        if (!isdateinrange) {
+            $("#Vld-Msg-DueDate").html(`Date should be greater than equal to ${`${currentDate.getDate()} ${months[currentDate.getMonth()]} ${currentDate.getFullYear()}`}.`);
+            $("#Vld-Msg-DueDate").show();
+            return false;
+        }
+        else {
+            $("#Vld-Msg-DueDate").hide();
+        }
+        return isDateValid && isdateinrange;
+    }
+    $("#EditorComment").summernote({
+        toolbar: [
+            ['style', ['style']],
+            ['font', ['bold', 'italic', 'underline', 'clear']],
+            ['fontname', ['fontname']],
+            ['color', ['color']],
+            ['para', ['ul', 'ol', 'paragraph']],
+            ['table', ['table']],
+            ['insert', ['link', 'picture', 'video']],
+            ['view', ['fullscreen', 'codeview', 'help']],
+            ['misc', ['clearAll']]
+        ],
+
+        buttons: {
+            clearAll: function () {
+                var ui = $.summernote.ui;
+                // create button
+                var button = ui.button({
+                    contents: '<b>x</b>',
+                    tooltip: 'Clear All',
+                    click: function () {
+                        $(this).parents(".note-editor").prev('textarea').summernote('code', '');
+                        $(this).parents(".note-editor").prev('textarea').summernote({ focus: true });
+                    }
+                });
+                return button.render();
+            }
+        },
+
+    });
+</script>
+

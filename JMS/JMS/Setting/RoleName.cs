@@ -11,5 +11,7 @@ namespace JMS.Setting
         public const string Admin = "Admin";
         public const string Author = "Author";
         public const string EIC = "EIC";
+        public const string SectionEditor = "SectionEditor";
+        public const string EditorRoles = "EIC,SectionEditor";
     }
 }

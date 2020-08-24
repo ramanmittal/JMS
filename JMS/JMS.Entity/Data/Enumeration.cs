@@ -8,11 +8,27 @@ namespace JMS.Entity.Data
     {
         Draft,
         Submission,
-        Review
+        Review,
+        Rejected
     }
     public enum ContributerRole
     {
         Author,
         Translator
+    }
+    public enum ReviewType
+    {
+        DoubleBlind,
+        Blind,
+        Open
+    }
+    public enum ReviewerStatus
+    {
+        DoubleBlind,
+        Blind,
+        Open
+    }
+    public enum ReviewerAction { 
+    
     }
 }

@@ -1,0 +1,152 @@
+﻿@model JMS.ViewModels.Submissions.EditorSubmissionViewModel
+@using JMS.Entity.Data; 
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf
+    <div>
+        @if (Model.SubmissionStatus == SubmissionStatus.Submission.ToString())
+        {
+            <div class="row">
+                <div class="col-md-12 text-right"><button class="btn btn-primary" id="mvtorv">Send to Review</button></div>
+            </div>
+        }
+
+        <dl class="row">
+            @Html.AntiForgeryToken()
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Prefix)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Prefix)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SubTitle)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SubTitle)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Abstract)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Abstract)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Keywords)
+            </dt>
+            <dd class="col-sm-10">
+                @if (!string.IsNullOrEmpty(Model.Keywords))
+                {
+                    var keywords = Model.Keywords.Split(",");
+                    <ul class="tags">
+                        @foreach (var item in keywords)
+                        {
+                            <li><a class="tag">@item</a></li>
+                        }
+                    </ul>
+                }
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Comments)
+            </dt>
+            <dd class="col-sm-10">
+                <div>
+                    @Html.Raw(Model.Comments)
+                </div>
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SubmissionStatus)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SubmissionStatus)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.EditorId)
+            </dt>
+            <dd class="col-sm-10">
+                <select class="select">
+                    <option value=""></option>
+                    @foreach (var item in Model.Editors)
+                    {
+                        <option value="@item.Key" selected="@(item.Key==Model.EditorId)">@item.Value</option>
+                    }
+                </select>
+            </dd>
+        </dl>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>File Name</th>
+                        <th>Upload Date</th>
+                        <th>Articular Component</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Files)
+                    {
+                        <tr>
+                            <td><a asp-action="DownloadSubmittedFile" asp-controller="Submission" asp-route-id="@item.SubmissionFileID">@item.FileName</a></td>
+                            <td>@item.UploadDate</td>
+                            <td>@item.ArticalComponent</td>
+                            <td><a class="pointer-event text-primary" id="fldtls" data-url="@Url.Action("FileDetails","Submission",new { id=item.SubmissionFileID})">Details</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+<script>
+    $("#mvtorv").click(function () {
+        $(".loader").show();
+        $.ajax({
+            "url": "@Url.Action("MoveToReview", "Submission")",
+            "type": "post",
+            "data": { id:"@Model.SubmissionId", __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"},
+            "success": function (html) {
+                $(".loader").hide();
+                $("#stepcont").steps("next");
+
+            }
+        })
+
+    });
+    $(".select").select2({ dropdownAutoWidth: true, width: 'auto', placeholder: "Select editor", allowClear: true, });
+    $(".select").on("change", function (e) {
+        $(".loader").show();
+        console.log($(".select:selected").text())
+        $.ajax({
+            url: "@Url.Action("AssignEditor", "Submission")",
+            type: "POST",
+            data: { submissionId: "@Model.SubmissionId", editorId: $(".select").val(), "__RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+            success: function (data) {
+                $(".loader").hide();
+                if ($(".select").val()) {
+                    toastr.success(`${$(".select").select2('data')[0].text} has been assigned.`)
+                }
+                else {
+                    toastr.warning(`Editor has been removed from the submission. Submission is in Un-Assigned state`)
+                }
+            }
+        });
+    });
+    $("#fldtls").click(function () {
+        $(".loader").show();
+        $.ajax({
+            "url": $(this).attr("data-url"),
+            "type": "get",
+            "success": function (html) {
+                $(".modal-body").html("");
+                $(".modal-body").html(html);
+                $("#myModal").modal("show");
+                $(".loader").hide();
+            }
+         })
+    });
+</script>
+

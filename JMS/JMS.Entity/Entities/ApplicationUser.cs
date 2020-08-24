@@ -18,5 +18,6 @@ namespace JMS.Entity.Entities
         public string Zip { get; set; }
         public string ProfileImage { get; set; }
         public string AffiliationNo { get; set; }
+        public string Specialization { get; set; }
     }
 }

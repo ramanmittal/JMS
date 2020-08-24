@@ -50,6 +50,10 @@ namespace JMS.Controllers
             {
                 return RedirectToAction("ActiveSubmission", "Submission");
             }
+            else if (User.IsInRole(RoleName.SectionEditor))
+            {
+                return RedirectToAction("MyAssigned", "Submission");
+            }
             return Unauthorized();
         }
 

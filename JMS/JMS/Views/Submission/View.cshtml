@@ -1,0 +1,72 @@
+﻿@model int
+@inject Microsoft.AspNetCore.Antiforgery.IAntiforgery Xsrf;
+@using JMS.Entity.Data; 
+@{ 
+    ViewBag.title = "Submission";
+}
+<link href="~/plugins/jquery-steps/jquery.steps.css" rel="stylesheet" />
+@section scripts{
+    <script src="~/plugins/jquery-steps/jquery.steps.js"></script>
+    <script>
+        var stepcont= $("#stepcont");
+        stepcont.steps({
+            headerTag: "h3",
+            bodyTag: "section",
+            transitionEffect: "slideLeft",
+            stepsOrientation: "vertical",
+            enablePagination: false,
+            enableKeyNavigation:false,
+            enableContentCache: true,
+            startIndex:@(Model== (int)SubmissionStatus.Submission?0:1)
+        });
+        stepcont.show();
+        $("#dltsub").click(function (event) {
+            $("#myModal .modal-body").html(`
+                <h3 class="text-center">Are you sure you want to reject this Submission?</h3>
+                <div  class="text-center">
+                     <button type="button" class="btn btn-default btn-lg" data-dismiss="modal">Cancel</button>
+                     <button type="button" class="btn btn-primary btn-lg" onclick="dltsbm()">Yes</button>
+                </div>
+                `);
+            $("#myModal").modal({
+                backdrop: 'static',
+                keyboard: false
+            })
+        });
+        function dltsbm() {
+            $(".loader").show();
+            $.ajax({
+                type: "POST",
+                data: {
+                    __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)",
+                    id: @ViewContext.RouteData.Values["id"]
+                },
+                url: "@Url.Action("RejectedSubmission", "Submission")",
+                success: function () {
+                    window.location.href= "@Url.Action("ActiveSubmission", "Submission")"
+                }
+            });
+        }
+    </script>
+}
+<div class="row">
+    <div class="col-md-12 text-md-right">
+        @Html.ActionLink("Back to submission", "ActiveSubmission", "MySubmission")
+        <br />
+    </div>
+</div>
+<div class="row">
+
+    <div class="offset-md-8 col-md-4 text-right">
+        <button type="button" class="btn btn-danger" id="dltsub">Reject Submission</button>
+    </div>
+</div>
+<br />
+<div id="stepcont" style="display:none">
+    <h3>Details</h3>
+    <section data-mode="async" class="sub-files" data-url='@Url.Action("SubmissionDetails","Submission",new {id=ViewContext.RouteData.Values["id"]})' style="width: 100%;">
+    </section>
+    <h3>Review Requests</h3>
+    <section data-mode="async" class="sub-files" data-url='@Url.Action("ReviewRequests","Review",new {submissionId=ViewContext.RouteData.Values["id"]})' style="width: 100%;">
+    </section>
+</div>
