@@ -368,5 +368,13 @@ namespace JMS.Service.Services
                          select new { user.Id, user.FirstName, user.LastName }).ToList();
             return users.ToDictionary(x => x.Id, x => $"{ x.FirstName} {x.LastName}");
         }
+
+        public IEnumerable<string> GetRoles(long userId)
+        {
+            return (from role in _context.Roles
+                    join
+                    userRole in _context.UserRoles.Where(x => x.UserId == userId) on role.Id equals userRole.RoleId
+                    select role.Name).ToArray();
+        }
     }
 }

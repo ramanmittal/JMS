@@ -387,6 +387,10 @@ namespace JMS.Controllers
         [Authorize(Roles = RoleName.EditorRoles)]
         public IActionResult GetRejectedSubmission(RejectedSubmissionGridSearchModel model)
         {
+            if (User.IsInRole(RoleName.SectionEditor))
+            {
+                return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().GetRejectedSubmissions(TenantID, model, ((JMSPrincipal)User).ApplicationUser.Id));
+            }
             return Ok(HttpContext.RequestServices.GetService<ISubmissionService>().GetRejectedSubmissions(TenantID, model));
         }
         [HttpGet]

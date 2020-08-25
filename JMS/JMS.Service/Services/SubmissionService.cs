@@ -501,14 +501,18 @@ namespace JMS.Service.Services
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var submissions = context.Submission.Where(x => x.Id == submissionID && x.User.Tenant.JournalPath == journalPath);
-             submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Review });
+             submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Rejected });
         }
 
-        public RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model)
+        public RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var statuses = new SubmissionStatus[] { SubmissionStatus.Submission, SubmissionStatus.Review };
             var dbSubmission = context.Submission.Where(x => x.User.Tenant.JournalPath == journalPath && x.SubmissionStatus== SubmissionStatus.Rejected);
+            if (editerID.HasValue)
+            {
+                dbSubmission = dbSubmission.Where(x => x.EditorId == editerID);
+            }
             var submissions = dbSubmission.Select(x => new
             {
                 x.User.FirstName,

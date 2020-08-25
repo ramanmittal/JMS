@@ -9,61 +9,63 @@
             </div>
         }
 
-        <dl class="row">
-            @Html.AntiForgeryToken()
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Prefix)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Prefix)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Title)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Title)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.SubTitle)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.SubTitle)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Abstract)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.Abstract)
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Keywords)
-            </dt>
-            <dd class="col-sm-10">
-                @if (!string.IsNullOrEmpty(Model.Keywords))
-                {
-                    var keywords = Model.Keywords.Split(",");
-                    <ul class="tags">
-                        @foreach (var item in keywords)
-                        {
-                            <li><a class="tag">@item</a></li>
-                        }
-                    </ul>
-                }
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.Comments)
-            </dt>
-            <dd class="col-sm-10">
-                <div>
-                    @Html.Raw(Model.Comments)
-                </div>
-            </dd>
-            <dt class="col-sm-2">
-                @Html.DisplayNameFor(model => model.SubmissionStatus)
-            </dt>
-            <dd class="col-sm-10">
-                @Html.DisplayFor(model => model.SubmissionStatus)
-            </dd>
+    <dl class="row">
+        @Html.AntiForgeryToken()
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Prefix)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Prefix)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Title)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SubTitle)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SubTitle)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Abstract)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Abstract)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Keywords)
+        </dt>
+        <dd class="col-sm-10">
+            @if (!string.IsNullOrEmpty(Model.Keywords))
+            {
+                var keywords = Model.Keywords.Split(",");
+                <ul class="tags">
+                    @foreach (var item in keywords)
+                    {
+                        <li><a class="tag">@item</a></li>
+                    }
+                </ul>
+            }
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Comments)
+        </dt>
+        <dd class="col-sm-10">
+            <div>
+                @Html.Raw(Model.Comments)
+            </div>
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.SubmissionStatus)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.SubmissionStatus)
+        </dd>
+        @if(User.IsInRole(JMS.Setting.RoleName.EIC))
+        {
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.EditorId)
             </dt>
@@ -76,7 +78,9 @@
                     }
                 </select>
             </dd>
-        </dl>
+        }
+
+    </dl>
         <div class="row">
             <table class="table">
                 <thead>

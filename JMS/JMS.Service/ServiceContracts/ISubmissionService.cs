@@ -38,6 +38,6 @@ namespace JMS.Service.ServiceContracts
         void RemoveSubmission(long submissionId, string path);
         void MoveToReview(long submissionId, string journalPath = null);
         void RejectSubmission(long submissionID, string journalPath);
-        RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model);
+        RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null);
     }
 }

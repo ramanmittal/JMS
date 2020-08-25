@@ -39,11 +39,11 @@
                 type: "POST",
                 data: {
                     __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)",
-                    id: @ViewContext.RouteData.Values["id"]
+                    id: "@ViewContext.RouteData.Values["id"]"
                 },
-                url: "@Url.Action("RejectedSubmission", "Submission")",
+                url: "@Url.Action("RejectSubmission", "Submission")",
                 success: function () {
-                    window.location.href= "@Url.Action("ActiveSubmission", "Submission")"
+                    window.location.href= "@Url.Action("RejectedSubmission", "Submission")"
                 }
             });
         }
@@ -51,7 +51,15 @@
 }
 <div class="row">
     <div class="col-md-12 text-md-right">
-        @Html.ActionLink("Back to submission", "ActiveSubmission", "MySubmission")
+        @if (User.IsInRole(JMS.Setting.RoleName.EIC))
+        {
+            @Html.ActionLink("Back to submission", "ActiveSubmission", "MySubmission")
+        }
+        else
+        {
+            @Html.ActionLink("Back to submission", "MyAssigned", "Submission")
+        }
+
         <br />
     </div>
 </div>

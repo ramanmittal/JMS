@@ -29,5 +29,7 @@ namespace JMS.Service.ServiceContracts
         Author GetAuthor(long userId);
         void SaveAuthor(AuthorProfileModel authorProfileModel, Stream fileStream, string fileName);
         IDictionary<long, string> GetJounalEditors(string journalPath);
+
+        IEnumerable<String> GetRoles(long userId);
     }
 }
