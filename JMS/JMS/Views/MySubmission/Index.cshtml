@@ -77,8 +77,12 @@
                     },
                     {
                         name: "", type: "control", itemTemplate: function (value, item) {
-                            return `<a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top"  href="@Url.Action("Edit", "Submission")/${item.submissionId}"></a>
+                            if (item.status =="Draft") {
+                                return `<a class="fa fa-edit" title="Edit" data-toggle="tooltip" data-placement="top"  href="@Url.Action("Edit", "Submission")/${item.submissionId}"></a>
                                     <a class="fas fa-trash-alt" title="Delete" data-toggle="tooltip" data-placement="top" href="javascript:dltsbmdlg(${item.submissionId});"></a>`
+                            }
+                            return `<a href="@Url.Action("Index", "Submission")?id=${item.submissionId}">View</a>`
+
                         }
                     }
                ]
@@ -114,6 +118,6 @@
                 }
             });
         }
-    </script>
+</script>
 }
 

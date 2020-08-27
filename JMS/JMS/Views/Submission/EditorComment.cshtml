@@ -63,9 +63,17 @@
         });
     })
     $("#fnshbtn").click(function (event) {
-        savecmnt(function () {
-             window.location.href = "@Url.Action("Index", "MySubmission")";
-        });
+        if ($("#cmntfrm").valid()) {
+            $(".loader").show();            
+            $.ajax({
+                type: 'POST',
+                url: $("#cmntfrm").attr("action"),
+                data: $("#cmntfrm").serialize() + '&IsFinished=' + "true",
+                success: function (response) {
+                    window.location.href = "@Url.Action("Index", "MySubmission")";
+                }
+            });
+        }        
     });
     function savecmnt(successfunc) {
         if ($("#cmntfrm").valid()) {

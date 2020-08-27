@@ -2,9 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AutoMapper;
+using JMS.Entity.Data;
 using JMS.Infra.Sequrity;
 using JMS.Models.Submissions;
 using JMS.Service.Enums;
@@ -31,6 +33,10 @@ namespace JMS.Controllers
         public IActionResult Edit(long id)
         {
             var submission = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmission(id, ((JMSPrincipal)User).ApplicationUser.Id);
+            if (submission.SubmissionStatus != SubmissionStatus.Draft)
+            {
+                return RedirectToAction("Index",new {id});
+            }
             return View(submission.CreateStep);
         }
 
@@ -163,7 +169,7 @@ namespace JMS.Controllers
             var files = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmissionFiles(id, ((JMSPrincipal)User).ApplicationUser.Id);
             return Ok(files);
         }
-        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy,Roles = RoleName.EditorRoles)]
+        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
         [HttpGet]
         public IActionResult DownloadSubmissionFile(long id)
         {
@@ -398,6 +404,13 @@ namespace JMS.Controllers
         public IActionResult RejectedSubmission()
         {
             return View();
+        }
+        [HttpGet]
+        [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
+        public IActionResult Index(int id)
+        {
+            var model = HttpContext.RequestServices.GetService<ISubmissionService>().GetAuthorSubmissionViewModel(id, (((JMSPrincipal)User).ApplicationUser.Id), TenantID);
+            return View(model);
         }
 
     }

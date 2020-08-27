@@ -229,7 +229,7 @@ namespace JMS.Service.Services
         public void EditContributer(EditContributerModel model, long? userId)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var contributers = context.Contributors.Where(x => x.Id == model.ContributerId);
+            var contributers = context.Contributors.Where(x => x.Id == model.ContributerId);           
             if (userId.HasValue)
             {
                 contributers = contributers.Where(x => x.Submission.UserID == userId);
@@ -242,6 +242,12 @@ namespace JMS.Service.Services
             contributer.ORCIDiD = model.ORCIDiD;
             contributer.AffiliationNo = model.AffiliationNo;
             contributer.ContributerRole = model.ContributerRole;
+            var submissions = context.Submission.Where(x => x.Id == contributer.SubmissionId);
+            if (userId.HasValue)
+            {
+                submissions = submissions.Where(x => x.UserID == userId);
+            }
+            submissions.First().UpdatedDate = DateTime.UtcNow;
             context.SaveChanges();
         }
         public IEnumerable<ContributerListModel> Contributers(long submissionId, long? userID)
@@ -288,8 +294,13 @@ namespace JMS.Service.Services
             }
             var submission = submissions.FirstOrDefault();
             submission.EditorComment = model.Comment;
-            submission.SubmissionStatus = SubmissionStatus.Submission;
+            var previoursStatus = submission.SubmissionStatus;
+            if (model.IsFinished == true)
+            {
+                submission.SubmissionStatus = SubmissionStatus.Submission;
+            }            
             context.SaveChanges();
+            
         }
 
         public SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model)
@@ -446,6 +457,46 @@ namespace JMS.Service.Services
                     FileName = x.FileName,
                     UploadDate = x.UploadedOn.ToString("dd MMM yyyy")
                 }).ToList()
+            };
+            return model;
+        }
+        public AuthorSubmissionViewModel GetAuthorSubmissionViewModel(long submissionId,long? userID=null, string journalPath = null)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var submissions = context.Submission.Where(x => x.Id == submissionId && x.SubmissionStatus != SubmissionStatus.Draft);
+            if (!string.IsNullOrEmpty(journalPath))
+            {
+                submissions = submissions.Where(x => x.User.Tenant.JournalPath == journalPath);
+            }
+            if (userID.HasValue)
+            {
+                submissions = submissions.Where(x => x.UserID == userID.Value);
+            }
+            var submission = submissions.First();
+            var model = new AuthorSubmissionViewModel
+            {
+                Abstract = submission.Abstract,
+                Comments = submission.EditorComment,
+                SubmissionId = submission.Id,
+                Keywords = submission.Keywords,
+                Prefix = submission.Prefix,
+                SubmissionStatus = submission.SubmissionStatus.ToString(),
+                SubTitle = submission.Subtitle,
+                Title = submission.Title,
+                Files = context.SubmisssionFile.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.TenantArticleComponent.Text, x.FileName, x.UploadedOn, x.Id }).ToList().Select(x => new SubmissionFileListModel
+                {
+                    SubmissionFileID = x.Id,
+                    ArticalComponent = x.Text,
+                    FileName = x.FileName,
+                    UploadDate = x.UploadedOn.ToString("dd MMM yyyy")
+                }).ToList(),
+                Contributers= context.Contributors.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.FirstName, x.LastName, x.Email, x.ContributerRole }).ToList().Select(x => new ContributerListModel
+                {
+                    FirstName = x.FirstName,
+                    LastName = x.LastName,
+                    Email = x.Email,
+                    Role = x.ContributerRole.ToString()
+                }).ToList(),
             };
             return model;
         }

@@ -39,5 +39,6 @@ namespace JMS.Service.ServiceContracts
         void MoveToReview(long submissionId, string journalPath = null);
         void RejectSubmission(long submissionID, string journalPath);
         RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null);
+        AuthorSubmissionViewModel GetAuthorSubmissionViewModel(long submissionId, long? userID = null, string journalPath = null);
     }
 }

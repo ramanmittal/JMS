@@ -11,5 +11,6 @@ namespace JMS.ViewModels.Submissions
         public long Id { get; set; }
         [DisplayName("Comment for editor")]
         public string Comment { get; set; }
+        public bool? IsFinished { get; set; }
     }
 }

@@ -1,4 +1,125 @@
-﻿
-@*
-    For more information on enabling MVC for empty projects, visit http://go.microsoft.com/fwlink/?LinkID=397860
-*@
+﻿@model JMS.ViewModels.Submissions.AuthorSubmissionViewModel
+
+    <div>
+        <div class="row">
+            <div class="col-md-12">
+
+                <a asp-action="Index" asp-controller="MySubmission" class="btn btn-primary">Back to submission</a>
+            </div>
+        </div>
+        <br />
+        <dl class="row">
+            @Html.AntiForgeryToken()
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Prefix)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Prefix)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Title)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Title)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SubTitle)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SubTitle)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Abstract)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.Abstract)
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Keywords)
+            </dt>
+            <dd class="col-sm-10">
+                @if (!string.IsNullOrEmpty(Model.Keywords))
+                {
+                    var keywords = Model.Keywords.Split(",");
+                    <ul class="tags">
+                        @foreach (var item in keywords)
+                        {
+                            <li><a class="tag">@item</a></li>
+                        }
+                    </ul>
+                }
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.Comments)
+            </dt>
+            <dd class="col-sm-10">
+                <div>
+                    @Html.Raw(Model.Comments)
+                </div>
+            </dd>
+            <dt class="col-sm-2">
+                @Html.DisplayNameFor(model => model.SubmissionStatus)
+            </dt>
+            <dd class="col-sm-10">
+                @Html.DisplayFor(model => model.SubmissionStatus)
+            </dd>
+        </dl>
+        @if (Model.Files != null && Model.Files.Any())
+        {
+            <div class="row">
+                <div class="col-md-12"><h3>Submission Files</h3></div>
+            </div>
+            <div class="row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th width="34%">File Name</th>
+                            <th width="33%">Upload Date</th>
+                            <th width="33%">Articular Component</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Files)
+                        {
+                            <tr>
+                                <td><a asp-action="DownloadSubmissionFile" asp-controller="Submission" asp-route-id="@item.SubmissionFileID">@item.FileName</a></td>
+                                <td>@item.UploadDate</td>
+                                <td>@item.ArticalComponent</td>
+                                
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+        @if (Model.Contributers != null && Model.Contributers.Any())
+        {
+            <div class="row">
+                <div class="col-md-12"><h3>Contributers</h3></div>
+            </div>
+            <div class="row">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th  width="34%">Name</th>
+                            <th  width="33%">Email</th>
+                            <th  width="33%">Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model.Contributers)
+                        {
+                            <tr>
+                                <td>@($"{item.FirstName} {item.LastName}")</td>
+                                <td>@item.Email</td>
+                                <td>@item.Role</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+
+    </div>
+
+
