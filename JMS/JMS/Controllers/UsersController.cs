@@ -72,7 +72,9 @@ namespace JMS.Controllers
                 IsActive = !user.IsDisabled.GetValueOrDefault(),
                 AssignedRoles = existingRoles,
                 AffiliationNo = user.AffiliationNo,
-                IsJournalAdmin = roles.Contains(Role.JournalAdmin.ToString())
+                IsJournalAdmin = roles.Contains(Role.JournalAdmin.ToString()),
+                ReviewCount= userService.AssignedSubmissionAsReviewer(user.Id,TenantID),
+                EditorCount= userService.AssignedSubmissionAsEditor(user.Id,TenantID)
             };
             return View(model);
         }

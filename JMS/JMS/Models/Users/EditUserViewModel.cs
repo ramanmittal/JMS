@@ -30,5 +30,7 @@ namespace JMS.Models.Users
         [Required]
         public List<int> Roles { get; set; }
         public bool IsJournalAdmin { get; set; }
+        public int ReviewCount { get; internal set; }
+        public int EditorCount { get; internal set; }
     }
 }

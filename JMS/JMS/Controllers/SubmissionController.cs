@@ -3,14 +3,18 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Mail;
 using System.Security.Cryptography.X509Certificates;
 using System.Threading.Tasks;
 using AutoMapper;
+using ElmahCore;
 using JMS.Entity.Data;
+using JMS.Entity.Entities;
 using JMS.Infra.Sequrity;
 using JMS.Models.Submissions;
 using JMS.Service.Enums;
 using JMS.Service.ServiceContracts;
+using JMS.Service.Settings;
 using JMS.Setting;
 using JMS.ViewModels.Submissions;
 using Microsoft.AspNetCore.Authorization;
@@ -47,7 +51,17 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                var submissionId = HttpContext.RequestServices.GetService<ISubmissionService>().CreateSubmission(createSubmissionModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+                var submissionId = submissionService.CreateSubmission(createSubmissionModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = submissionId,
+                    Action = "Submission Initialization",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
                 return RedirectToAction("Edit", new { id = submissionId }); 
             }
             return BadRequest();
@@ -58,7 +72,17 @@ namespace JMS.Controllers
         [NonAction]
         private IActionResult RemoveSubmission(long submissionId)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().RemoveSubmission(submissionId, TenantID);
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            submissionService.RemoveSubmission(submissionId, TenantID);
+            submissionService.SaveSubmissionHistory(new SubmissionHistory
+            {
+                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                SubmissionId = submissionId,
+                Action = "Submission has been removed.",
+                ActionDate = DateTime.UtcNow,
+                ActorEmail = JMSUser.Email,
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+            });
             return Ok();
         }
         [HttpPost]
@@ -66,7 +90,17 @@ namespace JMS.Controllers
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
         public IActionResult RemoveSubmissionByAuthor(long submissionId)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().RemoveSubmission(submissionId, ((JMSPrincipal)User).ApplicationUser.Id);
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            submissionService.RemoveSubmission(submissionId, JMSUser.Id);
+            submissionService.SaveSubmissionHistory(new SubmissionHistory
+            {
+                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                SubmissionId = submissionId,
+                Action = "Submission has been removed.",
+                ActionDate = DateTime.UtcNow,
+                ActorEmail = JMSUser.Email,
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+            });
             return Ok();
         }
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
@@ -92,7 +126,17 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                HttpContext.RequestServices.GetService<ISubmissionService>().EditSubmission(editSubmissionModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+                submissionService.EditSubmission(editSubmissionModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = editSubmissionModel.Id,
+                    Action = "Submission meta data updated",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
                 return Ok(); 
             }
             return BadRequest();
@@ -106,7 +150,17 @@ namespace JMS.Controllers
             if (ModelState.IsValid)
             {
                 var mapper = HttpContext.RequestServices.GetService<IMapper>();
-                var listModel = HttpContext.RequestServices.GetService<ISubmissionService>().AddSubmissionFile(mapper.Map<ViewModels.Submissions.AddSubmissionFileModel>(model));
+                var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+                var listModel = submissionService.AddSubmissionFile(mapper.Map<ViewModels.Submissions.AddSubmissionFileModel>(model));
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = model.SubmissionId,
+                    Action = $"File {model.File.FileName} has been added.",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
                 return Ok(listModel);
             }
             return BadRequest();
@@ -143,7 +197,8 @@ namespace JMS.Controllers
         {
             if (ModelState.IsValid)
             {
-                HttpContext.RequestServices.GetService<ISubmissionService>().SaveSubmissionFile(model, ((JMSPrincipal)User).ApplicationUser.Id);
+                var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+                submissionService.SaveSubmissionFile(model, ((JMSPrincipal)User).ApplicationUser.Id);                
                 return Ok();
             }
             return BadRequest();
@@ -153,7 +208,18 @@ namespace JMS.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveSubmissionFile(long Id)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().RemoveFile(Id, ((JMSPrincipal)User).ApplicationUser.Id);
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            var file = submissionService.GetSubmissionFile(Id, JMSUser.Id);
+            submissionService.RemoveFile(file, ((JMSPrincipal)User).ApplicationUser.Id);
+            submissionService.SaveSubmissionHistory(new SubmissionHistory
+            {
+                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                SubmissionId = file.SubmissionId,
+                Action = $"File {file.FileName} has been removed.",
+                ActionDate = DateTime.UtcNow,
+                ActorEmail = JMSUser.Email,
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+            });
             return Ok();
         }
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
@@ -219,8 +285,18 @@ namespace JMS.Controllers
         public IActionResult PostAddContirbuter(AddContributerModel model) {
             if (ModelState.IsValid)
             {
+                var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
                 var contibuterViewModel = HttpContext.RequestServices.GetService<IMapper>().Map<AddContributerViewModel>(model);
-                HttpContext.RequestServices.GetService<ISubmissionService>().AddContributer(contibuterViewModel);
+                submissionService.AddContributer(contibuterViewModel);
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = model.SubmissionId,
+                    Action = $"Contributer {model.FirstName} {model.LastName} has been added.",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
                 return Ok();
             }
             return BadRequest();
@@ -265,7 +341,17 @@ namespace JMS.Controllers
             if (ModelState.IsValid)
             {
                 var contibuterViewModel = HttpContext.RequestServices.GetService<IMapper>().Map<JMS.ViewModels.Submissions.EditContributerModel>(model);
-                HttpContext.RequestServices.GetService<ISubmissionService>().EditContributer(contibuterViewModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                var submissionService=HttpContext.RequestServices.GetService<ISubmissionService>();
+                submissionService.EditContributer(contibuterViewModel, ((JMSPrincipal)User).ApplicationUser.Id);
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = model.SubmissionId,
+                    Action = $"Contributer {model.FirstName} {model.LastName} has been Updated.",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
                 return Ok();
             }
             return BadRequest();
@@ -275,7 +361,18 @@ namespace JMS.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveContributor(long contributerId)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().DeleteContributor(contributerId, ((JMSPrincipal)User).ApplicationUser.Id);
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            var contributer = submissionService.GetContributor(contributerId, JMSUser.Id);
+            submissionService.DeleteContributor(contributer);
+            submissionService.SaveSubmissionHistory(new SubmissionHistory
+            {
+                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                SubmissionId = contributer.SubmissionId,
+                Action = $"Contributer {contributer.FirstName} {contributer.LastName} has been removed.",
+                ActionDate = DateTime.UtcNow,
+                ActorEmail = JMSUser.Email,
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+            });
             return Ok();
         }
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
@@ -296,11 +393,47 @@ namespace JMS.Controllers
         [Authorize(Policy = AuthorPolicyRequirementHandler.AuthorPolicy)]
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult EditorComment(EditorCommentModel model)
+        public async Task<IActionResult> EditorComment(EditorCommentModel model)
         {
             if (ModelState.IsValid)
             {
-                HttpContext.RequestServices.GetService<ISubmissionService>().EditorComment(model, ((JMSPrincipal)User).ApplicationUser.Id);
+                var sumissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+                var submission = sumissionService.GetSubmission(model.Id, ((JMSPrincipal)User).ApplicationUser.Id);
+                if (submission.SubmissionStatus==SubmissionStatus.Draft)
+                {
+                    sumissionService.EditorComment(submission, model, ((JMSPrincipal)User).ApplicationUser.Id);
+                    sumissionService.SaveSubmissionHistory(new SubmissionHistory
+                    {
+                        TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                        SubmissionId = model.Id,
+                        Action = $"Editor comment has been changed.",
+                        ActionDate = DateTime.UtcNow,
+                        ActorEmail = JMSUser.Email,
+                        ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                    });
+                    if (model.IsFinished.HasValue && model.IsFinished.Value)
+                    {
+                        try
+                        {
+                           await SubmissionConfirmaitionEmail(model.Id, GetService<IRazorViewToStringRenderer>(), GetService<IEmailSender>(), GetService<IFileService>());
+                            AddSuccessMessage("Submission has been submitted. A confirmation email has been send to you.");
+                            sumissionService.SaveSubmissionHistory(new SubmissionHistory
+                            {
+                                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                                SubmissionId = model.Id,
+                                Action = $"Submission has been Completed and Submitted",
+                                ActionDate = DateTime.UtcNow,
+                                ActorEmail = JMSUser.Email,
+                                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                            });
+                        }
+                        catch (Exception ex)
+                        {
+                            HttpContext.RiseError(ex);
+                            AddFailMessage("Submission has been submitted  but failed to send confirmation email.");
+                        }
+                    }
+                }
                 return Ok();
             }
             return BadRequest();
@@ -365,11 +498,26 @@ namespace JMS.Controllers
             return PartialView(submissionFile);
         }
         [HttpPost]
-        [Authorize(Roles = RoleName.EditorRoles)]
+        [Authorize(Roles = RoleName.EIC)]
         [ValidateAntiForgeryToken]
         public IActionResult AssignEditor(long submissionId,long? editorId)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().AssignEditor(submissionId, editorId,TenantID);
+            var sumissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            sumissionService.AssignEditor(submissionId, editorId, TenantID);
+            ApplicationUser editor = null;
+            if (editorId.HasValue)
+            {
+                editor = HttpContext.RequestServices.GetService<IUserService>().GetUser(editorId.Value);
+            }
+            sumissionService.SaveSubmissionHistory(new SubmissionHistory
+            {
+                TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                SubmissionId = submissionId,
+                Action = editorId.HasValue ? $"Editor {editor?.FirstName} {editor?.LastName} has been assigned." : $"Assigned editor has been removed.",
+                ActionDate = DateTime.UtcNow,
+                ActorEmail = JMSUser.Email,
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+            });
             return Ok();
         }
         [HttpPost]
@@ -384,9 +532,9 @@ namespace JMS.Controllers
         [HttpPost]
         [Authorize(Roles = RoleName.EditorRoles)]
         [ValidateAntiForgeryToken]
-        public IActionResult RejectSubmission(long id)
+        public IActionResult RejectSubmission(RejectSubmission rejectSubmission)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().RejectSubmission(id, TenantID);
+            HttpContext.RequestServices.GetService<ISubmissionService>().RejectSubmission(rejectSubmission, TenantID);
             return Ok();
         }
         [HttpGet]
@@ -411,6 +559,25 @@ namespace JMS.Controllers
         {
             var model = HttpContext.RequestServices.GetService<ISubmissionService>().GetAuthorSubmissionViewModel(id, (((JMSPrincipal)User).ApplicationUser.Id), TenantID);
             return View(model);
+        }
+        [HttpGet]
+        public async Task<IActionResult> SubmissionConfirmaitionEmail(long id, [FromServices] IRazorViewToStringRenderer _razorViewToStringRenderer, [FromServices] IEmailSender _emailSender, [FromServices]IFileService fileService)
+        {
+            var model = HttpContext.RequestServices.GetService<ISubmissionService>().GetAuthorSubmissionViewModel(id, (((JMSPrincipal)User).ApplicationUser.Id), TenantID);
+            var emailBody = await _razorViewToStringRenderer.RenderViewToStringAsync(@"/Views/Submission/SubmissionConfirmaitionEmail.cshtml", model);
+            var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], ((JMSPrincipal)User).ApplicationUser.Email, _configuration[JMSSetting.SubmissionConfirmationSubject], emailBody) { IsBodyHtml = true };
+            foreach (var file in model.Files)
+            {
+                mailMessage.Attachments.Add(new Attachment(new MemoryStream(fileService.GetFileBytes(file.FileId)), file.FileName));
+            }
+            _emailSender.SendEmail(mailMessage);
+            return Ok();
+        }
+        [HttpGet]
+        [Authorize(Roles = RoleName.EditorRoles)]
+        public IActionResult GetActivityLogs(long submissionId)
+        {
+            return PartialView(HttpContext.RequestServices.GetService<ISubmissionService>().GetActivityLogs(submissionId, JMSUser.TenantId.Value));
         }
 
     }

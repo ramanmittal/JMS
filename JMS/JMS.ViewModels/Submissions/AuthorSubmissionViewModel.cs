@@ -19,5 +19,7 @@ namespace JMS.ViewModels.Submissions
         public List<ContributerListModel> Contributers { get; set; }
         [Display(Name = "Status")]
         public string SubmissionStatus { get; set; }
+        [Display(Name = "Editor's Comment")]
+        public string DeletedComments { get; set; }
     }
 }

@@ -1,0 +1,171 @@
+﻿@model JMS.ViewModels.Submissions.AuthorSubmissionViewModel
+@{ 
+    Layout = null;
+    var user = ((JMS.Infra.Sequrity.JMSPrincipal)User).ApplicationUser;
+}
+<html>
+<head>
+    <style type="text/css">
+        body {
+            background-color: #f5f6fa
+        }
+
+        td {
+            vertical-align: top
+        }
+
+        .tags {
+            list-style: none;
+            margin: 0;
+            overflow: hidden;
+            padding: 0;
+        }
+
+            .tags li {
+                float: left;
+            }
+
+        .tag {
+            background: #eee;
+            border-radius: 3px 0 0 3px;
+            display: inline-block;
+            height: 26px;
+            line-height: 26px;
+            padding: 0 20px 0 23px;
+            position: relative;
+            margin: 0 10px 10px 0;
+            text-decoration: none;
+            -webkit-transition: color 0.2s;
+            background-color: gray;
+        }
+
+            .tag::before {
+                background: #fff;
+                border-radius: 10px;
+                box-shadow: inset 0 1px rgba(0, 0, 0, 0.25);
+                content: '';
+                height: 6px;
+                left: 10px;
+                position: absolute;
+                width: 6px;
+                top: 10px;
+            }
+
+            .tag::after {
+                border-bottom: 13px solid transparent;
+                border-left: 10px solid #eee;
+                border-top: 13px solid transparent;
+                /*content: '';*/
+                position: absolute;
+                right: 0;
+                top: 0;
+            }
+
+            .tag:hover {
+                background-color: crimson;
+                color: white;
+            }
+
+                .tag:hover::after {
+                    border-left-color: crimson;
+                }
+
+        .table {
+            width: 100%
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <p>Hi, @($"{user.FirstName} {user.LastName}")</p>
+    <p>Thank you for submitting the manuscript. This is the confirmation email of your submission. Submission having following details has been submitted.</p>
+    <div class="row">
+        <table class="dtltbl">
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.Prefix)</td><td> @Html.DisplayFor(model => model.Prefix)</td></tr>              
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.Title)</td><td> @Html.DisplayFor(model => model.Title)</td></tr>
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.SubTitle)</td><td> @Html.DisplayFor(model => model.SubTitle)</td></tr>       
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.Abstract)</td><td> @Html.DisplayFor(model => model.Abstract)</td></tr>
+            <tr>
+                <td class="bold">@Html.DisplayNameFor(model => model.Keywords)</td>
+                <td>
+                    @if (!string.IsNullOrEmpty(Model.Keywords))
+                    {
+                        var keywords = Model.Keywords.Split(",");
+                        <ul class="tags">
+                            @foreach (var item in keywords)
+                            {
+                                <li><a class="tag">@item</a></li>
+                            }
+                        </ul>
+                    }
+                </td>
+            </tr>
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.Comments)</td><td>  @Html.Raw(Model.Comments)</td></tr>
+            <tr><td class="bold">@Html.DisplayNameFor(model => model.SubmissionStatus)</td><td> @Html.DisplayFor(model => model.SubmissionStatus)</td></tr>
+            
+        </table>
+
+
+    </div>
+    @if (Model.Files != null && Model.Files.Any())
+    {
+        <div class="row">
+            <div class="col-md-12"><h3>Submission Files</h3></div>
+            <hr />
+        </div>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th width="34%" style="text-align:left">File Name</th>
+                        <th width="33%">Upload Date</th>
+                        <th width="33%" style="text-align:right">Articular Component</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Files)
+                    {
+                        <tr>
+                            <td>@item.FileName</td>
+                            <td style="text-align:center">@item.UploadDate</td>
+                            <td style="text-align:right">@item.ArticalComponent</td>
+
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    @if (Model.Contributers != null && Model.Contributers.Any())
+    {
+<div class="row">
+    <div class="col-md-12"><h3>Contributers</h3></div>
+    <hr />
+</div>
+        <div class="row">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th width="34%" style="text-align:left">Name</th>
+                        <th width="33%">Email</th>
+                        <th width="33%" style="text-align:right">Role</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model.Contributers)
+                    {
+                        <tr>
+                            <td>@($"{item.FirstName} {item.LastName}")</td>
+                            <td style="text-align:center">@item.Email</td>
+                            <td style="text-align:right">@item.Role</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</body>
+</html>

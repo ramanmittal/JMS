@@ -31,5 +31,8 @@ namespace JMS.Service.ServiceContracts
         IDictionary<long, string> GetJounalEditors(string journalPath);
 
         IEnumerable<String> GetRoles(long userId);
+
+        int AssignedSubmissionAsEditor(long userId, string journalPath);
+        int AssignedSubmissionAsReviewer(long userId, string journalPath);
     }
 }

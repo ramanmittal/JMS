@@ -317,6 +317,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
             }
         });
     });
+    @if (TempData.ContainsKey(JMS.Setting.Messages.fail))
+    {
+        var messages = (IEnumerable<string>)TempData[JMS.Setting.Messages.fail];
+        foreach (var message in messages)
+        {
+            <text>
+              toastr.error('@message')
+            </text>
+
+        }
+    }
+    @if (TempData.ContainsKey(JMS.Setting.Messages.success))
+    {
+        var messages = (IEnumerable<string>)TempData[JMS.Setting.Messages.success];
+        foreach (var message in messages)
+        {
+            <text>
+        toastr.success('@message')
+            </text>
+
+        }
+    }
     </script>
     @RenderSection("scripts", required: false)
     @Html.PageScripts()

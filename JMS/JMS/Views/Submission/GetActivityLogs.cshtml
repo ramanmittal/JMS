@@ -1,0 +1,25 @@
+﻿@model System.Collections.Generic.IEnumerable<JMS.ViewModels.Submissions.ActivityLog>
+<button class="btn btn-primary" data-dismiss="modal">Close</button>
+<br />
+<br />
+<table class="table">
+    <thead>
+        <tr>
+            <th>Date</th>
+            <th>Activity</th>
+            <th>User</th>
+            <th>Email</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.LoggedDate</td>
+                <td>@item.Action</td>
+                <td>@item.ActorName</td>
+                <td>@item.ActorEmail</td>
+            </tr>            
+        }
+    </tbody>
+</table>

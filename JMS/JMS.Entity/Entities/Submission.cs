@@ -31,5 +31,6 @@ namespace JMS.Entity.Entities
         public DateTime UpdatedDate { get; set; }
         [Required]
         public DateTime CreatedDate { get; set; }
+        public string  RejectComment { get; set; }
     }
 }

@@ -376,5 +376,19 @@ namespace JMS.Service.Services
                     userRole in _context.UserRoles.Where(x => x.UserId == userId) on role.Id equals userRole.RoleId
                     select role.Name).ToArray();
         }
+
+        public int AssignedSubmissionAsEditor(long userId, string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var inactiveStatus = new SubmissionStatus[] { SubmissionStatus.Draft, SubmissionStatus.Rejected };
+            var editorCount = context.Submission.Count(x => x.User.Tenant.JournalPath == journalPath && x.EditorId == userId && !inactiveStatus.Contains(x.SubmissionStatus));
+            return editorCount;
+        }
+        public int AssignedSubmissionAsReviewer(long userId, string journalPath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var reviewerCount = context.Submission.Count(x => x.User.Tenant.JournalPath == journalPath && x.EditorId == userId && (x.SubmissionStatus== SubmissionStatus.Review));
+            return reviewerCount;
+        }
     }
 }

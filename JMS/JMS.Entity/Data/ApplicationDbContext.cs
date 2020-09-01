@@ -33,6 +33,7 @@ namespace JMS.Entity.Data
         public DbSet<Contributor> Contributors { get; set; }
         public DbSet<Author> Authors { get; set; }
         public DbSet<ReviewRequest> ReviewRequest { get; set; }
+        public DbSet<SubmissionHistory> SubmissionHistory { get; set; }
         protected override void OnModelCreating(ModelBuilder builder)
         {
             builder.Entity<ApplicationUser>().HasOne(x => x.Tenant).WithMany(x => x.ApplicationUsers).HasForeignKey(x => x.TenantId);
@@ -55,6 +56,7 @@ namespace JMS.Entity.Data
             builder.Entity<Submission>().HasOne(x => x.Editor).WithMany().HasForeignKey(x => x.EditorId);
             builder.Entity<ReviewRequest>().HasOne(x => x.Submission).WithMany().HasForeignKey(x => x.SubmissionId);
             builder.Entity<ReviewRequest>().HasOne(x => x.Reviewer).WithMany().HasForeignKey(x => x.ReviewerID);
+            builder.Entity<SubmissionHistory>().HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenanatID);
             var cascadeFKs = builder.Model.GetEntityTypes()
             .SelectMany(t => t.GetForeignKeys())
             .Where(fk => !fk.IsOwnership && fk.DeleteBehavior == DeleteBehavior.Cascade);

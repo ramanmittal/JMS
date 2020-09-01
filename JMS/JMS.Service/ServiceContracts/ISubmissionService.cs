@@ -16,7 +16,7 @@ namespace JMS.Service.ServiceContracts
         SubmisssionFile GetSubmissionFile(long submissionFileId, long userId);
         SubmisssionFile GetSubmissionFile(long submissionFileId, string journalPath);
         void SaveSubmissionFile(EditSubmissionFileModel model, long userId);
-        void RemoveFile(long submissionFileId, long userId);
+        void RemoveFile(SubmisssionFile file, long userId);
         void EditSubmission(EditSubmissionMetadataModel model, long userId);
         void MovetoContributer(long submissionId, long userId);
         bool ValidateContributerEmail(string email, long submissionID, ApplicationUser user, long? contributerId);
@@ -24,9 +24,9 @@ namespace JMS.Service.ServiceContracts
         IEnumerable<ContributerListModel> Contributers(long submissionId, long? userID);
         Contributor GetContributor(long contributerId, long? userID);
         void EditContributer(EditContributerModel model, long? userId);
-        void DeleteContributor(long contributerId, long? userID);
+        void DeleteContributor(Contributor contributor);
         void MovetoFinish(long submissionId, long userId);
-        void EditorComment(EditorCommentModel model, long? userID);
+        void EditorComment(Submission submission, EditorCommentModel model, long userID, string path = null);
         SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model);
         EICSubmissionGridModel JournalSubmission(string journalPath, EditorSubmissionGridSearchModel model, long? assignerId = null);
 
@@ -37,8 +37,11 @@ namespace JMS.Service.ServiceContracts
         void RemoveSubmission(long submissionId, long userId);
         void RemoveSubmission(long submissionId, string path);
         void MoveToReview(long submissionId, string journalPath = null);
-        void RejectSubmission(long submissionID, string journalPath);
+        void RejectSubmission(RejectSubmission rejectSubmission, string journalPath);
         RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null);
         AuthorSubmissionViewModel GetAuthorSubmissionViewModel(long submissionId, long? userID = null, string journalPath = null);
+
+        void SaveSubmissionHistory(SubmissionHistory history);
+        IEnumerable<ActivityLog> GetActivityLogs(long submissionId, long tenantID);
     }
 }

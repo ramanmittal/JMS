@@ -5,4 +5,5 @@ public class SubmissionFileListModel{
     public string FileName { get; set; }
     public string UploadDate { get; set; }
     public string ArticalComponent { get; set; }
+    public string FileId { get; set; }
 }

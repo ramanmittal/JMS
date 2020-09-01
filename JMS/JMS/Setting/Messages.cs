@@ -24,6 +24,7 @@ namespace JMS.Setting
         public const string NewPasswordValidationMessage = "The New Password Field must have at least 6 characters, 1 digit, 1 lowercase letter, 1 uppercase letter.";
         public const string SuccessPhoneVerificationMessage = "Your Phone Number has been verified successfully.";
         public const string success = "success";
+        public const string fail = "fail";
         public const string OTPSendMessage = "OTP has been send successfully.";
     }
 }

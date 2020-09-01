@@ -112,11 +112,16 @@ namespace JMS.Service.Services
             }
 
         }
-
         public void RemoveReviewRequest(long requestId,string journalpath)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             context.ReviewRequest.Where(x => x.ID == requestId && x.Submission.User.Tenant.JournalPath == journalpath).Delete();
+        }
+
+        public ReviewRequest GetReviewRequest(long requestId, string journalpath)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            return context.ReviewRequest.FirstOrDefault(x => x.ID == requestId && x.Submission.User.Tenant.JournalPath == journalpath);
         }
     }
 }

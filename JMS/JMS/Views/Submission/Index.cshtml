@@ -1,5 +1,7 @@
 ﻿@model JMS.ViewModels.Submissions.AuthorSubmissionViewModel
-
+@{ 
+    ViewBag.Title = "Submission Details";
+}
     <div>
         <div class="row">
             <div class="col-md-12">
@@ -9,7 +11,7 @@
         </div>
         <br />
         <dl class="row">
-            @Html.AntiForgeryToken()
+
             <dt class="col-sm-2">
                 @Html.DisplayNameFor(model => model.Prefix)
             </dt>
@@ -63,6 +65,16 @@
             <dd class="col-sm-10">
                 @Html.DisplayFor(model => model.SubmissionStatus)
             </dd>
+            @if (Model.SubmissionStatus == JMS.Entity.Data.SubmissionStatus.Rejected.ToString())
+            {
+                <dt class="col-sm-2">
+                    @Html.DisplayNameFor(model => model.DeletedComments)
+                </dt>
+                <dd class="col-sm-10">
+                    @Html.Raw(Model.DeletedComments)
+                </dd>
+            }
+
         </dl>
         @if (Model.Files != null && Model.Files.Any())
         {

@@ -1,4 +1,5 @@
 ﻿using JMS.Entity.Data;
+using JMS.Entity;
 using JMS.Service.ServiceContracts;
 using JMS.ViewModels.Submissions;
 using System;
@@ -7,7 +8,6 @@ using System.Text;
 using Microsoft.Extensions.DependencyInjection;
 using JMS.Entity.Entities;
 using System.Linq;
-using JMS.Entity.Migrations;
 using SubmisssionFile = JMS.Entity.Entities.SubmisssionFile;
 using Contributor = JMS.Entity.Entities.Contributor;
 using JMS.ViewModels.Users;
@@ -156,12 +156,11 @@ namespace JMS.Service.Services
             context.SaveChanges();
         }
 
-        public void RemoveFile(long submissionFileId, long userId)
+        public void RemoveFile(SubmisssionFile file, long userId)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var file = context.SubmisssionFile.First(x => x.Submission.UserID == userId && x.Id == submissionFileId);
-            var submission = context.Submission.First(x => x.Id == file.SubmissionId);
-            submission.UpdatedDate = DateTime.UtcNow;
+            var submission = context.Submission.Where(x => x.Id == file.SubmissionId);
+            submission.Update(x => new Submission { UpdatedDate = DateTime.UtcNow });
             context.SubmisssionFile.Remove(file);
             context.SaveChanges();
         }
@@ -270,37 +269,25 @@ namespace JMS.Service.Services
             }
             return contributers.FirstOrDefault();
         }
-        public void DeleteContributor(long contributerId, long? userID)
+        public void DeleteContributor(Contributor contributor)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var contributers = context.Contributors.Where(x => x.Id == contributerId);
-            if (userID.HasValue)
-            {
-                contributers = contributers.Where(x => x.Submission.UserID == userID.Value);
-            }
-            var contributer = contributers.FirstOrDefault();
-            context.Submission.First(x => x.Id == contributer.SubmissionId).UpdatedDate = DateTime.UtcNow;
-            context.Contributors.Remove(contributer);
+            context.Submission.First(x => x.Id == contributor.SubmissionId).UpdatedDate = DateTime.UtcNow;
+            context.Contributors.Remove(contributor);
             context.SaveChanges();
         }
 
-        public void EditorComment(EditorCommentModel model, long? userID)
+        public void EditorComment(Submission submission, EditorCommentModel model, long userID, string path = null)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var submissions = context.Submission.Where(x => x.Id == model.Id);
-            if (userID.HasValue)
-            {
-                submissions = submissions.Where(x => x.UserID == userID.Value);
-            }
-            var submission = submissions.FirstOrDefault();
             submission.EditorComment = model.Comment;
             var previoursStatus = submission.SubmissionStatus;
             if (model.IsFinished == true)
             {
                 submission.SubmissionStatus = SubmissionStatus.Submission;
-            }            
+            }
             context.SaveChanges();
-            
+
         }
 
         public SubmissionGridModel GetSubmissions(long userID, SubmissionGridSearchModel model)
@@ -477,20 +464,22 @@ namespace JMS.Service.Services
             {
                 Abstract = submission.Abstract,
                 Comments = submission.EditorComment,
+                DeletedComments=submission.RejectComment,
                 SubmissionId = submission.Id,
                 Keywords = submission.Keywords,
                 Prefix = submission.Prefix,
                 SubmissionStatus = submission.SubmissionStatus.ToString(),
                 SubTitle = submission.Subtitle,
                 Title = submission.Title,
-                Files = context.SubmisssionFile.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.TenantArticleComponent.Text, x.FileName, x.UploadedOn, x.Id }).ToList().Select(x => new SubmissionFileListModel
+                Files = context.SubmisssionFile.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.TenantArticleComponent.Text, x.FileName, x.UploadedOn, x.Id, x.FileId }).ToList().Select(x => new SubmissionFileListModel
                 {
                     SubmissionFileID = x.Id,
                     ArticalComponent = x.Text,
                     FileName = x.FileName,
-                    UploadDate = x.UploadedOn.ToString("dd MMM yyyy")
+                    UploadDate = x.UploadedOn.ToString("dd MMM yyyy"),
+                    FileId = x.FileId
                 }).ToList(),
-                Contributers= context.Contributors.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.FirstName, x.LastName, x.Email, x.ContributerRole }).ToList().Select(x => new ContributerListModel
+                Contributers = context.Contributors.Where(x => x.SubmissionId == submission.Id).Select(x => new { x.FirstName, x.LastName, x.Email, x.ContributerRole }).ToList().Select(x => new ContributerListModel
                 {
                     FirstName = x.FirstName,
                     LastName = x.LastName,
@@ -548,11 +537,11 @@ namespace JMS.Service.Services
 
         }
 
-        public void RejectSubmission(long submissionID,string journalPath)
+        public void RejectSubmission(RejectSubmission rejectSubmission, string journalPath)
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
-            var submissions = context.Submission.Where(x => x.Id == submissionID && x.User.Tenant.JournalPath == journalPath);
-             submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Rejected });
+            var submissions = context.Submission.Where(x => x.Id == rejectSubmission.Id && x.User.Tenant.JournalPath == journalPath);
+            submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Rejected, RejectComment = rejectSubmission.RejectComment });
         }
 
         public RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null)
@@ -606,6 +595,27 @@ namespace JMS.Service.Services
                     Title = x.Title
                 })
             };
+        }
+
+        public void SaveSubmissionHistory(SubmissionHistory history)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            context.SubmissionHistory.Add(history);
+            context.SaveChanges();
+        }
+
+        public IEnumerable<ActivityLog> GetActivityLogs(long submissionId, long tenantID)
+        {
+            var context = _serviceProvider.GetService<ApplicationDbContext>();
+            var logs = context.SubmissionHistory.Where(x => x.SubmissionId == submissionId && x.TenanatID == tenantID).
+                Select(x => new { x.ActorName, x.ActorEmail, x.ActionDate, x.Action }).ToList();
+            return logs.Select(x => new ActivityLog
+            {
+                LoggedDate = x.ActionDate.ToString("dd MMM yyyy"),
+                ActorEmail = x.ActorEmail,
+                ActorName = x.ActorName,
+                Action = x.Action,
+            });
         }
     }
 }
