@@ -112,10 +112,15 @@
             "url": "@Url.Action("MoveToReview", "Submission")",
             "type": "post",
             "data": { id:"@Model.SubmissionId", __RequestVerificationToken: "@(Xsrf.GetAndStoreTokens(Context).RequestToken)"},
-            "success": function (html) {
+            "success": function (data) {
                 $(".loader").hide();
                 $("#stepcont").steps("next");
-
+                if (data.emailError) {
+                    toastr.warning("Submission has been put in review but failed to send the alert email to the author.");
+                }
+                else {
+                    toastr.success("Submission has been put in review.");
+                }
             }
         })
 

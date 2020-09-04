@@ -1,0 +1,25 @@
+﻿@model JMS.ViewModels.Submissions.SubmissionReviewEmailModel
+@{
+    Layout = null;
+}
+<html>
+<head>
+    <style type="text/css">
+        .table {
+            width: 100%
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        td {
+            vertical-align: top
+        }
+    </style>
+</head>
+<body>
+    <p>Hi, @($"{Model.FirstName} {Model.LastName}")</p>
+    <p>Your submission has been put in review.</p>
+</body>
+</html>
