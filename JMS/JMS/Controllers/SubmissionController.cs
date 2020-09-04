@@ -523,19 +523,56 @@ namespace JMS.Controllers
         [HttpPost]
         [Authorize(Roles = RoleName.EditorRoles)]
         [ValidateAntiForgeryToken]
-        public IActionResult MoveToReview(long id)
+        public async Task<IActionResult> MoveToReview(long id)
         {
             HttpContext.RequestServices.GetService<ISubmissionService>().MoveToReview(id, TenantID);
+            try
+            {
+                await SubmissionReviewNotificationEmail(id);
+            }
+            catch (Exception ex)
+            {
+                HttpContext.RiseError(ex);
+                return Ok(new { EmailError = true });
+            }
+            return Ok();
+        }
+
+        public async Task<IActionResult> SubmissionReviewNotificationEmail(long submissionId)
+        {
+            var submission = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmission(submissionId, journalPath: TenantID);
+            var userID = submission.UserID;
+            var user = HttpContext.RequestServices.GetService<IUserService>().GetUser(userID);
+            var emailBody = await HttpContext.RequestServices.GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/Submission/SubmissionReviewNotificationEmail.cshtml", new SubmissionReviewEmailModel
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName
+            });
+            var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], user.Email, _configuration[JMSSetting.SubmissionReviewSubject], emailBody) { IsBodyHtml = true };
+
+            HttpContext.RequestServices.GetService<IEmailSender>().SendEmail(mailMessage);
             return Ok();
         }
 
         [HttpPost]
         [Authorize(Roles = RoleName.EditorRoles)]
         [ValidateAntiForgeryToken]
-        public IActionResult RejectSubmission(RejectSubmission rejectSubmission)
+        public async Task<IActionResult> RejectSubmission(RejectSubmission rejectSubmission)
         {
             HttpContext.RequestServices.GetService<ISubmissionService>().RejectSubmission(rejectSubmission, TenantID);
-            return Ok();
+            try
+            {
+                await SubmissionRejectionEmail(rejectSubmission.Id);
+                AddSuccessMessage("Submission has been rejected.");
+                return Ok();
+            }
+            catch (Exception ex)
+            {
+                HttpContext.RiseError(ex);
+                AddFailMessage("Submission has been rejected but failed to send confirmation email to author.");
+                return Ok();
+            }
+
         }
         [HttpGet]
         [Authorize(Roles = RoleName.EditorRoles)]
@@ -571,6 +608,22 @@ namespace JMS.Controllers
                 mailMessage.Attachments.Add(new Attachment(new MemoryStream(fileService.GetFileBytes(file.FileId)), file.FileName));
             }
             _emailSender.SendEmail(mailMessage);
+            return Ok();
+        }
+        [HttpGet]
+        public async Task<IActionResult> SubmissionRejectionEmail(long submissionid)
+        {
+            var submission = HttpContext.RequestServices.GetService<ISubmissionService>().GetSubmission(submissionid, journalPath: TenantID);
+            var user = HttpContext.RequestServices.GetService<IUserService>().GetUser(submission.UserID);
+            var emailBody = await HttpContext.RequestServices.GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/Submission/SubmissionRejectionEmail.cshtml", new SubmissionRejectionEmailModel
+            {
+                FirstName = user.FirstName,
+                LastName = user.LastName,
+                RejectionMessage = submission.RejectComment,
+            });
+            var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], user.Email, _configuration[JMSSetting.SubmissionRejectSubject], emailBody) { IsBodyHtml = true };
+
+            HttpContext.RequestServices.GetService<IEmailSender>().SendEmail(mailMessage);
             return Ok();
         }
         [HttpGet]

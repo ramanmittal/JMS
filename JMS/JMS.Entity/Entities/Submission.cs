@@ -22,7 +22,7 @@ namespace JMS.Entity.Entities
         [Required]
         public string Keywords { get; set; }
         public int CreateStep { get; set; }
-        public ApplicationUser User { get; set; }
+        public virtual ApplicationUser User { get; set; }
         public long UserID { get; set; }
         public virtual ApplicationUser Editor { get; set; }
         public long? EditorId { get; set; }

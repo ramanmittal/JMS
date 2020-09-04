@@ -541,7 +541,7 @@ namespace JMS.Service.Services
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var submissions = context.Submission.Where(x => x.Id == rejectSubmission.Id && x.User.Tenant.JournalPath == journalPath);
-            submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Rejected, RejectComment = rejectSubmission.RejectComment });
+            submissions.Update(x => new Submission { SubmissionStatus = SubmissionStatus.Rejected, RejectComment = rejectSubmission.RejectComment, UpdatedDate = DateTime.UtcNow });
         }
 
         public RejectedSubmissionGridModel GetRejectedSubmissions(string journalPath, RejectedSubmissionGridSearchModel model, long? editerID = null)
