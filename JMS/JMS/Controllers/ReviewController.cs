@@ -64,7 +64,7 @@ namespace JMS.Controllers
                 {
                     ActionDate = DateTime.UtcNow,
                     ActorEmail = JMSUser.Email,
-                    ActorName = $"{JMSUser.FirstName} {JMSUser.FirstName}",
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}",
                     SubmissionId = model.SubmissionId,
                     TenanatID = JMSUser.TenantId.Value,
                     Action = $"{reviewer.FirstName} {reviewer.LastName} has been assigned to the Submission Review Type: {model.ReviewType.ToString()} {(model.DueDate.HasValue ? $"with due date {model.DueDate.Value.ToString("dd MMM yyyy")}." : ".")}"
@@ -86,7 +86,7 @@ namespace JMS.Controllers
             {
                 ActionDate = DateTime.UtcNow,
                 ActorEmail = JMSUser.Email,
-                ActorName = $"{JMSUser.FirstName} {JMSUser.FirstName}",
+                ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}",
                 SubmissionId = requestReview.SubmissionId,
                 TenanatID = JMSUser.TenantId.Value,
                 Action = $"Review request with reviewer {reviewer.FirstName} {reviewer.LastName} has been deleted."

@@ -608,7 +608,7 @@ namespace JMS.Service.Services
         {
             var context = _serviceProvider.GetService<ApplicationDbContext>();
             var logs = context.SubmissionHistory.Where(x => x.SubmissionId == submissionId && x.TenanatID == tenantID).
-                Select(x => new { x.ActorName, x.ActorEmail, x.ActionDate, x.Action }).ToList();
+                Select(x => new { x.ActorName, x.ActorEmail, x.ActionDate, x.Action }).OrderByDescending(x=>x.ActionDate).ToList();
             return logs.Select(x => new ActivityLog
             {
                 LoggedDate = x.ActionDate.ToString("dd MMM yyyy"),

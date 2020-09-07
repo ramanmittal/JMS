@@ -525,7 +525,24 @@ namespace JMS.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> MoveToReview(long id)
         {
-            HttpContext.RequestServices.GetService<ISubmissionService>().MoveToReview(id, TenantID);
+            var submissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
+            submissionService.MoveToReview(id, TenantID);
+            try
+            {
+                submissionService.SaveSubmissionHistory(new SubmissionHistory
+                {
+                    TenanatID = JMSUser.TenantId.GetValueOrDefault(),
+                    SubmissionId = id,
+                    Action = "Submission has been put in review.",
+                    ActionDate = DateTime.UtcNow,
+                    ActorEmail = JMSUser.Email,
+                    ActorName = $"{JMSUser.FirstName} {JMSUser.LastName}"
+                });
+            }
+            catch (Exception ex)
+            {
+                HttpContext.RiseError(ex);
+            }
             try
             {
                 await SubmissionReviewNotificationEmail(id);
