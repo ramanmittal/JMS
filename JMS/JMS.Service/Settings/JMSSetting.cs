@@ -9,6 +9,7 @@ namespace JMS.Service.Settings
         public const string SystemUserEmail = "SystemUserEmail";
         public const string DefaultTenant = "DefaultTenant";
         public const string ResetPasswordSubject = "ResetPasswordSubject";
+        public const string ConfirmEmailSubject = "ConfirmEmailSubject";
         public const string SubmissionConfirmationSubject = "SubmissionConfirmationSubject";
         public const string SubmissionRejectSubject = "SubmissionRejectSubject";
         public const string SubmissionReviewSubject = "SubmissionReviewSubject";

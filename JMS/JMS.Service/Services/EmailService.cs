@@ -25,7 +25,7 @@ namespace JMS.Service.Services
             var configuration = _serviceProvider.GetService<IConfiguration>();
             var token = await _serviceProvider.GetService<UserManager<ApplicationUser>>().GenerateEmailConfirmationTokenAsync(user);
             var emailBody = await _serviceProvider.GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/ConfirmEmail.cshtml", new ConfirmEmailModel { UserId = user.Id, Token = token });
-            _serviceProvider.GetService<IEmailSender>().SendEmail(new MailMessage(configuration[JMSSetting.SenderEmail], user.Email, configuration[JMSSetting.ResetPasswordSubject], emailBody) { IsBodyHtml = true });
+            _serviceProvider.GetService<IEmailSender>().SendEmail(new MailMessage(configuration[JMSSetting.SenderEmail], user.Email, configuration[JMSSetting.ConfirmEmailSubject], emailBody) { IsBodyHtml = true });
         }
     }
 }
