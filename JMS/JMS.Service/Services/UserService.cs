@@ -62,7 +62,7 @@ namespace JMS.Service.Services
         }
         public bool ValidateEmail(string email, long tenantId, long? userid)
         {
-            var users = _context.Users.Where(x => x.TenantId == tenantId && x.Email == email);
+            var users = _context.Users.Where(x => x.TenantId == tenantId && x.NormalizedEmail == email.ToUpper());
             if (userid.HasValue)
             {
                 users = users.Where(x => x.Id != userid.Value);
@@ -120,7 +120,7 @@ namespace JMS.Service.Services
 
         public ApplicationUser GetUserByEmail(string email, string path)
         {
-            return _context.Users.FirstOrDefault(x => x.Email == email && x.Tenant.JournalPath == path);
+            return _context.Users.FirstOrDefault(x => x.NormalizedEmail == email.ToUpper() && x.Tenant.JournalPath == path);
         }
 
         public async Task<UserGridModel> GetJournalUsers(string tenantId, UserGridSearchModel userGridSearchModel)
