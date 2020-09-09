@@ -42,6 +42,10 @@ namespace JMS.Service.Services
         {
             return _applicationDbContext.Tenants.IgnoreQueryFilters().Select(x => x.JournalPath).ToList();
         }
+        public IDictionary<string,bool?> GetTenantPathWithStatus()
+        {
+            return _applicationDbContext.Tenants.ToDictionary(x => x.JournalPath, x => x.IsDisabled);
+        }
         public IEnumerable<Tenant> GetTenants(int? pageIndex, int? pagesize)
         {
             var list = new List<Tenant>();

@@ -13,6 +13,7 @@ namespace JMS.Service.ServiceContracts
     public interface ITenantService
     {
         IEnumerable<string> GetTenantPaths();
+        IDictionary<string, bool?> GetTenantPathWithStatus();
         IEnumerable<Tenant> GetTenants(int? pageIndex, int? pagesize);
         long GetTenantsCount();
         Task CreateTenant(CreateJournalModel model, Stream stream, string journalLogo);

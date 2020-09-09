@@ -19,22 +19,29 @@ namespace JMS.Helpers
         }
         public async Task Invoke(HttpContext httpContext, ITenantService tenantService, IConfiguration configuration)
         {
-            var tenants = tenantService.GetTenantPaths().ToList();
-            tenants.Add(configuration[JMSSetting.DefaultTenant]);
+            var tenants = tenantService.GetTenantPathWithStatus();
+            tenants.Add(configuration[JMSSetting.DefaultTenant], false);
             var path = httpContext.Request.Path.Value;
             if (path != "/")
             {
                 var tenantpath = (httpContext.Request.Path.Value.Split("/", StringSplitOptions.RemoveEmptyEntries)[0]);
-                var tenant = tenants.FirstOrDefault(x => x.Equals(tenantpath, StringComparison.OrdinalIgnoreCase));
-                if (tenant == null)
+                var tenant = tenants.FirstOrDefault(x => x.Key.Equals(tenantpath, StringComparison.OrdinalIgnoreCase));
+                if (string.IsNullOrEmpty(tenant.Key))
                 {
                     httpContext.Response.StatusCode = 404;
                     await httpContext.Response.CompleteAsync();
+                    return;
                 }
                 else
                 {
-                    if (tenantpath != tenant)
-                        httpContext.Request.Path = new PathString(ReplaceFirstOccurrence(httpContext.Request.Path.Value, tenantpath, tenant));
+                    if (tenant.Value.GetValueOrDefault())
+                    {
+                        httpContext.Response.StatusCode = 503;
+                        await httpContext.Response.CompleteAsync();
+                        return;
+                    }
+                    if (tenantpath != tenant.Key)
+                        httpContext.Request.Path = new PathString(ReplaceFirstOccurrence(httpContext.Request.Path.Value, tenantpath, tenant.Key));
                     await _next(httpContext);
                 }
             }
