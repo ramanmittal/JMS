@@ -107,6 +107,7 @@ namespace JMS.Service.Services
         {
             var paths = (List<string>)GetTenantPaths();
             paths.Add(_configuration[JMSSetting.DefaultTenant]);
+            paths.Add(_configuration["elmahpath"]);
             return !paths.Contains(JournalPath, StringComparer.OrdinalIgnoreCase);
         }
         public bool ValidateTenantPath(string JournalPath, long? JournalId)
