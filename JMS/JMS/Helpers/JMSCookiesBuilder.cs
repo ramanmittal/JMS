@@ -41,5 +41,10 @@ namespace JMS.Helpers
             redirectContext.RedirectUri = $"/{redirectContext.Request.RouteValues["tenant"].ToString()}/Account/Login";
             return base.RedirectToLogin(redirectContext);
         }
+        public override Task RedirectToAccessDenied(RedirectContext<CookieAuthenticationOptions> context)
+        {
+            context.RedirectUri = $"/{context.Request.RouteValues["tenant"].ToString()}/home/index";
+            return base.RedirectToAccessDenied(context);
+        }
     }
 }
