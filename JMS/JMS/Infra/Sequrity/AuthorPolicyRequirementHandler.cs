@@ -1,4 +1,5 @@
 ﻿using JMS.Service.Enums;
+using JMS.Setting;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Authorization.Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -11,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace JMS.Infra.Sequrity
@@ -71,6 +73,10 @@ namespace JMS.Infra.Sequrity
                         await _httpContextAccessor.HttpContext.ExecuteResultAsync(
                          new RedirectToActionResult("VerifyPhone", "Account", null));
                         return;
+                    }
+                    if (!context.User.IsInRole(RoleName.AuthorizedAuthor))
+                    {
+                        ((ClaimsIdentity)context.User.Identity).AddClaim(new Claim(ClaimTypes.Role, RoleName.AuthorizedAuthor));
                     }
                     context.Succeed(requirement);
                     return;
