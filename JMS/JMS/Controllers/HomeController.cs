@@ -13,7 +13,7 @@ using JMS.Setting;
 
 namespace JMS.Controllers
 {
-    public class HomeController : Controller
+    public class HomeController : BaseController
     {
         private readonly ILogger<HomeController> _logger;
         private readonly ISystemService _systemService;
@@ -33,6 +33,10 @@ namespace JMS.Controllers
             if (!User.Identity.IsAuthenticated)
             {
                 return RedirectToAction("Login", "Account");
+            }
+            if (JMSUser.IsDisabled == true)
+            {
+                return View("Unauthorized");
             }
             else if (User.IsInRole(RoleName.SystemAdmin))
             {

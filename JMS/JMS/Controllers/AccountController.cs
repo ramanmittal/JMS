@@ -166,6 +166,10 @@ namespace JMS.Controllers
         public IActionResult ViewProfile()
         {
             var user = ((JMSPrincipal)User).ApplicationUser;
+            if (user.IsDisabled.GetValueOrDefault())
+            {
+                return Unauthorized();
+            }
             if (User.IsInRole(Role.Author.ToString()))
             {
                 return AuthorProfile(user);
@@ -182,6 +186,7 @@ namespace JMS.Controllers
                 ProfileImagePath = string.IsNullOrEmpty(user.ProfileImage) ? null : _fileService.GetFile(user.ProfileImage)
             });
         }
+        [Authorize(Roles = RoleName.Author)]
         private IActionResult AuthorProfile(ApplicationUser user)
         {
             var author = _userService.GetAuthor(user.Id);
@@ -205,8 +210,13 @@ namespace JMS.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles =RoleName.Author)]
         public IActionResult SaveAuthorProfile(AuthorProfileModel model)
         {
+            if (!JMSUser.IsDisabled.GetValueOrDefault())
+            {
+                return Unauthorized();
+            }
             if (ModelState.IsValid)
             {
                 var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -230,8 +240,13 @@ namespace JMS.Controllers
         }
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize]
         public IActionResult SaveProfile(JMS.Models.SystemAdmin.BaseProfileModel model)
         {
+            if (!JMSUser.IsDisabled.GetValueOrDefault())
+            {
+                return Unauthorized();
+            }
             if (ModelState.IsValid)
             {
                 var userId = long.Parse(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -279,7 +294,7 @@ namespace JMS.Controllers
             return View();
         }
 
-        [Authorize(Roles =RoleName.Author)]
+       
         public IActionResult VerifyEmail()
         {
             if (((JMSPrincipal)User).ApplicationUser.EmailConfirmed)

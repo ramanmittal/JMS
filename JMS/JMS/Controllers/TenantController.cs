@@ -9,7 +9,7 @@ using Microsoft.Extensions.Configuration;
 namespace JMS.Controllers
 {
     [Authorize(Roles = RoleName.SystemAdmin)]
-    public class TenantController : Controller
+    public class TenantController : BaseController
     {
         public readonly ITenantService _tenantService;
         public readonly IFileService _fileService;

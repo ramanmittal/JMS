@@ -65,52 +65,55 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-
-                <div class="collapse navbar-collapse order-3" id="navbarCollapse">
-                    <!-- Left navbar links -->
-                    <ul class="navbar-nav">
-                        @foreach (var item in layoutMenu.Where(x => x.Roles.Any(y => User.IsInRole(y)) || (!User.Identity.IsAuthenticated && !x.Roles.Any())))
-                        {
-                            var submenus = item.SubMenus.Where(x => x.Roles.Any(y => User.IsInRole(y)));
-                            @if (submenus.Any())
+                @if (!user.IsDisabled.GetValueOrDefault())
+                {
+                    <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+                        <!-- Left navbar links -->
+                        <ul class="navbar-nav">
+                            @foreach (var item in layoutMenu.Where(x => x.Roles.Any(y => User.IsInRole(y)) || (!User.Identity.IsAuthenticated && !x.Roles.Any())))
                             {
-                                <li class="nav-item dropdown">
-                                    <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">@item.Text</a>
-                                    <ul class="dropdown-menu">
-                                        @foreach (var item2 in submenus)
+                                var submenus = item.SubMenus.Where(x => x.Roles.Any(y => User.IsInRole(y)));
+                                @if (submenus.Any())
+                                {
+                                    <li class="nav-item dropdown">
+                                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">@item.Text</a>
+                                        <ul class="dropdown-menu">
+                                            @foreach (var item2 in submenus)
+                                            {
+                                                <li>
+                                                    @if (string.IsNullOrEmpty(item2.URL))
+                                                    {
+                                                        <a asp-action="@item2.Action" asp-controller="@item2.Controller" class="dropdown-item">@item2.Text</a>
+                                                    }
+                                                    else
+                                                    {
+                                                        <a href="@item2.URL" class="dropdown-item">@item2.Text</a>
+                                                    }
+                                                </li>
+                                            }
+                                        </ul>
+                                    </li>
+                                }
+                                else
+                                {
+                                    <li class="nav-item">
+                                        @if (string.IsNullOrEmpty(item.URL))
                                         {
-                                            <li>
-                                                @if (string.IsNullOrEmpty(item2.URL))
-                                                {
-                                                    <a asp-action="@item2.Action" asp-controller="@item2.Controller" class="dropdown-item">@item2.Text</a>
-                                                }
-                                                else
-                                                {
-                                                    <a href="@item2.URL" class="dropdown-item">@item2.Text</a>
-                                                }
-                                            </li>
+                                            <a asp-action="@item.Action" asp-controller="@item.Controller" class="nav-link">@item.Text</a>
                                         }
-                                    </ul>
-                                </li>
+                                        else
+                                        {
+                                            <a href="@item.URL" class="nav-link">@item.Text</a>
+                                        }
+                                    </li>
+                                }
                             }
-                            else
-                            {
-                                <li class="nav-item">
-                                    @if (string.IsNullOrEmpty(item.URL))
-                                    {
-                                        <a asp-action="@item.Action" asp-controller="@item.Controller" class="nav-link">@item.Text</a>
-                                    }
-                                    else
-                                    {
-                                        <a href="@item.URL" class="nav-link">@item.Text</a>
-                                    }
-                                </li>
-                            }
-                        }
-                    </ul>
+                        </ul>
 
 
-                </div>
+                    </div>
+                }
+
 
                 <ul class="order-1 order-md-3 navbar-nav navbar-no-expand ml-auto">
                     @if (User.Identity.IsAuthenticated)
