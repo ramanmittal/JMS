@@ -11,8 +11,6 @@
     ViewData["Title"] = "Users";
 }
 
-<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
-<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
 @section contentheader{
     <h1>Users</h1>
 }
@@ -22,8 +20,6 @@
 
 <div id="jsGrid"></div>
 @section scripts{
-    <script src="~/plugins/jsgrid/jsgrid.js"></script>
-    <script src="~/plugins/jsgrid/multiselectjsgrid.js"></script>
     <script>
         $(function () {
             $("#jsGrid").jsGrid({

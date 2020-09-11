@@ -3,14 +3,11 @@
 @{
     ViewData["Title"] = "Rejected Submissions";
 }
-<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
-<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
 @section contentheader{
     <h1>Rejected Submissions</h1>
 }
 <div id="jsGrid" style="display: none"></div>
 @section scripts{
-    <script src="~/plugins/jsgrid/jsgrid.js"></script>
     <script>
         $(function () {            
             $(".loader").show();

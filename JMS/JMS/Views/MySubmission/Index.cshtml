@@ -7,8 +7,7 @@
     items.Insert(0, new KeyValuePair<string, string>("", "All"));
 }
 
-<link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
-<link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+
 @section contentheader{
     <h1>Submissions</h1>
 }
@@ -18,7 +17,7 @@
 
 <div id="jsGrid" style="display:none"></div>
 @section scripts{
-    <script src="~/plugins/jsgrid/jsgrid.js"></script>
+    
     <script>
         $(function () {
             $(".loader").show();

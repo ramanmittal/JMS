@@ -3,7 +3,7 @@
 
 <div class="row">
 
-    <form asp-action="EditorComment" id="cmntfrm">
+    <form asp-action="EditorComment" class="w-100" id="cmntfrm">
         @Html.AntiForgeryToken()
         @Html.HiddenFor(x => x.Id)
         <div class="form-group">
@@ -30,11 +30,7 @@
                 ['font', ['bold', 'italic', 'underline', 'clear']],
                 ['fontname', ['fontname']],
                 ['color', ['color']],
-                ['para', ['ul', 'ol', 'paragraph']],
-                ['table', ['table']],
-                ['insert', ['link', 'picture', 'video']],
-                ['view', ['fullscreen', 'codeview', 'help']],
-                ['misc', ['clearAll']]
+                ['para', ['ul', 'ol', 'paragraph']]                
             ],
 
             buttons: {

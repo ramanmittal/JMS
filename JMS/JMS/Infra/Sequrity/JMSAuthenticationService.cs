@@ -5,12 +5,14 @@ using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Security.Claims;
 using System.Threading.Tasks;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Identity;
 using JMS.Entity.Entities;
 using JMS.Entity.Data;
+using JMS.Setting;
 
 namespace JMS.Infra.Sequrity
 {
@@ -44,6 +46,10 @@ namespace JMS.Infra.Sequrity
                 foreach (var role in roles)
                 {
                     identity.AddClaim(new Claim(ClaimTypes.Role, role));
+                }
+                if (roles.Contains(RoleName.Author) && user.EmailConfirmed && user.PhoneNumberConfirmed && !result.Principal.IsInRole(RoleName.AuthorizedAuthor))
+                {
+                    identity.AddClaim(new Claim(ClaimTypes.Role, RoleName.AuthorizedAuthor));
                 }
                 return AuthenticateResult.Success(new AuthenticationTicket(new JMSPrincipal(result.Principal, user), result.Ticket.AuthenticationScheme));
             }

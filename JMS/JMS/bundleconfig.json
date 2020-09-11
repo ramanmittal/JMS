@@ -1,0 +1,42 @@
+[
+  {
+    "outputFileName": "wwwroot/css/site.min.css",
+    "inputFiles": [
+      "wwwroot/css/adminlte.min.css",
+      "wwwroot/plugins/fontawesome-free/css/all.min.css",
+      "wwwroot/plugins/toastr/toastr.css",
+      "wwwroot/plugins/summernote/summernote.css",
+      "wwwroot/plugins/select2/css/select2.css",
+      "wwwroot/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css",
+      "wwwroot/plugins/icheck-bootstrap/icheck-bootstrap.min.css",
+      "wwwroot/plugins/datepicker/datepicker.min.css",
+      "wwwroot/plugins/jsgrid/jsgrid.min.css",
+      "wwwroot/plugins/jsgrid/jsgrid-theme.css",
+      "wwwroot/css/style.css"
+    ]
+    
+  },
+  {
+    "outputFileName": "wwwroot/js/site.min.js",
+    "inputFiles": [
+      "wwwroot/plugins/jquery/jquery.min.js",
+      "wwwroot/plugins/jquery-validation/jquery.validate.js",
+      "wwwroot/plugins/jquery-validation/jquery.validate.unobtrusive.min.js ",
+      "wwwroot/plugins/bootstrap/js/bootstrap.bundle.min.js",
+      "wwwroot/js/adminlte.min.js",
+      "wwwroot/plugins/jquery-mask/jquery.mask.min.js",
+      "wwwroot/plugins/toastr/toastr.min.js",
+      "wwwroot/plugins/summernote/summernote.js",
+      "wwwroot/plugins/select2/js/select2.min.js",
+      "wwwroot/plugins/datepicker/datepicker.js",
+      "wwwroot/plugins/jsgrid/jsgrid.js",
+      "wwwroot/plugins/jsgrid/multiselectjsgrid.js",
+      "wwwroot/js/site.js"
+    ],
+    "minify": {
+      "enabled": true,
+      "renameLocals": true
+    },
+    "sourceMap": false
+  }
+]

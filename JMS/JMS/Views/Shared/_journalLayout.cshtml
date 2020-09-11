@@ -31,21 +31,28 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
     <title>@(ViewBag.Title != null ? $"{title} | {ViewBag.Title}" : $"{title}")</title>
+    
+    <environment include="Development">
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="~/css/adminlte.min.css">
+        <link href="~/plugins/toastr/toastr.css" rel="stylesheet" />
+        <link href="~/plugins/summernote/summernote.css" rel="stylesheet" />
+        <!-- Google Font: Source Sans Pro -->
+        <link href="~/plugins/select2/css/select2.css" rel="stylesheet" />
+        <link href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
 
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="~/plugins/fontawesome-free/css/all.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="~/css/adminlte.min.css">
-    <link href="~/plugins/toastr/toastr.css" rel="stylesheet" />
-    <link href="~/plugins/summernote/summernote.css" rel="stylesheet" />
-    <!-- Google Font: Source Sans Pro -->
-    <link href="~/plugins/select2/css/select2.css" rel="stylesheet" />
-    <link href="~/plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css" rel="stylesheet" />
-
-    <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
-    <link href="~/css/style.css" rel="stylesheet" />
-    <link href="~/plugins/datepicker/datepicker.min.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+        <link href="~/plugins/icheck-bootstrap/icheck-bootstrap.min.css" rel="stylesheet" />
+        <link href="~/css/style.css" rel="stylesheet" />
+        <link href="~/plugins/datepicker/datepicker.min.css" rel="stylesheet" />
+        <link href="~/plugins/jsgrid/jsgrid.min.css" rel="stylesheet" />
+        <link href="~/plugins/jsgrid/jsgrid-theme.css" rel="stylesheet" />
+    </environment>
+    <environment exclude="Development">
+        <link href="~/css/site.min.css" rel="stylesheet" />
+    </environment>
+    @**@
 </head>
 <body class="hold-transition layout-top-nav">
     <div class="loader" style="display: none;">
@@ -59,7 +66,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 <a href="@Url.Action("Index","Home")" class="navbar-brand">
                     <img src="@Url.Content(logo)" alt="@title" class="brand-image img-circle elevation-3"
                          style="opacity: .8">
-                   
+
                 </a>
 
                 <button class="navbar-toggler order-1" type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
@@ -67,51 +74,51 @@ scratch. This page gets rid of all links and provides the needed markup only.
                 </button>
                 @if (!user.IsDisabled.GetValueOrDefault())
                 {
-                    <div class="collapse navbar-collapse order-3" id="navbarCollapse">
-                        <!-- Left navbar links -->
-                        <ul class="navbar-nav">
-                            @foreach (var item in layoutMenu.Where(x => x.Roles.Any(y => User.IsInRole(y)) || (!User.Identity.IsAuthenticated && !x.Roles.Any())))
+                <div class="collapse navbar-collapse order-3" id="navbarCollapse">
+                    <!-- Left navbar links -->
+                    <ul class="navbar-nav">
+                        @foreach (var item in layoutMenu.Where(x => x.Roles.Any(y => User.IsInRole(y)) || (!User.Identity.IsAuthenticated && !x.Roles.Any())))
                             {
                                 var submenus = item.SubMenus.Where(x => x.Roles.Any(y => User.IsInRole(y)));
-                                @if (submenus.Any())
+                        @if (submenus.Any())
                                 {
-                                    <li class="nav-item dropdown">
-                                        <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">@item.Text</a>
-                                        <ul class="dropdown-menu">
-                                            @foreach (var item2 in submenus)
+                        <li class="nav-item dropdown">
+                            <a href="#" data-toggle="dropdown" class="nav-link dropdown-toggle">@item.Text</a>
+                            <ul class="dropdown-menu">
+                                @foreach (var item2 in submenus)
                                             {
-                                                <li>
-                                                    @if (string.IsNullOrEmpty(item2.URL))
+                                <li>
+                                    @if (string.IsNullOrEmpty(item2.URL))
                                                     {
-                                                        <a asp-action="@item2.Action" asp-controller="@item2.Controller" class="dropdown-item">@item2.Text</a>
+                                    <a asp-action="@item2.Action" asp-controller="@item2.Controller" class="dropdown-item">@item2.Text</a>
                                                     }
                                                     else
                                                     {
-                                                        <a href="@item2.URL" class="dropdown-item">@item2.Text</a>
+                                    <a href="@item2.URL" class="dropdown-item">@item2.Text</a>
                                                     }
-                                                </li>
+                                </li>
                                             }
-                                        </ul>
-                                    </li>
+                            </ul>
+                        </li>
                                 }
                                 else
                                 {
-                                    <li class="nav-item">
-                                        @if (string.IsNullOrEmpty(item.URL))
+                        <li class="nav-item">
+                            @if (string.IsNullOrEmpty(item.URL))
                                         {
-                                            <a asp-action="@item.Action" asp-controller="@item.Controller" class="nav-link">@item.Text</a>
+                            <a asp-action="@item.Action" asp-controller="@item.Controller" class="nav-link">@item.Text</a>
                                         }
                                         else
                                         {
-                                            <a href="@item.URL" class="nav-link">@item.Text</a>
+                            <a href="@item.URL" class="nav-link">@item.Text</a>
                                         }
-                                    </li>
+                        </li>
                                 }
                             }
-                        </ul>
+                    </ul>
 
 
-                    </div>
+                </div>
                 }
 
 
@@ -119,112 +126,112 @@ scratch. This page gets rid of all links and provides the needed markup only.
                     @if (User.Identity.IsAuthenticated)
                     {
                         <!-- Messages Dropdown Menu -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link" data-toggle="dropdown" href="#">
-                                <i class="fas fa-comments"></i>
-                                <span class="badge badge-danger navbar-badge">3</span>
-                            </a>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                                <a href="#" class="dropdown-item">
-                                    <!-- Message Start -->
-                                    <div class="media">
-                                        <img src="~/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
-                                        <div class="media-body">
-                                            <h3 class="dropdown-item-title">
-                                                Brad Diesel
-                                                <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
-                                            </h3>
-                                            <p class="text-sm">Call me whenever you can...</p>
-                                            <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                        </div>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" data-toggle="dropdown" href="#">
+                            <i class="fas fa-comments"></i>
+                            <span class="badge badge-danger navbar-badge">3</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                            <a href="#" class="dropdown-item">
+                                <!-- Message Start -->
+                                <div class="media">
+                                    <img src="~/img/user1-128x128.jpg" alt="User Avatar" class="img-size-50 mr-3 img-circle">
+                                    <div class="media-body">
+                                        <h3 class="dropdown-item-title">
+                                            Brad Diesel
+                                            <span class="float-right text-sm text-danger"><i class="fas fa-star"></i></span>
+                                        </h3>
+                                        <p class="text-sm">Call me whenever you can...</p>
+                                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
                                     </div>
-                                    <!-- Message End -->
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
-                                    <!-- Message Start -->
-                                    <div class="media">
-                                        <img src="~/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                                        <div class="media-body">
-                                            <h3 class="dropdown-item-title">
-                                                John Pierce
-                                                <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
-                                            </h3>
-                                            <p class="text-sm">I got your message bro</p>
-                                            <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                        </div>
-                                    </div>
-                                    <!-- Message End -->
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
-                                    <!-- Message Start -->
-                                    <div class="media">
-                                        <img src="~/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
-                                        <div class="media-body">
-                                            <h3 class="dropdown-item-title">
-                                                Nora Silvester
-                                                <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
-                                            </h3>
-                                            <p class="text-sm">The subject goes here</p>
-                                            <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
-                                        </div>
-                                    </div>
-                                    <!-- Message End -->
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
-                            </div>
-                        </li>
-                        <!-- Notifications Dropdown Menu -->
-                        <li class="nav-item dropdown">
-                            <a class="nav-link" data-toggle="dropdown" href="#">
-                                <i class="far fa-bell"></i>
-                                <span class="badge badge-warning navbar-badge">15</span>
+                                </div>
+                                <!-- Message End -->
                             </a>
-                            <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
-                                <span class="dropdown-header">15 Notifications</span>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-envelope mr-2"></i> 4 new messages
-                                    <span class="float-right text-muted text-sm">3 mins</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-users mr-2"></i> 8 friend requests
-                                    <span class="float-right text-muted text-sm">12 hours</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item">
-                                    <i class="fas fa-file mr-2"></i> 3 new reports
-                                    <span class="float-right text-muted text-sm">2 days</span>
-                                </a>
-                                <div class="dropdown-divider"></div>
-                                <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
-                            </div>
-                        </li>
-                        <li class="nav-item dropdown">
-                            <!-- Menu Toggle Button -->
-                            <a href="#" class="nav-link" data-toggle="dropdown" aria-expanded="true">
-                                <!-- The user image in the navbar-->
-                                <img src="@userService.GetUserProfileImage(user)" class="nav-user-image">
-                                <!-- hidden-xs hides the username on small devices so only the image appears. -->
-                                <span class="hidden-xs">@($"{user.FirstName} {user.LastName}")</span>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <!-- Message Start -->
+                                <div class="media">
+                                    <img src="~/img/user8-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                                    <div class="media-body">
+                                        <h3 class="dropdown-item-title">
+                                            John Pierce
+                                            <span class="float-right text-sm text-muted"><i class="fas fa-star"></i></span>
+                                        </h3>
+                                        <p class="text-sm">I got your message bro</p>
+                                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                                    </div>
+                                </div>
+                                <!-- Message End -->
                             </a>
-                            <ul aria-labelledby="dropdownSubMenu1" id="lg-cont" class="dropdown-menu border-0 shadow">
-                                <!-- The user image in the menu -->
-                                <li><a class="nav-link" id="logout">LOG OUT</a></li>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <!-- Message Start -->
+                                <div class="media">
+                                    <img src="~/img/user3-128x128.jpg" alt="User Avatar" class="img-size-50 img-circle mr-3">
+                                    <div class="media-body">
+                                        <h3 class="dropdown-item-title">
+                                            Nora Silvester
+                                            <span class="float-right text-sm text-warning"><i class="fas fa-star"></i></span>
+                                        </h3>
+                                        <p class="text-sm">The subject goes here</p>
+                                        <p class="text-sm text-muted"><i class="far fa-clock mr-1"></i> 4 Hours Ago</p>
+                                    </div>
+                                </div>
+                                <!-- Message End -->
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item dropdown-footer">See All Messages</a>
+                        </div>
+                    </li>
+ <!-- Notifications Dropdown Menu -->
+                    <li class="nav-item dropdown">
+                        <a class="nav-link" data-toggle="dropdown" href="#">
+                            <i class="far fa-bell"></i>
+                            <span class="badge badge-warning navbar-badge">15</span>
+                        </a>
+                        <div class="dropdown-menu dropdown-menu-lg dropdown-menu-right">
+                            <span class="dropdown-header">15 Notifications</span>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-envelope mr-2"></i> 4 new messages
+                                <span class="float-right text-muted text-sm">3 mins</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-users mr-2"></i> 8 friend requests
+                                <span class="float-right text-muted text-sm">12 hours</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item">
+                                <i class="fas fa-file mr-2"></i> 3 new reports
+                                <span class="float-right text-muted text-sm">2 days</span>
+                            </a>
+                            <div class="dropdown-divider"></div>
+                            <a href="#" class="dropdown-item dropdown-footer">See All Notifications</a>
+                        </div>
+                    </li>
+                    <li class="nav-item dropdown">
+                        <!-- Menu Toggle Button -->
+                        <a href="#" class="nav-link" data-toggle="dropdown" aria-expanded="true">
+                            <!-- The user image in the navbar-->
+                            <img src="@userService.GetUserProfileImage(user)" class="nav-user-image">
+                            <!-- hidden-xs hides the username on small devices so only the image appears. -->
+                            <span class="hidden-xs">@($"{user.FirstName} {user.LastName}")</span>
+                        </a>
+                        <ul aria-labelledby="dropdownSubMenu1" id="lg-cont" class="dropdown-menu border-0 shadow">
+                            <!-- The user image in the menu -->
+                            <li><a class="nav-link" id="logout">LOG OUT</a></li>
 
-                            </ul>
-                        </li>
+                        </ul>
+                    </li>
                     }
                     else
                     {
-                        <li class="nav-item">
-                            <!-- Menu Toggle Button -->
-                            <a asp-action="Login" asp-controller="Account" class="nav-link">Login</a>
+                    <li class="nav-item">
+                        <!-- Menu Toggle Button -->
+                        <a asp-action="Login" asp-controller="Account" class="nav-link">Login</a>
 
-                        </li>
+                    </li>
                     }
                 </ul>
 
@@ -290,20 +297,29 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </div>
     <!-- ./wrapper -->
     <!-- REQUIRED SCRIPTS -->
-    <!-- jQuery -->
-    <script src="~/plugins/jquery/jquery.min.js"></script>
-    <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
-    <script src="~/plugins/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="~/js/adminlte.min.js"></script>
-    <script src="~/plugins/jquery-mask/jquery.mask.min.js"></script>
-    <script src="~/plugins/toastr/toastr.min.js"></script>
-    <script src="~/plugins/summernote/summernote.js"></script>
-    <script src="~/plugins/select2/js/select2.min.js"></script>
-    <script src="~/plugins/datepicker/datepicker.js"></script>>
-    <script src="~/js/site.js"></script>
+    <environment include="Development">
+        <!-- jQuery -->
+        <script src="~/plugins/jquery/jquery.min.js"></script>
+        <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
+        <script src="~/plugins/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
+        <!-- Bootstrap 4 -->
+        <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- AdminLTE App -->
+        <script src="~/js/adminlte.min.js"></script>
+        <script src="~/plugins/jquery-mask/jquery.mask.min.js"></script>
+        <script src="~/plugins/toastr/toastr.min.js"></script>
+        <script src="~/plugins/summernote/summernote.js"></script>
+        <script src="~/plugins/select2/js/select2.min.js"></script>
+        <script src="~/plugins/datepicker/datepicker.js"></script>>
+        <script src="~/plugins/jsgrid/jsgrid.js"></script>
+        <script src="~/plugins/jsgrid/multiselectjsgrid.js"></script>
+        <script src="~/js/site.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/site.min.js"></script>
+    </environment>
+
+    
     <script>
     $('#logout').on('click', function (event) {
     $("lg-cont").addClass('show');
