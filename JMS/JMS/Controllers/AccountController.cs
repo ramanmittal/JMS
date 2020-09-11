@@ -213,7 +213,7 @@ namespace JMS.Controllers
         [Authorize(Roles =RoleName.Author)]
         public IActionResult SaveAuthorProfile(AuthorProfileModel model)
         {
-            if (!JMSUser.IsDisabled.GetValueOrDefault())
+            if (JMSUser.IsDisabled.GetValueOrDefault())
             {
                 return Unauthorized();
             }
@@ -243,7 +243,7 @@ namespace JMS.Controllers
         [Authorize]
         public IActionResult SaveProfile(JMS.Models.SystemAdmin.BaseProfileModel model)
         {
-            if (!JMSUser.IsDisabled.GetValueOrDefault())
+            if (JMSUser.IsDisabled.GetValueOrDefault())
             {
                 return Unauthorized();
             }
