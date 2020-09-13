@@ -11,6 +11,7 @@ namespace JMS.Service.Settings
         public const string ResetPasswordSubject = "ResetPasswordSubject";
         public const string ConfirmEmailSubject = "ConfirmEmailSubject";
         public const string SubmissionConfirmationSubject = "SubmissionConfirmationSubject";
+        public const string AccountConfirmationEmailSubject = "AccountConfirmationEmailSubject";
         public const string SubmissionRejectSubject = "SubmissionRejectSubject";
         public const string SubmissionReviewSubject = "SubmissionReviewSubject";
         public const string SenderEmail = "SenderEmail";

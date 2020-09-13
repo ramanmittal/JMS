@@ -1,6 +1,6 @@
 [
   {
-    "outputFileName": "wwwroot/css/site.min.css",
+    "outputFileName": "wwwroot/css/journal.min.css",
     "inputFiles": [
       "wwwroot/css/adminlte.min.css",
       "wwwroot/plugins/fontawesome-free/css/all.min.css",
@@ -14,10 +14,10 @@
       "wwwroot/plugins/jsgrid/jsgrid-theme.css",
       "wwwroot/css/style.css"
     ]
-    
+
   },
   {
-    "outputFileName": "wwwroot/js/site.min.js",
+    "outputFileName": "wwwroot/js/journal.min.js",
     "inputFiles": [
       "wwwroot/plugins/jquery/jquery.min.js",
       "wwwroot/plugins/jquery-validation/jquery.validate.js",
@@ -38,5 +38,27 @@
       "renameLocals": true
     },
     "sourceMap": false
+  },
+  {
+    "outputFileName": "wwwroot/css/journallogin.min.css",
+    "inputFiles": [
+      "wwwroot/css/adminlte.css",
+      "wwwroot/plugins/fontawesome-free/css/all.min.css",
+      "wwwroot/plugins/toastr/toastr.css",
+      "wwwroot/css/style.css"
+    ]
+  },
+  {
+    "outputFileName": "wwwroot/js/journallogin.min.js",
+    "inputFiles": [
+      "wwwroot/plugins/jquery/jquery.min.js",
+      "wwwroot/plugins/jquery-validation/jquery.validate.js",
+      "wwwroot/plugins/jquery-validation/jquery.validate.unobtrusive.min.js",
+      "wwwroot/plugins/bootstrap/js/bootstrap.bundle.min.js",
+      "wwwroot/js/adminlte.min.js",
+      "wwwroot/plugins/jquery-mask/jquery.mask.min.js",
+      "wwwroot/plugins/toastr/toastr.min.js",
+      "wwwroot/js/site.js"
+    ]
   }
 ]

@@ -20,15 +20,20 @@ scratch. This page gets rid of all links and provides the needed markup only.
     <meta http-equiv="x-ua-compatible" content="ie=edge">
 
     <title>@(ViewBag.Title != null ? $"{title} | {ViewBag.Title}" : $"{title}")</title>
-
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
-    <!-- Theme style -->
-    <link rel="stylesheet" href="~/css/adminlte.min.css">
-    <link href="~/plugins/toastr/toastr.css" rel="stylesheet" />
-    <!-- Google Font: Source Sans Pro -->
-    <link href="~/css/style.css" rel="stylesheet" />
-    <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    
+    <environment include="Development">
+        <!-- Font Awesome Icons -->
+        <link rel="stylesheet" href="../../plugins/fontawesome-free/css/all.min.css">
+        <!-- Theme style -->
+        <link rel="stylesheet" href="~/css/adminlte.min.css">
+        <link href="~/plugins/toastr/toastr.css" rel="stylesheet" />
+        <!-- Google Font: Source Sans Pro -->
+        <link href="~/css/style.css" rel="stylesheet" />
+        <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+    </environment>
+    <environment exclude="Development">
+        <link href="~/css/journallogin.min.css" rel="stylesheet" asp-append-version="true" />
+    </environment>
 </head>
 <body class="hold-transition layout-top-nav">
     <div class="loader" style="display: none;">
@@ -142,17 +147,22 @@ scratch. This page gets rid of all links and provides the needed markup only.
     </div>
     <!-- ./wrapper -->
     <!-- REQUIRED SCRIPTS -->
-    <!-- jQuery -->
-    <script src="~/plugins/jquery/jquery.min.js"></script>
-    <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
-    <script src="~/plugins/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
-    <!-- Bootstrap 4 -->
-    <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
-    <!-- AdminLTE App -->
-    <script src="~/js/adminlte.min.js"></script>
-    <script src="~/plugins/jquery-mask/jquery.mask.min.js"></script>
-    <script src="~/plugins/toastr/toastr.min.js"></script>
-    <script src="~/js/site.js"></script>
+    <environment include="Development">
+        <!-- jQuery -->
+        <script src="~/plugins/jquery/jquery.min.js"></script>
+        <script src="~/plugins/jquery-validation/jquery.validate.js"></script>
+        <script src="~/plugins/jquery-validation/jquery.validate.unobtrusive.min.js"></script>
+        <!-- Bootstrap 4 -->
+        <script src="~/plugins/bootstrap/js/bootstrap.bundle.min.js"></script>
+        <!-- AdminLTE App -->
+        <script src="~/js/adminlte.min.js"></script>
+        <script src="~/plugins/jquery-mask/jquery.mask.min.js"></script>
+        <script src="~/plugins/toastr/toastr.min.js"></script>
+        <script src="~/js/site.js"></script>
+    </environment>
+    <environment exclude="Development">
+        <script src="~/js/journallogin.min.js" asp-append-version="true"></script>
+    </environment>    
     <script>
         $('.phonenumber').mask('(000) 000-0000')
         @if (TempData.ContainsKey("success"))

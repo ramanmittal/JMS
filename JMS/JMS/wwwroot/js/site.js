@@ -6,6 +6,7 @@ $('body').on('click', function (e) {
         && $('.open').has(e.target).length === 0
     ) {
         $('li.dropdown.mega-dropdown').removeClass('open');
+        ;
     }
 });
 $('.phonenumber').mask('(000) 000-0000')
@@ -50,7 +51,11 @@ for (var i = 0; i < summernotes.length; i++) {
 
     });
 }
-$('.datepicker').datepicker();
+var datepickers = $('.datepicker');
+for (var i = 0; i < datepickers.length; i++) {
+    $(datepickers[i]).datepicker();
+}
+
 function ValidateDate(text) {    
     var dtRegex = new RegExp("^([0]?[1-9]|[1-2]\\d|3[0-1]) (JAN|FEB|MAR|APR|MAY|JUN|JULY|AUG|SEP|OCT|NOV|DEC) [1-2]\\d{3}$", 'i');
     return dtRegex.test(text);

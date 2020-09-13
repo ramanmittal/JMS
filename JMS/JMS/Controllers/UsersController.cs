@@ -15,6 +15,10 @@ using Microsoft.AspNetCore.Mvc.ApplicationModels;
 using JMS.Entity.Entities;
 using JMS.Service.Enums;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using JMS.Models.EmailModels;
+using System.Net.Mail;
+using JMS.Service.Settings;
+using ElmahCore;
 
 namespace JMS.Controllers
 {
@@ -48,6 +52,23 @@ namespace JMS.Controllers
                 var userService = HttpContext.RequestServices.GetService<IUserService>();
                 var mapper = HttpContext.RequestServices.GetService<IMapper>();
                 await userService.CreateUser(TenantID, mapper.Map<Models.Users.CreateUserViewModel, ViewModels.Users.CreateUserViewModel>(createUserViewModel));
+                var emailModel = new AddUserEmailNotificationModel
+                {
+                    FirstName = createUserViewModel.FirstName,
+                    LastName = createUserViewModel.LastName,
+                    JournalName = GetService<ITenantService>().GetTenant(JMSUser.TenantId.Value).JournalName,
+                    JournalPath = TenantID,
+                    RoleNames = createUserViewModel.Roles.Select(x => ((Role)x).ToString()).ToList()
+                };
+                try
+                {
+                    await SendAddUserEmail(emailModel, createUserViewModel.Email);
+                }
+                catch (System.Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                    AddFailMessage("User has been Added  but failed to send confirmation email to user.");
+                }
                 return RedirectToAction("Index");
             }
             return View();
@@ -100,6 +121,13 @@ namespace JMS.Controllers
             var userService = HttpContext.RequestServices.GetService<IUserService>();
             await userService.DeleteUser(TenantID, Id);
             return RedirectToAction("Index");
+        }
+
+        private async Task SendAddUserEmail(AddUserEmailNotificationModel emailModel, string email)
+        {
+            var emailBody = await GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/AddUserNotification.cshtml", emailModel);
+            var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], email, _configuration[JMSSetting.AccountConfirmationEmailSubject], emailBody) { IsBodyHtml = true };
+            GetService<IEmailSender>().SendEmail(mailMessage);
         }
     }
 }

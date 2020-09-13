@@ -7,6 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using System.Linq;
 using static JMS.Models.Journals.EditJournalModel;
+using JMS.Models.EmailModels;
+using System.Collections.Generic;
+using System.Net.Mail;
+using JMS.Service.Settings;
+using ElmahCore;
 
 namespace JMS.Controllers
 {
@@ -49,6 +54,23 @@ namespace JMS.Controllers
                     Email = model.Email,
                     JournalTitle = model.JournalTitle
                 }, model.Logo.OpenReadStream(), model.Logo.FileName);
+                var emailModel = new AddUserEmailNotificationModel
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    JournalName = model.JournalName,
+                    JournalPath = model.JournalPath,
+                    RoleNames = new List<string> { RoleName.Admin }
+                };
+                try
+                {
+                    await SendAdminEmail(emailModel,model.Email);
+                }
+                catch (System.Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                    AddFailMessage("Journal has been Created  but failed to send confirmation email to Admin.");
+                }
                 return RedirectToAction("Index");
             }
             return View();
@@ -153,6 +175,24 @@ namespace JMS.Controllers
                     Email = model.Email,
                     TenantId=model.TenantId
                 });
+                var journal = _tenantService.GetTenant(model.TenantId);
+                var emailModel = new AddUserEmailNotificationModel
+                {
+                    FirstName = model.FirstName,
+                    LastName = model.LastName,
+                    JournalName = journal.JournalName,
+                    JournalPath = journal.JournalPath,
+                    RoleNames = new List<string> { RoleName.Admin }
+                };
+                try
+                {
+                    await SendAdminEmail(emailModel, model.Email);
+                }
+                catch (System.Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                    AddFailMessage("Journal has been Created  but failed to send confirmation email to Admin.");
+                }
                 return Json(new { Success = true });
             }
             return Json(new { Success = false });
@@ -164,6 +204,13 @@ namespace JMS.Controllers
         {
             await _tenantService.DeleteTenantAdmin(id);
             return Json(new { Success = true });
+        }
+
+        private async Task SendAdminEmail(AddUserEmailNotificationModel emailModel,string email)
+        {
+            var emailBody = await GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/AddUserNotification.cshtml", emailModel);
+            var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], email, _configuration[JMSSetting.AccountConfirmationEmailSubject], emailBody) { IsBodyHtml = true };
+            GetService<IEmailSender>().SendEmail(mailMessage);
         }
     }
 }

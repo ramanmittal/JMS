@@ -95,6 +95,7 @@
                     },
                     {
                         name: "Title", searchField: "SrchText", sorting: false, type: "text", itemTemplate: function (value, item) {
+                            return `<p>${item.prefix || ""}</p><p>${item.title || ""}</p><p>${item.subTitle || ""}</p>`;
                             return "<span>" + (item.prefix || "") + " " + (item.title || "") + ": " + (item.subTitle || "") + "</span>"
                         }
                     },
