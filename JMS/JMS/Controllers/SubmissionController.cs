@@ -11,6 +11,7 @@ using ElmahCore;
 using JMS.Entity.Data;
 using JMS.Entity.Entities;
 using JMS.Infra.Sequrity;
+using JMS.Models.EmailModels;
 using JMS.Models.Submissions;
 using JMS.Service.Enums;
 using JMS.Service.ServiceContracts;
@@ -432,6 +433,25 @@ namespace JMS.Controllers
                             HttpContext.RiseError(ex);
                             AddFailMessage("Submission has been submitted  but failed to send confirmation email.");
                         }
+                       
+                        try
+                        {
+                            var eics = GetService<IUserService>().GetTenantUserByRole(JMSUser.TenantId.Value, RoleName.EIC);
+                            if (eics.Any())
+                            {
+                                var emailBody = await GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/AddSubmissionNotificationEmail.cshtml", new AddSubmisssionNotificationEmailModel());
+                                var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], eics.First().Email, _configuration[JMSSetting.NewSubmissionEmailSubject], emailBody) { IsBodyHtml = true };
+                                foreach (var eic in eics.Skip(1))
+                                {
+                                    mailMessage.To.Add(eic.Email);
+                                }
+                                GetService<IEmailSender>().SendEmail(mailMessage);
+                            }                            
+                        }
+                        catch (Exception ex)
+                        {
+                            HttpContext.RiseError(ex);
+                        }
                     }
                 }
                 return Ok();
@@ -500,7 +520,7 @@ namespace JMS.Controllers
         [HttpPost]
         [Authorize(Roles = RoleName.EIC)]
         [ValidateAntiForgeryToken]
-        public IActionResult AssignEditor(long submissionId,long? editorId)
+        public async Task<IActionResult> AssignEditor(long submissionId,long? editorId)
         {
             var sumissionService = HttpContext.RequestServices.GetService<ISubmissionService>();
             sumissionService.AssignEditor(submissionId, editorId, TenantID);
@@ -508,6 +528,24 @@ namespace JMS.Controllers
             if (editorId.HasValue)
             {
                 editor = HttpContext.RequestServices.GetService<IUserService>().GetUser(editorId.Value);
+            }
+            if (editorId != JMSUser.Id)
+            {
+                var notificationModel = new EditorAssignmentNotificationEmailModel
+                {
+                    FirstName = editor.FirstName,
+                    LastName = editor.LastName
+                };
+                try
+                {
+                    var emailBody = await GetService<IRazorViewToStringRenderer>().RenderViewToStringAsync(@"/Views/EmailTemplates/EditorAssignmentNotificationEmail.cshtml", notificationModel);
+                    var mailMessage = new MailMessage(_configuration[JMSSetting.SenderEmail], editor.Email, _configuration[JMSSetting.AssignEditorEmailSubject], emailBody) { IsBodyHtml = true };
+                    GetService<IEmailSender>().SendEmail(mailMessage);
+                }
+                catch (Exception ex)
+                {
+                    HttpContext.RiseError(ex);
+                }
             }
             sumissionService.SaveSubmissionHistory(new SubmissionHistory
             {
@@ -624,6 +662,10 @@ namespace JMS.Controllers
             {
                 mailMessage.Attachments.Add(new Attachment(new MemoryStream(fileService.GetFileBytes(file.FileId)), file.FileName));
             }
+            model.Contributers.ForEach(x =>
+            {
+                mailMessage.CC.Add(x.Email);
+            });
             _emailSender.SendEmail(mailMessage);
             return Ok();
         }

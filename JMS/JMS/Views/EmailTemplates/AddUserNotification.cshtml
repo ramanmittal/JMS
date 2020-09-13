@@ -7,9 +7,7 @@ Hi @Model.FirstName @Model.LastName,
     <p>
         Your account has been created in <a href='@($"{Context.Request.Scheme}://{Context.Request.Host.Value}/{Model.JournalPath}")'>@Model.JournalName</a>. You have been assigned following roles.
     </p>
-    @*<p>
-        Your account has been created in @Html.ActionLink(Model.JournalName, "Index", "Home", Context.Request.Scheme, Context.Request.Host.Value, "", new { tenant = Model.JournalPath }, new { }). You have been assigned following roles.
-    </p>*@
+   
 <ul>
     @for (int i = 0; i < Model.RoleNames.Count; i++)
     {
